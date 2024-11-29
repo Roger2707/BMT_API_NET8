@@ -127,8 +127,8 @@ namespace Store_API.Services
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             token = token.Replace(" ", "+");
             token = CF.Base64ForUrlEncode(token);
-            string linkResetPassword = $"http://localhost:5218/Api/User/ResetPassword?Email={model.Email}&Token={token}";
-            await _emailSenderService.SendEmailAsync(model.Email, "Reset Password Test ASP .NET CORE 8", linkResetPassword);     
+            string linkResetPassword = $"http://localhost:3000/get-reset-password?email={model.Email}&token={token}";
+            await _emailSenderService.SendEmailAsync(model.Email, "Reset Password ROGER BMT APP (NET 8)", linkResetPassword);     
         }
     }
 }

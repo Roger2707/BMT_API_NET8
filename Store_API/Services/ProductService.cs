@@ -150,7 +150,6 @@ namespace Store_API.Services
         #endregion
 
         #region Get Data
-
         public async Task<List<ProductDTO>> GetAll(ProductParams productParams)
         {
             string query = @" 
@@ -371,7 +370,6 @@ namespace Store_API.Services
         }
 
         #endregion
-
 
         #region Helpers
 

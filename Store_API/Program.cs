@@ -133,14 +133,14 @@ builder.Services
                 .GetBytes(builder.Configuration["JWTSettings:TokenKey"]))
         };
     })
-    .AddCookie(options =>
-    {
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Lax;
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-        options.SlidingExpiration = true;
-    })
+    //.AddCookie(options =>
+    //{
+    //    options.Cookie.HttpOnly = true;
+    //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    //    options.Cookie.SameSite = SameSiteMode.Lax;
+    //    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
+    //    options.SlidingExpiration = true;
+    //})
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["OAuth:ClientID"];

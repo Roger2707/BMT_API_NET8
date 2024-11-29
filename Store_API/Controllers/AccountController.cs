@@ -54,7 +54,6 @@ namespace Store_API.Controllers
         [HttpGet("external-login-callback")]
         public async Task<IActionResult> ExternalLoginCallback()
         {
-            // Test Git
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
                 return BadRequest(new ProblemDetails { Title = "Error loading external login information." });
@@ -178,6 +177,7 @@ namespace Store_API.Controllers
         public async Task<IActionResult> LogOut()
         {
             await _signInManager.SignOutAsync();
+            HttpContext.Response.Cookies.Delete("user");
             return Ok("Log Out Successfully !");
         }
 
@@ -213,7 +213,7 @@ namespace Store_API.Controllers
         {
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            if (user == null) return NotFound();
+            if (user == null) return BadRequest(new ProblemDetails { Title = "Email is UnValid !" });
 
             string error = "";
             try
@@ -226,7 +226,7 @@ namespace Store_API.Controllers
             }
 
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return Ok();
+            return Ok(new {message = "Check your Email to get link reset password !"});
         }
 
         [HttpPost("reset-password")]
@@ -256,7 +256,10 @@ namespace Store_API.Controllers
         [HttpGet("current-user")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            string userName = User.Identity.Name;
+            if (string.IsNullOrEmpty(userName)) return Ok();
+
+            var user = await _userManager.FindByNameAsync(userName);
 
             var respone = new LoginResponse
             {
