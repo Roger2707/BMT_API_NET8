@@ -54,6 +54,7 @@ namespace Store_API.Controllers
         [HttpGet("external-login-callback")]
         public async Task<IActionResult> ExternalLoginCallback()
         {
+            // Test Git
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
                 return BadRequest(new ProblemDetails { Title = "Error loading external login information." });
