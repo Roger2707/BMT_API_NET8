@@ -1,0 +1,19 @@
+﻿using Store_API.DTOs;
+using Store_API.DTOs.Products;
+using Store_API.Models;
+
+namespace Store_API.Repositories
+{
+    public interface IProductRepository
+    {
+        public Task<List<ProductDTO>> GetAll(ProductParams productParams);
+        public Task<ProductDTO> GetById(int id);
+        public Task<int> GetTotalRecord();
+        public Task<List<ProductDTO>> GetSourceProducts(ProductParams productParams);
+        public Task<Pagination<ProductDTO>> GetPagination(List<ProductDTO> products, int curentPage);
+        public Task Create(ProductUpsertDTO productCreateDTO);
+        public Task<int> InsertCSV(ProductCSV productCSV);
+        public Task<Product> Update(int id, ProductUpsertDTO productCreateDTO);
+        public Task<int> ChangeStatus(int id);
+    }
+}
