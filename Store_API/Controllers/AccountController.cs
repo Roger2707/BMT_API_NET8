@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Store_API.Data;
@@ -10,7 +11,10 @@ using Store_API.Helpers;
 using Store_API.Models;
 using Store_API.Repositories;
 using Store_API.Services;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net;
 using System.Security.Claims;
+using System.Text;
 
 namespace Store_API.Controllers
 {
@@ -19,18 +23,18 @@ namespace Store_API.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly StoreContext _db;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
         private readonly ITokenRepository _tokenService;
+        private readonly EmailSenderService _emailSenderService;
 
-        public AccountController(IUnitOfWork unitOfWork, StoreContext db, UserManager<User> userManager, SignInManager<User> signInManager, ITokenRepository tokenService)
+        public AccountController(IUnitOfWork unitOfWork, UserManager<User> userManager, SignInManager<User> signInManager, ITokenRepository tokenService, EmailSenderService emailSenderService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
-            _db = db;
             _unitOfWork = unitOfWork;
             _tokenService = tokenService;
+            _emailSenderService = emailSenderService;
         }
 
         [HttpGet("get-all")]
@@ -215,42 +219,51 @@ namespace Store_API.Controllers
 
             if (user == null) return BadRequest(new ProblemDetails { Title = "Email is UnValid !" });
 
-            string error = "";
-            try
-            {
-                await _unitOfWork.Account.HandleForgetPassword(model, user);
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-            }
+            // Generate Token (Encode in query string)
+            var token = CF.Base64ForUrlEncode(await _userManager.GeneratePasswordResetTokenAsync(user));
 
-            if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return Ok(new {message = "Check your Email to get link reset password !"});
+            string linkResetPassword = $"http://localhost:3000/get-reset-password?email={model.Email}&token={token}";
+            string htmlContent = $"This is your link to reset password :" + Environment.NewLine
+               + $"Link :" + linkResetPassword;
+
+            // Send Message to email
+            await _emailSenderService.SendEmailAsync(model.Email, "Reset Password ROGER BMT APP (NET 8)", htmlContent);
+
+            return Ok(new {message = $"Link reset password is sent to your email: {model.Email}."});
         }
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPasswordDTO model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user == null) return NotFound();
-            if (string.Compare(model.NewPassword, model.ConfirmNewPassword) != 0)
-                return BadRequest(new ProblemDetails { Title = "Password and ConfirmPassword is not match !" });
-
-            model.Token = CF.Base64ForUrlDecode(model.Token);
-
-            var result = await _userManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
-
-            if (!result.Succeeded)
+            try
             {
-                var errors = new List<string>();
-                foreach (var error in result.Errors)
-                    errors.Add(error.Description);
+                var user = await _userManager.FindByEmailAsync(model.Email);
 
-                return BadRequest(new ProblemDetails { Title = string.Join(", ", errors) });
+                // Check user existed
+                if (user == null)
+                    return BadRequest(new ProblemDetails { Title = "User is not existed !"});
+
+                // Compare Password
+                if (string.Compare(model.NewPassword, model.ConfirmNewPassword) != 0)
+                    return BadRequest(new ProblemDetails { Title = " Password is not matched! Try again " });
+
+                // Handle Result
+                var result = await _userManager.ResetPasswordAsync(user, CF.Base64ForUrlDecode(model.Token), model.NewPassword);
+                if (!result.Succeeded)
+                {
+                    var errors = new List<string>();
+                    foreach (var error in result.Errors)
+                        errors.Add(error.Description);
+
+                    return BadRequest(new ProblemDetails { Title = string.Join(", ", errors) });
+                }
+
+                return Ok(new {Title = "Password reset successful." });
             }
-            return Ok();
+            catch
+            {
+                return BadRequest(new ProblemDetails { Title= "Invalid or expired token." });
+            }
         }
 
         [HttpGet("current-user")]

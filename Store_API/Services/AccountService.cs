@@ -122,13 +122,18 @@ namespace Store_API.Services
             }
         }
 
-        public async Task HandleForgetPassword(ForgetPasswordDTO model, User user)
+        public async Task SendLinkResetPwToMail(ForgetPasswordDTO model, User user)
         {
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
             token = token.Replace(" ", "+");
             token = CF.Base64ForUrlEncode(token);
             string linkResetPassword = $"http://localhost:3000/get-reset-password?email={model.Email}&token={token}";
-            await _emailSenderService.SendEmailAsync(model.Email, "Reset Password ROGER BMT APP (NET 8)", linkResetPassword);     
+            string htmlContent = $"This is your link to reset password :" + Environment.NewLine
+                + $"Link :" + linkResetPassword;
+
+            // Send Message to email
+            await _emailSenderService.SendEmailAsync(model.Email, "Reset Password ROGER BMT APP (NET 8)", htmlContent);     
         }
+
     }
 }

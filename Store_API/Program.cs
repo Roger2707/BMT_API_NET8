@@ -56,7 +56,6 @@ builder.Services.AddDbContext<StoreContext>(opt => opt.UseSqlServer(builder.Conf
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "BMT_APIs", Version = "v1" });
-    c.OperationFilter<IgnoreRequiredFieldsOperationFilter>();
 
     var jwtSecurityScheme = new OpenApiSecurityScheme
     {
@@ -105,7 +104,7 @@ builder.Services
         opt.Password.RequiredLength = 7;
         opt.Password.RequireDigit = false;
         opt.Password.RequireUppercase = false;
-        //opt.User.RequireUniqueEmail = true;
+        opt.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<StoreContext>()
     .AddDefaultTokenProviders();
@@ -177,7 +176,6 @@ builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 var app = builder.Build();
 
 #region Middlewares
-
 
 
 #endregion 
