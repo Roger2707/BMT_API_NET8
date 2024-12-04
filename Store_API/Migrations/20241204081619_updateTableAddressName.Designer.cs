@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20241115062949_createDB")]
-    partial class createDB
+    [Migration("20241204081619_updateTableAddressName")]
+    partial class updateTableAddressName
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -288,7 +288,7 @@ namespace Store_API.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("Store_API.Models.Order.Order", b =>
+            modelBuilder.Entity("Store_API.Models.OrderAggregate.Order", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -297,6 +297,9 @@ namespace Store_API.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<double>("DeliveryFee")
+                        .HasColumnType("float");
+
+                    b.Property<double>("GrandTotal")
                         .HasColumnType("float");
 
                     b.Property<DateTime>("OrderDate")
@@ -308,27 +311,28 @@ namespace Store_API.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<double>("TotalPrice")
-                        .HasColumnType("float");
+                    b.Property<int>("UserAddressId")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserAddressId");
+
+                    b.HasIndex("UserId");
+
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("Store_API.Models.Order.OrderItem", b =>
+            modelBuilder.Entity("Store_API.Models.OrderAggregate.OrderItem", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<double>("ItemPrice")
-                        .HasColumnType("float");
 
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
@@ -339,11 +343,52 @@ namespace Store_API.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<double>("TotalItemsPrice")
+                        .HasColumnType("float");
+
+                    b.Property<double>("UnitPrice")
+                        .HasColumnType("float");
+
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
 
+                    b.HasIndex("ProductId");
+
                     b.ToTable("OrderItems");
+                });
+
+            modelBuilder.Entity("Store_API.Models.OrderAggregate.UserAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("District")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StreetAddress")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAddresses");
                 });
 
             modelBuilder.Entity("Store_API.Models.Product", b =>
@@ -722,48 +767,53 @@ namespace Store_API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Store_API.Models.Order.Order", b =>
+            modelBuilder.Entity("Store_API.Models.OrderAggregate.Order", b =>
                 {
-                    b.OwnsOne("Store_API.Models.Order.ShippingAddress", "ShippingAddress", b1 =>
-                        {
-                            b1.Property<int>("OrderId")
-                                .HasColumnType("int");
+                    b.HasOne("Store_API.Models.OrderAggregate.UserAddress", "UserAddress")
+                        .WithMany()
+                        .HasForeignKey("UserAddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                            b1.Property<string>("City")
-                                .HasColumnType("nvarchar(max)");
+                    b.HasOne("Store_API.Models.User", "User")
+                        .WithMany("Orders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                            b1.Property<string>("Country")
-                                .HasColumnType("nvarchar(max)");
+                    b.Navigation("User");
 
-                            b1.Property<string>("PostalCode")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("State")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<string>("StreetAddress")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.HasKey("OrderId");
-
-                            b1.ToTable("Orders");
-
-                            b1.WithOwner()
-                                .HasForeignKey("OrderId");
-                        });
-
-                    b.Navigation("ShippingAddress");
+                    b.Navigation("UserAddress");
                 });
 
-            modelBuilder.Entity("Store_API.Models.Order.OrderItem", b =>
+            modelBuilder.Entity("Store_API.Models.OrderAggregate.OrderItem", b =>
                 {
-                    b.HasOne("Store_API.Models.Order.Order", "Order")
+                    b.HasOne("Store_API.Models.OrderAggregate.Order", "Order")
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Store_API.Models.Product", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Order");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Store_API.Models.OrderAggregate.UserAddress", b =>
+                {
+                    b.HasOne("Store_API.Models.User", "User")
+                        .WithMany("UserAddresses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Store_API.Models.Product", b =>
@@ -839,7 +889,7 @@ namespace Store_API.Migrations
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("Store_API.Models.Order.Order", b =>
+            modelBuilder.Entity("Store_API.Models.OrderAggregate.Order", b =>
                 {
                     b.Navigation("Items");
                 });
@@ -847,6 +897,10 @@ namespace Store_API.Migrations
             modelBuilder.Entity("Store_API.Models.User", b =>
                 {
                     b.Navigation("Basket");
+
+                    b.Navigation("Orders");
+
+                    b.Navigation("UserAddresses");
                 });
 #pragma warning restore 612, 618
         }

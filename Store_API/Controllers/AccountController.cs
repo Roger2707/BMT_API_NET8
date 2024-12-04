@@ -27,14 +27,17 @@ namespace Store_API.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly ITokenRepository _tokenService;
         private readonly EmailSenderService _emailSenderService;
+        private readonly IImageRepository _imageService;
 
-        public AccountController(IUnitOfWork unitOfWork, UserManager<User> userManager, SignInManager<User> signInManager, ITokenRepository tokenService, EmailSenderService emailSenderService)
+        public AccountController(IUnitOfWork unitOfWork, UserManager<User> userManager, SignInManager<User> signInManager
+            , ITokenRepository tokenService, EmailSenderService emailSenderService, IImageRepository imageService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _unitOfWork = unitOfWork;
             _tokenService = tokenService;
             _emailSenderService = emailSenderService;
+            _imageService = imageService;
         }
 
         [HttpGet("get-all")]
@@ -285,6 +288,78 @@ namespace Store_API.Controllers
             };
 
             return Ok(respone);
+        }
+
+        [HttpGet("current-user-profile")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUserProfile()
+        {
+            string userName = User.Identity.Name;
+            if (string.IsNullOrEmpty(userName)) return Ok();
+
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var respone = new
+            {
+                FullName = user.FullName,
+                Dob = user.Dob,
+                PhoneNumber = user.PhoneNumber,
+                ImageUrl = user.ImageUrl
+            };
+
+            return Ok(respone);
+        }
+
+
+        [HttpPut("update-profile")]
+        [Authorize]
+        public async Task<IActionResult> UpdateProfile([FromForm] UserProfileDTO profileDTO)
+        {
+            if(!ModelState.IsValid) return BadRequest(ModelState);
+            
+            string userName = User.Identity.Name;
+            var user = await _userManager.FindByNameAsync(userName);
+
+            // Update
+            if(profileDTO.FullName != user.FullName && profileDTO.FullName != "")
+                user.FullName = profileDTO.FullName;
+            if(profileDTO.PhoneNumber != user.PhoneNumber && profileDTO.PhoneNumber != "")
+                user.PhoneNumber = profileDTO.PhoneNumber;
+            if(profileDTO.Dob != user.Dob && profileDTO.Dob.ToString() != "")
+                user.Dob = profileDTO.Dob;
+
+            if(profileDTO.ImageUrl != null)
+            {
+                var imageResult = await _imageService.AddImageAsync(profileDTO.ImageUrl);
+
+                if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
+
+                user.ImageUrl = imageResult.SecureUrl.ToString();
+                user.PublicId = imageResult.PublicId;
+            }
+
+            int result = await _unitOfWork.SaveChanges();
+            
+            if(result > 0) return Ok(profileDTO);
+
+            return BadRequest(new ProblemDetails { Title = "Update User Info Failed !" });
+        }
+
+        [HttpPost("create-user-address")]
+        [Authorize]
+        public async Task<IActionResult> CreateUserAddress()
+        {
+            return Ok();
+        }
+
+        [HttpPut("update-user-address")]
+        [Authorize]
+        public async Task<IActionResult> UpdateUserAddress()
+        {
+            string userName = User.Identity.Name;
+            var user = await _userManager.FindByNameAsync(userName);
+            int userId = user.Id;
+            return Ok();
         }
     }
 }

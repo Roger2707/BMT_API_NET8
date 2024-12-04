@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Store_API.Models;
-using Store_API.Models.Order;
+using Store_API.Models.OrderAggregate;
+using Stripe;
+using System.Reflection.Emit;
 
 namespace Store_API.Data
 {
@@ -13,13 +15,14 @@ namespace Store_API.Data
         }
 
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Store_API.Models.Product> Products { get; set; }
         public DbSet<Althete> Althetes { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Basket> Baskets { get; set; }
         public DbSet<BasketItem> BasketItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<UserAddress> UserAddresses { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Reply> Replies { get; set; }
         public DbSet<Rating> Ratings { get; set; }
@@ -43,6 +46,27 @@ namespace Store_API.Data
                     new { Id = 2, Name = "Admin", NormalizedName = "ADMIN" },
                     new { Id = 3, Name = "Customer", NormalizedName = "CUSTOMER" }
             );
+
+            // User - Address (1-N)
+            builder.Entity<UserAddress>()
+                .HasOne(a => a.User)
+                .WithMany(u => u.UserAddresses)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // User - Order (1-N)
+            builder.Entity<Order>()
+                .HasOne(o => o.User)
+                .WithMany(u => u.Orders)
+                .HasForeignKey(o => o.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Order - Address (N-1)
+            builder.Entity<Order>()
+                .HasOne(o => o.UserAddress)
+                .WithMany()
+                .HasForeignKey(o => o.UserAddressId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Store_API.Models.OrderAggregate;
 
 namespace Store_API.Models
 {
@@ -9,5 +10,7 @@ namespace Store_API.Models
         public string? ImageUrl { get; set; }
         public string? PublicId { get; set; }
         public Basket Basket { get; set; }
+        public List<UserAddress>? UserAddresses { get; set; }
+        public List<Order>? Orders { get; set; }
     }
 }

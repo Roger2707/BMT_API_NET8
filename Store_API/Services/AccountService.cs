@@ -135,5 +135,9 @@ namespace Store_API.Services
             await _emailSenderService.SendEmailAsync(model.Email, "Reset Password ROGER BMT APP (NET 8)", htmlContent);     
         }
 
+        public Task Update()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

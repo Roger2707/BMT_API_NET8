@@ -1,15 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Store_API.Models.Order
+namespace Store_API.Models.OrderAggregate
 {
     public class OrderItem
     {
         public int Id { get; set; }
+
         public int OrderId { get; set; }
         [ForeignKey("OrderId")]
-        public Order Order { get; set; }    
+        public Order Order { get; set; }
+
         public int ProductId { get; set; }
+        [ForeignKey("ProductId")]
+        public Product Product { get; set; }
+
         public int Quantity { get; set; }
-        public double ItemPrice { get; set; }
+        public double UnitPrice { get; set; }
+        public double TotalItemsPrice { get; set; }
     }
 }

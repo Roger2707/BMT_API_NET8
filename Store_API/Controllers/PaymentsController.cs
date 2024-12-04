@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
 using Store_API.DTOs.Baskets;
 using Store_API.Models;
-using Store_API.Models.Order;
+using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 using Stripe;
 
@@ -70,7 +70,7 @@ namespace Store_API.Controllers
             var charge = (Charge)stripeEvent.Data.Object;
             
             var order = await _db.Orders.FirstOrDefaultAsync(o => o.PaymentIntentId == charge.PaymentIntentId);
-            if(charge.Status == "succeeded") order.Status = OrderStatus.PaymentSuccess;
+            if(charge.Status == "succeeded") order.Status = OrderStatus.Shipped;
             await _db.SaveChangesAsync();
             return new EmptyResult();
         }

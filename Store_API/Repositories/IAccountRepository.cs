@@ -8,6 +8,7 @@ namespace Store_API.Repositories
     {
         public Task<List<AccountDTO>> GetAll();
         public Task Create(SignUpRequest request, string role);
+        public Task Update();
         public Task SendLinkResetPwToMail(ForgetPasswordDTO model, User user);
     }
 }

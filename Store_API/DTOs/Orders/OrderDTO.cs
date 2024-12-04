@@ -1,4 +1,4 @@
-﻿using Store_API.Models.Order;
+﻿using Store_API.Models.OrderAggregate;
 
 namespace Store_API.DTOs.Orders
 {
@@ -10,7 +10,7 @@ namespace Store_API.DTOs.Orders
         public DateTime OrderDate { get; set; }
         public string Status { get; set; }
         public double DeliveryFee { get; set; }
-        public ShippingAddress ShippingAddress { get; set; }
+        public UserAddress UserAddress { get; set; }
         public List<OrderItemDTO> Items { get; set; }
         public double TotalPrice { get; set; }
     }
