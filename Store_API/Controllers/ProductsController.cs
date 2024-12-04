@@ -46,7 +46,7 @@ namespace Store_API.Controllers
         {
             List<ProductDTO> products = await _unitOfWork.Product.GetSourceProducts(productParams);
             if(products == null || products.Count == 0) return NotFound();
-            Pagination<ProductDTO> productPagination = await _unitOfWork.Product.GetPagination(products, productParams.CurrentPage);
+            Pagination<ProductDTO> productPagination = await _unitOfWork.Product.GetPagination(products, productParams);
             return Ok(productPagination);
         }
 

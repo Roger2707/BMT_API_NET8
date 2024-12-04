@@ -215,6 +215,9 @@ namespace Store_API.Controllers
         [HttpPost("forget-password")]
         public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordDTO model)
         {
+            if(!ModelState.IsValid)
+                return BadRequest(ModelState);
+
             var user = await _userManager.FindByEmailAsync(model.Email);
 
             if (user == null) return BadRequest(new ProblemDetails { Title = "Email is UnValid !" });
@@ -229,7 +232,7 @@ namespace Store_API.Controllers
             // Send Message to email
             await _emailSenderService.SendEmailAsync(model.Email, "Reset Password ROGER BMT APP (NET 8)", htmlContent);
 
-            return Ok(new {message = $"Link reset password is sent to your email: {model.Email}."});
+            return Ok(new { message = $"Link reset password is sent to your email: {model.Email}." });
         }
 
         [HttpPost("reset-password")]

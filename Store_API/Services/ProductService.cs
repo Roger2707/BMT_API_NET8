@@ -275,9 +275,28 @@ namespace Store_API.Services
             return product;
         }
 
-        public async Task<int> GetTotalRecord()
+        public async Task<int> GetTotalRecord(ProductParams productParams)
         {
-            string query = @" SELECT COUNT(*) as TotalRow FROM Products ";
+            string query = @"   
+                                SELECT COUNT(*) as TotalRow 
+
+                                FROM Products as product
+
+                                INNER JOIN Categories as category ON product.CategoryId = category.Id
+                                INNER JOIN Brands as brand ON product.BrandId = brand.Id 
+                                LEFT JOIN Promotions as promotion 
+
+                                ON product.CategoryId = promotion.CategoryId 
+                                    AND product.BrandId = promotion.BrandId 
+                                    AND promotion.[End] <= GETDATE()
+
+                                WHERE product.ProductStatus = 1 
+
+                                --where
+                            ";
+
+            string where = GetConditionString(productParams);
+            query = query.Replace("--where", where);
             dynamic result = await _dapperService.QueryFirstOrDefaultAsync(query, null);
             return CF.GetInt(result?.TotalRow);
         }
@@ -362,10 +381,10 @@ namespace Store_API.Services
             return products;
         }
 
-        public async Task<Pagination<ProductDTO>> GetPagination(List<ProductDTO> products, int currentPage)
+        public async Task<Pagination<ProductDTO>> GetPagination(List<ProductDTO> products, ProductParams productParams)
         {
-            int totalRow = await GetTotalRecord();
-            Pagination<ProductDTO> productPagination = Pagination<ProductDTO>.GetPaginationData(products, totalRow, currentPage, count_in_page);
+            int totalRow = await GetTotalRecord(productParams);
+            Pagination<ProductDTO> productPagination = Pagination<ProductDTO>.GetPaginationData(products, totalRow, productParams.CurrentPage, count_in_page);
             return productPagination;
         }
 
