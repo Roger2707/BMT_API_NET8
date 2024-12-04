@@ -6,7 +6,6 @@ namespace Store_API.Repositories
 {
     public interface IProductRepository
     {
-        public Task<List<ProductDTO>> GetAll(ProductParams productParams);
         public Task<ProductDTO> GetById(int id);
         public Task<int> GetTotalRecord(ProductParams productParams);
         public Task<List<ProductDTO>> GetSourceProducts(ProductParams productParams);

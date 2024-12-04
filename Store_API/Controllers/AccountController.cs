@@ -220,7 +220,7 @@ namespace Store_API.Controllers
 
             var user = await _userManager.FindByEmailAsync(model.Email);
 
-            if (user == null) return BadRequest(new ProblemDetails { Title = "Email is UnValid !" });
+            if (user == null) return BadRequest(new ProblemDetails { Title = "Email is not existed for any accounts !" });
 
             // Generate Token (Encode in query string)
             var token = CF.Base64ForUrlEncode(await _userManager.GeneratePasswordResetTokenAsync(user));
