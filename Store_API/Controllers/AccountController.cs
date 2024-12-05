@@ -189,8 +189,11 @@ namespace Store_API.Controllers
         }
 
         [HttpPost("change-password")]
+        [Authorize]
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
         {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             bool checkResult = await _userManager.CheckPasswordAsync(user, passwordDTO.CurrentPassword);
             if (!checkResult)
@@ -212,7 +215,7 @@ namespace Store_API.Controllers
 
                 return BadRequest(new ProblemDetails { Title = string.Join(", ", errors) });
             }
-            return Ok();
+            return Ok(new {Title = "Successfully, Password was changed!"});
         }
 
         [HttpPost("forget-password")]
@@ -280,31 +283,14 @@ namespace Store_API.Controllers
 
             var user = await _userManager.FindByNameAsync(userName);
 
-            var respone = new LoginResponse
+            var respone = new UserDTO
             {
                 FullName = user.FullName,
                 Email = user.Email,
-                Token = await _tokenService.GenerateToken(user),
-            };
-
-            return Ok(respone);
-        }
-
-        [HttpGet("current-user-profile")]
-        [Authorize]
-        public async Task<IActionResult> GetCurrentUserProfile()
-        {
-            string userName = User.Identity.Name;
-            if (string.IsNullOrEmpty(userName)) return Ok();
-
-            var user = await _userManager.FindByNameAsync(userName);
-
-            var respone = new
-            {
-                FullName = user.FullName,
                 Dob = user.Dob,
                 PhoneNumber = user.PhoneNumber,
-                ImageUrl = user.ImageUrl
+                ImageUrl = user.ImageUrl,
+                Token = await _tokenService.GenerateToken(user),
             };
 
             return Ok(respone);
@@ -339,8 +325,23 @@ namespace Store_API.Controllers
             }
 
             int result = await _unitOfWork.SaveChanges();
-            
-            if(result > 0) return Ok(profileDTO);
+
+            if (result > 0)
+            {
+                var updatedUser = await _userManager.FindByNameAsync(userName);
+
+                return Ok(new
+                {
+                    FullName = updatedUser.FullName,
+                    Dob = updatedUser.Dob,
+                    Email = updatedUser.Email,
+                    ImageUrl = updatedUser.ImageUrl,
+                    PhoneNumber = updatedUser.PhoneNumber,
+                    Token = await _tokenService.GenerateToken(updatedUser),
+
+                    Title = "Updated Successfully !"
+                });
+            }
 
             return BadRequest(new ProblemDetails { Title = "Update User Info Failed !" });
         }
