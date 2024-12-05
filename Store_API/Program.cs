@@ -163,6 +163,8 @@ builder.Services.AddAuthorization();
 
 #region Services
 
+builder.Services.AddHttpClient();
+
 builder.Services.AddTransient<IDapperService, DapperService>();
 builder.Services.AddTransient<IImageRepository, ImageService>();
 builder.Services.AddTransient<ICSVRepository, CSVService>();
@@ -170,7 +172,6 @@ builder.Services.AddTransient<EmailSenderService>();
 builder.Services.AddTransient<ITokenRepository, TokenIdentityService>();
 builder.Services.AddTransient<IPaymentRepository, PaymentService>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
-
 #endregion 
 
 var app = builder.Build();
