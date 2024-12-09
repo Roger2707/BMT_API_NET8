@@ -26,7 +26,7 @@ namespace Store_API.Controllers
                 var result = await response.Content.ReadAsStringAsync();
 
                 var cityJson = JsonConvert.DeserializeObject<List<dynamic>>(result);
-                var cities = new List<LocationDTO>();
+                var cities = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Cities --"} };
 
                 foreach(var item in cityJson)
                     cities.Add(new LocationDTO { Name = item.name, Code = item.code });
@@ -35,7 +35,7 @@ namespace Store_API.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return StatusCode(500, $"Error fetching data: {ex.Message}");
+                return BadRequest(new ProblemDetails { Title = $"Error fetching data: {ex.Message}" });
             }
         }
 
@@ -50,7 +50,7 @@ namespace Store_API.Controllers
                 var result = await response.Content.ReadAsStringAsync();
 
                 var cityJson = JsonConvert.DeserializeObject<dynamic>(result);
-                var districts = new List<LocationDTO>();
+                var districts = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Districts --" } };
 
                 foreach (var item in cityJson.districts)
                     districts.Add(new LocationDTO { Name = item.name, Code = item.code });
@@ -59,7 +59,7 @@ namespace Store_API.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return StatusCode(500, $"Error fetching data: {ex.Message}");
+                return BadRequest(new ProblemDetails { Title = $"Error fetching data: {ex.Message}" });
             }
         }
 
@@ -74,7 +74,7 @@ namespace Store_API.Controllers
                 var result = await response.Content.ReadAsStringAsync();
 
                 var cityJson = JsonConvert.DeserializeObject<dynamic>(result);
-                var districts = new List<LocationDTO>();
+                var districts = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Wards --" } };
 
                 foreach (var item in cityJson.wards)
                     districts.Add(new LocationDTO { Name = item.name, Code = item.code });
@@ -83,7 +83,7 @@ namespace Store_API.Controllers
             }
             catch (HttpRequestException ex)
             {
-                return StatusCode(500, $"Error fetching data: {ex.Message}");
+                return BadRequest(new ProblemDetails { Title = $"Error fetching data: {ex.Message}" });
             }
         }
     }

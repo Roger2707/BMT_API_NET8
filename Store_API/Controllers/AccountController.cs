@@ -2,13 +2,16 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Store_API.Data;
 using Store_API.DTOs.Accounts;
+using Store_API.DTOs.Orders;
 using Store_API.Helpers;
 using Store_API.Models;
+using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 using Store_API.Services;
 using System.IdentityModel.Tokens.Jwt;
@@ -28,9 +31,10 @@ namespace Store_API.Controllers
         private readonly ITokenRepository _tokenService;
         private readonly EmailSenderService _emailSenderService;
         private readonly IImageRepository _imageService;
+        private readonly StoreContext _db;
 
         public AccountController(IUnitOfWork unitOfWork, UserManager<User> userManager, SignInManager<User> signInManager
-            , ITokenRepository tokenService, EmailSenderService emailSenderService, IImageRepository imageService)
+            , ITokenRepository tokenService, EmailSenderService emailSenderService, IImageRepository imageService, StoreContext db)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -38,6 +42,7 @@ namespace Store_API.Controllers
             _tokenService = tokenService;
             _emailSenderService = emailSenderService;
             _imageService = imageService;
+            _db = db;
         }
 
         [HttpGet("get-all")]
@@ -346,11 +351,56 @@ namespace Store_API.Controllers
             return BadRequest(new ProblemDetails { Title = "Update User Info Failed !" });
         }
 
+        [HttpGet("get-user-address")]
+        [Authorize]
+        public async Task<IActionResult> GetUserAddresses()
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            var userAddress = await _db.UserAddresses
+                .Where(u => u.UserId == user.Id)
+                .Select(u => new
+                        {
+                            Id = u.Id,
+                            City = u.City,
+                            District = u.District,
+                            Ward = u.Ward,
+                            StreetAddress = u.StreetAddress,
+                            Country = u.Country,
+                        })
+                .ToListAsync();
+
+            return Ok(userAddress);
+        }
+
         [HttpPost("create-user-address")]
         [Authorize]
-        public async Task<IActionResult> CreateUserAddress()
+        public async Task<IActionResult> CreateUserAddress([FromForm] UserAddressDTO userAddressDTO)
         {
-            return Ok();
+            if(!ModelState.IsValid) return BadRequest(ModelState);
+
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            var userAddress = new UserAddress
+            {
+                City = userAddressDTO.City,
+                District = userAddressDTO.District,
+                Ward = userAddressDTO.Ward,
+                StreetAddress = userAddressDTO.StreetAddress,
+                PostalCode = userAddressDTO.PostalCode,
+                Country = userAddressDTO.Country,
+                UserId = user.Id,
+            };
+            try
+            {
+                await _db.UserAddresses.AddAsync(userAddress);
+                int result = await _db.SaveChangesAsync();
+                if(result > 0) return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
+            return BadRequest(new ProblemDetails { Title = "Create Address Failed !" });
         }
 
         [HttpPut("update-user-address")]
