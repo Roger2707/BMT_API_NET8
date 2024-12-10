@@ -5,6 +5,8 @@ namespace Store_API.DTOs.Orders
     public class UserAddressDTO
     {
         [Required]
+        public int Id { get; set; }
+        [Required]
         public string City { get; set; }
         [Required]
         public string District { get; set; }

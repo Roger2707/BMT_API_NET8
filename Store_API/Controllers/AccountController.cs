@@ -365,6 +365,7 @@ namespace Store_API.Controllers
                             City = u.City,
                             District = u.District,
                             Ward = u.Ward,
+                            PostalCode = u.PostalCode,
                             StreetAddress = u.StreetAddress,
                             Country = u.Country,
                         })
@@ -373,44 +374,74 @@ namespace Store_API.Controllers
             return Ok(userAddress);
         }
 
-        [HttpPost("create-user-address")]
+        [HttpPost("upsert-user-address")]
         [Authorize]
         public async Task<IActionResult> CreateUserAddress([FromForm] UserAddressDTO userAddressDTO)
         {
             if(!ModelState.IsValid) return BadRequest(ModelState);
-
+            int id = userAddressDTO.Id;
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var userAddress = new UserAddress
-            {
-                City = userAddressDTO.City,
-                District = userAddressDTO.District,
-                Ward = userAddressDTO.Ward,
-                StreetAddress = userAddressDTO.StreetAddress,
-                PostalCode = userAddressDTO.PostalCode,
-                Country = userAddressDTO.Country,
-                UserId = user.Id,
-            };
             try
             {
-                await _db.UserAddresses.AddAsync(userAddress);
+                if (id == 0)
+                {
+                    var userAddress = new UserAddress
+                    {
+                        Id = userAddressDTO.Id,
+                        City = userAddressDTO.City,
+                        District = userAddressDTO.District,
+                        Ward = userAddressDTO.Ward,
+                        StreetAddress = userAddressDTO.StreetAddress,
+                        PostalCode = userAddressDTO.PostalCode,
+                        Country = userAddressDTO.Country,
+                        UserId = user.Id,
+                    };
+                    await _db.UserAddresses.AddAsync(userAddress);
+                }
+                else
+                {
+                    var existeduserAddress = await _db.UserAddresses.FirstOrDefaultAsync(u => u.Id == id);
+                    if(userAddressDTO.City != existeduserAddress.City)
+                        existeduserAddress.City = userAddressDTO.City;
+                    if (userAddressDTO.District != existeduserAddress.District)
+                        existeduserAddress.District = userAddressDTO.District;
+                    if (userAddressDTO.Ward != existeduserAddress.Ward)
+                        existeduserAddress.Ward = userAddressDTO.Ward;
+                    if (userAddressDTO.StreetAddress != existeduserAddress.StreetAddress)
+                        existeduserAddress.StreetAddress = userAddressDTO.StreetAddress;
+                    if (userAddressDTO.PostalCode != existeduserAddress.PostalCode)
+                        existeduserAddress.PostalCode = userAddressDTO.PostalCode;
+                    if (userAddressDTO.Country != existeduserAddress.Country)
+                        existeduserAddress.Country = userAddressDTO.Country;
+                }
+
                 int result = await _db.SaveChangesAsync();
-                if(result > 0) return Ok();
+                if(result > 0) return Ok(new { Title = id == 0 ? "Create new address successfully !" : "Update address successfully !" });
             }
             catch (Exception ex)
             {
                 return BadRequest(new ProblemDetails { Title = ex.Message });
             }
-            return BadRequest(new ProblemDetails { Title = "Create Address Failed !" });
+            return BadRequest(new ProblemDetails { Title = id == 0 ? "Create new address failed !" : "Update address failed !" });
         }
 
-        [HttpPut("update-user-address")]
+        [HttpDelete("delete-user-address")]
         [Authorize]
-        public async Task<IActionResult> UpdateUserAddress()
+        public async Task<IActionResult> Delete(int id)
         {
-            string userName = User.Identity.Name;
-            var user = await _userManager.FindByNameAsync(userName);
-            int userId = user.Id;
-            return Ok();
+            var userAddress = await _db.UserAddresses.FindAsync(id);
+            if (userAddress == null) return BadRequest(new ProblemDetails { Title = "Address is not existed !" });
+            try
+            {
+                _db.UserAddresses.Remove(userAddress);
+                int result = await _db.SaveChangesAsync();
+                if (result > 0) return Ok(new { Title = "Delete Address Successfully !"});
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
+            return BadRequest(new ProblemDetails { Title = "Delete address failed !" });
         }
     }
 }
