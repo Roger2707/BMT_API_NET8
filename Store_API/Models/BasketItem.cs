@@ -13,9 +13,7 @@ namespace Store_API.Models
         public int ProductId { get; set; }
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
-
         public int Quantity { get; set; }
-        public double Price { get; set; }
         public bool Status { get; set; } = false;
     }
 }

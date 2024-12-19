@@ -9,7 +9,7 @@ using Store_API.Repositories;
 
 namespace Store_API.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/baskets")]
     [ApiController]
     public class BasketController : ControllerBase
     {
@@ -44,55 +44,22 @@ namespace Store_API.Controllers
             return Ok(basket);
         }
 
-        [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Add(int productId, int quantity)
+        [HttpPost("upsert-basket")]
+        public async Task<IActionResult> UpsertBasket(int productId)
         {
             var product = await _unitOfWork.Product.GetById(productId);
-            if(product == null) return NotFound();
+            if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });
+
             string error = "";
             try
             {
-                _unitOfWork.BeginTrans();
-                await _unitOfWork.Basket.AddItem(User.Identity.Name, productId, quantity);
-                _unitOfWork.Commit();
+                int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
+                await _unitOfWork.Basket.HandleBasketMode(userId, productId, true);
             }
             catch (Exception ex)
             {
                 error = ex.Message;
-                _unitOfWork.Rollback();
-            }
-            finally
-            {
-                _unitOfWork.CloseConnection();
-            }
-
-            int maxBasketItemId = await _unitOfWork.GetMaxId("BasketItems");
-            var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-
-            if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return CreatedAtRoute("GetDetailBasket", new { id = maxBasketItemId }, basket);
-        }
-
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> Remove(int productId, int quantity)
-        {
-            var product = await _unitOfWork.Product.GetById(productId);
-            if (product == null) return NotFound();
-            string error = "";
-            try
-            {
-                _unitOfWork.BeginTrans();
-
-                await _unitOfWork.Basket.RemoveItem(User.Identity.Name, productId, quantity);
-
-                _unitOfWork.Commit();
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-                _unitOfWork.Rollback();
             }
             finally
             {
@@ -100,10 +67,12 @@ namespace Store_API.Controllers
             }
 
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
+
             return Ok();
         }
 
-        [HttpPost]
+        [Authorize]
+        [HttpPost("toggle-status-item")]
         public async Task<IActionResult> ToggleItemsStatus(int itemId)
         {
             string error = "";

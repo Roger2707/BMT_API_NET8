@@ -75,78 +75,69 @@ namespace Store_API.Services
         #endregion
 
         #region Actions
-        public async Task AddItem(string username, int productId, int quantity)
+        public async Task HandleBasketMode(int userId, int productId, bool mode)
         {
-            int basketId = await GetBasketIdByUsername(username);
+            string query = @"
+                    DECLARE @BasketId INT
+                    DECLARE @BasketItemId INT
+                    DECLARE @OldQuantity INT
 
-            // Check Item existed ?
-            int? oldQuantity = (await _db.BasketItems.Where(x => x.BasketId == basketId && x.ProductId == productId).FirstOrDefaultAsync())?.Quantity;
+                    BEGIN TRY
+	                    BEGIN TRANSACTION
+		                    IF(NOT EXISTS(SELECT Id FROM Baskets WHERE UserId = @UserId)) 
+			                    BEGIN
+				                    INSERT INTO Baskets (UserId) VALUES (@UserId)
 
-            // Find Detail Product
-            var product = await _db.Products.FindAsync(productId);
+				                    INSERT INTO BasketItems (BasketId, ProductId, Quantity, Status) 
+                                    VALUES (SCOPE_IDENTITY(), @ProductId, 1, 0)
+			                    END
+		                    ELSE
+			                    BEGIN
+				                    IF(@Mode = 1)
+					                    BEGIN
+						                    SELECT @BasketId = Id FROM Baskets WHERE UserId = @UserId
+						                    IF(EXISTS(SELECT Id FROM BasketItems WHERE ProductId = @ProductId AND BasketId = @BasketId))
+							                    BEGIN
+								                    SELECT @BasketItemId = Id, @OldQuantity = Quantity 
+                                                    FROM BasketItems 
+                                                    WHERE ProductId = @ProductId AND BasketId = @BasketId
 
-            // Query
-            string query = "";
-            var p = new object { };
+								                    UPDATE BasketItems SET Quantity = @OldQuantity + 1 WHERE Id = @BasketItemId
+							                    END
+						                    ELSE
+							                    BEGIN
+								                    INSERT INTO BasketItems (BasketId, ProductId, Quantity, Status) VALUES (@BasketItemId, @ProductId, 1, 0)
+							                    END
+					                    END
+				                    ELSE
+					                    BEGIN
+						                    SELECT @BasketId = Id FROM Baskets WHERE UserId = @UserId
+						                    SELECT @BasketItemId = Id, @OldQuantity = Quantity FROM BasketItems WHERE ProductId = @ProductId AND BasketId = @BasketId
 
-            if (CF.GetInt(oldQuantity) > 0) // Update Quantity and Price
-            {
-                int updatedQuantity = (int)oldQuantity + quantity;
-                double price = product.Price * updatedQuantity;
+						                    IF(@OldQuantity > 1)
+							                    BEGIN
+								                    UPDATE BasketItems SET Quantity = @OldQuantity - 1 WHERE Id = @BasketItemId
+							                    END
+						                    ELSE
+							                    BEGIN
+								                    DELETE BasketItems WHERE Id = @BasketItemId
+							                    END
+					                    END
+			                    END
+	                    COMMIT;
+                    END TRY
 
-                query = " UPDATE BasketItems SET Quantity = @Quantity, Price = @Price WHERE BasketId = @BasketId AND ProductId = @ProductId ";
-                p = new { Quantity = updatedQuantity, Price = price, BasketId = basketId, ProductId = productId };
-            }
-            else // Create
-            {
-                double price = product.Price * quantity;
+                    BEGIN CATCH
+	                    PRINT 'An error occurred. Rolling back the transaction';
+	                    IF @@TRANCOUNT > 0
+                            ROLLBACK;
+                    END CATCH
 
-                query = @" INSERT INTO BasketItems (BasketId, ProductId, Quantity, Price) VALUES (@BasketId, @ProductId, @Quantity, @Price) ";
-                p = new { BasketId = basketId, ProductId = productId, Quantity = quantity, Price = price };
-            }
+";
 
             try
             {
-                await _dapperService.Execute(query, p);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
-        }
-
-        public async Task RemoveItem(string username, int productId, int quantity)
-        {
-            int basketId = await GetBasketIdByUsername(username);
-
-            // Check Item existed ?
-            int? oldQuantity = (await _db.BasketItems.Where(x => x.BasketId == basketId && x.ProductId == productId).FirstOrDefaultAsync())?.Quantity;
-
-            // Find Detail Product
-            var product = await _db.Products.FindAsync(productId);
-
-            // Get Quantity after remove
-            int updatedQuantity = (int)oldQuantity - quantity;
-
-            // Query
-            string query = "";
-            var p = new object { };
-
-            if (CF.GetInt(updatedQuantity) > 0) // Update Quantity and Price
-            {
-                double price = product.Price * updatedQuantity;
-
-                query = " UPDATE BasketItems SET Quantity = @Quantity, Price = @Price WHERE BasketId = @BasketId AND ProductId = @ProductId ";
-                p = new { Quantity = updatedQuantity, Price = price, BasketId = basketId, ProductId = productId };
-            }
-            else // Delete
-            {
-                query = @" DELETE BasketItems WHERE BasketId = @BasketId AND ProductId = @ProductId ";
-                p = new { BasketId = basketId, ProductId = productId };
-            }
-
-            try
-            {
+                var p = new { UserId = userId, ProductId = productId, Mode = mode };
                 await _dapperService.Execute(query, p);
             }
             catch (Exception ex)
@@ -197,33 +188,6 @@ namespace Store_API.Services
             {
                 throw new Exception($"{ex.Message}");
             }
-        }
-
-        #endregion
-
-        #region Helper
-        public async Task<double> GetPercentageDiscount(int productId)
-        {
-            try
-            {
-                string sql = @" SELECT
-	                                PercentageDiscount 
-
-                                FROM Promotions promotion
-
-                                INNER JOIN Brands brand ON brand.Id = promotion.BrandId
-                                INNER JOIN Categories category ON category .Id = promotion.CategoryId
-                                INNER JOIN Products product ON product.CategoryId = category.Id AND product.BrandId = brand.Id
-
-                                WHERE promotion.Start <= GETDATE() AND promotion.[End] >= GETDATE() AND product.Id = @ProductId ";
-
-                var p = new { ProductId = productId };
-                dynamic result = await _dapperService.QueryFirstOrDefaultAsync(sql, p);
-                if (result == null) return 0;
-                return CF.GetDouble(result.PercentageDiscount);
-            }
-            catch (Exception ex)
-            { throw new Exception(ex.Message); }
         }
 
         #endregion
