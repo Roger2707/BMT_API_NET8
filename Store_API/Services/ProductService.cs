@@ -25,7 +25,7 @@ namespace Store_API.Services
         }
 
         #region CRUD
-        public async Task Create(ProductUpsertDTO productCreateDTO)
+        public async Task<int> Create(ProductUpsertDTO productCreateDTO)
         {
             var product = new Product()
             {
@@ -41,15 +41,33 @@ namespace Store_API.Services
 
             if (productCreateDTO.ImageUrl != null)
             {
-                var imageResult = await _imageService.AddImageAsync(productCreateDTO.ImageUrl);
+                string folderPath = $"products/{productCreateDTO.Name.Trim().ToLower()}";
+                var imageResults = await _imageService.AddMultipleImageAsync(productCreateDTO.ImageUrl, folderPath);
 
-                if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
+                int index = 0;
+                foreach(var imageResult in imageResults)
+                {
+                    if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
 
-                product.ImageUrl = imageResult.SecureUrl.ToString();
-                product.PublicId = imageResult.PublicId;
+                    if(index == imageResults.Count - 1)
+                    {
+                        product.ImageUrl += imageResult.SecureUrl.ToString();
+                        product.PublicId += imageResult.PublicId;
+                    }
+                    else
+                    {
+                        product.ImageUrl += imageResult.SecureUrl.ToString() + ",";
+                        product.PublicId += imageResult.PublicId + ",";
+                    }
+                    index++;
+                }
             }
 
             await _db.Products.AddAsync(product);
+            int result = await _db.SaveChangesAsync();
+
+            if (result > 0) return product.Id;
+            else return 0;
         }
 
         public async Task<int> InsertCSV(ProductCSV productCSV)
@@ -86,10 +104,11 @@ namespace Store_API.Services
             return result;
         }
 
-        public async Task<Product> Update(int id, ProductUpsertDTO productUpdateDTO)
+        public async Task<int> Update(int id, ProductUpsertDTO productUpdateDTO)
         {
             Product existedProduct = await _db.Products.FindAsync(id);
 
+            // Update Different Fields / != NULL
             if(productUpdateDTO.Name != "" && productUpdateDTO.Name != existedProduct.Name)
                 existedProduct.Name = productUpdateDTO.Name;
             if(productUpdateDTO.Price != existedProduct.Price && productUpdateDTO.Price > 0) 
@@ -107,19 +126,39 @@ namespace Store_API.Services
 
             if (productUpdateDTO.ImageUrl != null)
             {
-                var imageUploadResult = await _imageService.AddImageAsync(productUpdateDTO.ImageUrl);
+                string folderPath = $"products/{productUpdateDTO.Name.Trim().ToLower()}";
 
-                if (imageUploadResult.Error != null)
-                    throw new Exception(imageUploadResult.Error.Message);
+                // 1. Add Image 
+                var imageResults = await _imageService.AddMultipleImageAsync(productUpdateDTO.ImageUrl, folderPath);
 
+                // 2. Remove Product's Old Images on Cloudinary 
                 if (!string.IsNullOrEmpty(existedProduct.PublicId))
-                    await _imageService.DeleteImageAsync(existedProduct.PublicId);
+                    await _imageService.DeleteMultipleImageAsync(existedProduct.PublicId);
 
-                existedProduct.ImageUrl = imageUploadResult.SecureUrl.ToString();
-                existedProduct.PublicId = imageUploadResult.PublicId;
+                // 3. Fill Props into Product
+                int index = 0;
+                existedProduct.ImageUrl = "";
+                existedProduct.PublicId = "";
+
+                foreach (var imageResult in imageResults)
+                {
+                    if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
+
+                    if (index == imageResults.Count - 1)
+                    {
+                        existedProduct.ImageUrl += imageResult.SecureUrl.ToString();
+                        existedProduct.PublicId += imageResult.PublicId;
+                    }
+                    else
+                    {
+                        existedProduct.ImageUrl += imageResult.SecureUrl.ToString() + ",";
+                        existedProduct.PublicId += imageResult.PublicId + ",";
+                    }
+                    index++;
+                }
             }
 
-            return existedProduct;
+            return await _db.SaveChangesAsync();
         }
 
         public async Task<int> ChangeStatus(int id)

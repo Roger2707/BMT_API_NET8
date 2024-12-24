@@ -15,7 +15,7 @@ namespace Store_API.DTOs.Products
         [Required]
         [Length(0, 5000)]
         public string Description { get; set; }
-        public IFormFile? ImageUrl { get; set; }
+        public IFormFileCollection? ImageUrl { get; set; }
         public string? PublicId { get; set; }
         [Required]
         [Range(1, 100)]

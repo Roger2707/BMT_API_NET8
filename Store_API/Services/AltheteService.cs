@@ -32,7 +32,7 @@ namespace Store_API.Services
 
             if (playerDTO.PictureUrl != null)
             {
-                var imageResult = await _imageService.AddImageAsync(playerDTO.PictureUrl);
+                var imageResult = await _imageService.AddImageAsync(playerDTO.PictureUrl, "althetes");
 
                 if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
 
@@ -63,7 +63,7 @@ namespace Store_API.Services
 
             if (playerDTO.PictureUrl != null)
             {
-                var imageUploadResult = await _imageService.AddImageAsync(playerDTO.PictureUrl);
+                var imageUploadResult = await _imageService.AddImageAsync(playerDTO.PictureUrl, "althetes");
 
                 if (imageUploadResult.Error != null)
                     throw new Exception(imageUploadResult.Error.Message);

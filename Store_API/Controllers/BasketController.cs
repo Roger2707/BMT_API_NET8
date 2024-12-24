@@ -34,9 +34,9 @@ namespace Store_API.Controllers
             return Ok(basket);
         }
 
-        [HttpGet(Name = "GetDetailBasket")]
+        [HttpGet("get-detail-basket")]
         [Authorize]
-        public async Task<IActionResult> GetBasket()
+        public async Task<IActionResult> GetDetailBasket()
         {
             var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
             if (basket == null) return NotFound();
@@ -68,7 +68,8 @@ namespace Store_API.Controllers
 
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
 
-            return Ok();
+            var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
+            return CreatedAtRoute("get-detail-basket", basket);
         }
 
         [Authorize]

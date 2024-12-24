@@ -321,7 +321,7 @@ namespace Store_API.Controllers
 
             if(profileDTO.ImageUrl != null)
             {
-                var imageResult = await _imageService.AddImageAsync(profileDTO.ImageUrl);
+                var imageResult = await _imageService.AddImageAsync(profileDTO.ImageUrl, "accounts");
 
                 if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
 

@@ -10,9 +10,9 @@ namespace Store_API.Repositories
         public Task<int> GetTotalRecord(ProductParams productParams);
         public Task<List<ProductDTO>> GetSourceProducts(ProductParams productParams);
         public Task<Pagination<ProductDTO>> GetPagination(List<ProductDTO> products, ProductParams productParams);
-        public Task Create(ProductUpsertDTO productCreateDTO);
+        public Task<int> Create(ProductUpsertDTO productCreateDTO);
         public Task<int> InsertCSV(ProductCSV productCSV);
-        public Task<Product> Update(int id, ProductUpsertDTO productCreateDTO);
+        public Task<int> Update(int id, ProductUpsertDTO productCreateDTO);
         public Task<int> ChangeStatus(int id);
     }
 }

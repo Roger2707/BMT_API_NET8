@@ -50,7 +50,7 @@ namespace Store_API.Controllers
             return Ok(productPagination);
         }
 
-        [HttpGet("get-product-detail")]
+        [HttpGet("get-product-detail", Name = "get-product-detail")]
         public async Task<IActionResult> GetProductDetail([FromQuery] int id)
         {
             ProductDTO product = await _unitOfWork.Product.GetById(id);
@@ -71,8 +71,7 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                await _unitOfWork.Product.Create(productDTO);
-                result = await _unitOfWork.SaveChanges();
+                result = await _unitOfWork.Product.Create(productDTO);
             }
             catch (Exception ex)
             { 
@@ -81,8 +80,7 @@ namespace Store_API.Controllers
 
             if (result > 0)
             {
-                int maxId = await _unitOfWork.GetMaxId("Products");
-                return CreatedAtRoute("get-product-detail", new { id = maxId }, productDTO);
+                return CreatedAtRoute("get-product-detail", new { id = result });
             }
             return BadRequest(new ProblemDetails { Title = error });
         }
@@ -99,10 +97,9 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                Product updatedProduct = await _unitOfWork.Product.Update(id, productDTO);
-                int result = await _unitOfWork.SaveChanges();
+                int result = await _unitOfWork.Product.Update(id, productDTO);
 
-                if(result > 0) 
+                if (result > 0) 
                 {
                     var productResponse = await _unitOfWork.Product.GetById(id);
                     return Ok(productResponse);
