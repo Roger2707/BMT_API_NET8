@@ -66,7 +66,7 @@ namespace Store_API.Data
                 .HasOne(o => o.UserAddress)
                 .WithMany()
                 .HasForeignKey(o => o.UserAddressId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict);  
         }
     }
 }
