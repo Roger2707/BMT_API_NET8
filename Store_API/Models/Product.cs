@@ -20,5 +20,7 @@ namespace Store_API.Models
         public int BrandId { get; set; }
         [ForeignKey("BrandId")]
         public Brand Brand { get; set; }
+
+        public List<ProductTechnology>? ProductTechnologies { get; set; }
     }
 }

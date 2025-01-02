@@ -12,7 +12,7 @@ namespace Store_API.Services
 {
     public class ProductService : IProductRepository
     {
-        private readonly int count_in_page = 6;
+        private readonly int count_in_page = 8;
 
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
@@ -216,7 +216,7 @@ namespace Store_API.Services
                             LEFT JOIN Promotions as promotion 
                             ON product.CategoryId = promotion.CategoryId 
                                 AND product.BrandId = promotion.BrandId 
-                                AND promotion.[End] <= GETDATE()
+                                AND promotion.[End] >= GETDATE()
 
                             WHERE product.Id = @Id AND product.ProductStatus = 1 ";
 
@@ -297,7 +297,7 @@ namespace Store_API.Services
                             LEFT JOIN Promotions as promotion 
                             ON product.CategoryId = promotion.CategoryId 
                                 AND product.BrandId = promotion.BrandId 
-                                AND promotion.[End] <= GETDATE()
+                                AND promotion.[End] >= GETDATE()
 
                             WHERE product.ProductStatus = 1 
 
@@ -356,6 +356,28 @@ namespace Store_API.Services
             int totalRow = await GetTotalRecord(productParams);
             Pagination<ProductDTO> productPagination = Pagination<ProductDTO>.GetPaginationData(products, totalRow, productParams.CurrentPage, count_in_page);
             return productPagination;
+        }
+
+        public async Task<dynamic> GetTechnologies(int productId)
+        {
+            string query = @"SELECT 
+	                                t.Name
+	                                , t.Description
+	                                , t.ImageUrl
+                                FROM Technologies t
+                                INNER JOIN ProductTechnology pt ON t.Id = pt.TechnologiesId
+                                WHERE pt.ProductsId = @ProductId
+                                ";
+
+            List<dynamic> result = await _dapperService.QueryAsync(query, new { ProductId = productId });
+            var teches = new List<dynamic>();
+
+            if(result.Count > 0)
+            {
+                for(int i = 0; i < result.Count; i++)
+                    teches.Add(new { Name = result[i].Name, Description = result[i].Description, ImageUrl = result[i].ImageUrl });
+            }
+            return teches;
         }
 
         #endregion

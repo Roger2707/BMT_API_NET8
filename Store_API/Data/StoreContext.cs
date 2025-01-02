@@ -27,6 +27,7 @@ namespace Store_API.Data
         public DbSet<Reply> Replies { get; set; }
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<Technology> Technologies { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -66,7 +67,8 @@ namespace Store_API.Data
                 .HasOne(o => o.UserAddress)
                 .WithMany()
                 .HasForeignKey(o => o.UserAddressId)
-                .OnDelete(DeleteBehavior.Restrict);  
+                .OnDelete(DeleteBehavior.Restrict);
+
         }
     }
 }

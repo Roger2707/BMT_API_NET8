@@ -86,6 +86,22 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Technologies",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Technologies", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -414,6 +430,30 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ProductTechnologies",
+                columns: table => new
+                {
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    TechnologyId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductTechnologies", x => new { x.ProductId, x.TechnologyId });
+                    table.ForeignKey(
+                        name: "FK_ProductTechnologies_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductTechnologies_Technologies_TechnologyId",
+                        column: x => x.TechnologyId,
+                        principalTable: "Technologies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Ratings",
                 columns: table => new
                 {
@@ -603,6 +643,11 @@ namespace Store_API.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ProductTechnologies_TechnologyId",
+                table: "ProductTechnologies",
+                column: "TechnologyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Promotions_BrandId",
                 table: "Promotions",
                 column: "BrandId");
@@ -661,6 +706,9 @@ namespace Store_API.Migrations
                 name: "OrderItems");
 
             migrationBuilder.DropTable(
+                name: "ProductTechnologies");
+
+            migrationBuilder.DropTable(
                 name: "Promotions");
 
             migrationBuilder.DropTable(
@@ -677,6 +725,9 @@ namespace Store_API.Migrations
 
             migrationBuilder.DropTable(
                 name: "Orders");
+
+            migrationBuilder.DropTable(
+                name: "Technologies");
 
             migrationBuilder.DropTable(
                 name: "Comments");

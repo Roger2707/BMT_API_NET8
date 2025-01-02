@@ -9,12 +9,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Store_API.Data;
 using Store_API.DTOs;
 using Store_API.DTOs.Products;
-using Store_API.Helpers;
 using Store_API.Models;
 using Store_API.Repositories;
-using Store_API.Validations;
 using System.ComponentModel.DataAnnotations;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Store_API.Controllers
 {
@@ -56,6 +53,21 @@ namespace Store_API.Controllers
             ProductDTO product = await _unitOfWork.Product.GetById(id);
             if (product == null) return NotFound();
             return Ok(product);
+        }
+
+        [HttpGet("get-technologies")]
+        public async Task<IActionResult> GetTechnologies(int productId)
+        {
+            if (string.IsNullOrEmpty(productId.ToString())) return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
+            try
+            {
+                var teches = await _unitOfWork.Product.GetTechnologies(productId);
+                return Ok(teches);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
         }
 
         [HttpPost("create")]
