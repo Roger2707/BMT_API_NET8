@@ -7,6 +7,6 @@
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
         public string? PublicId { get; set; }
-        public List<ProductTechnology>? ProductTechnologies { get; set; }
+        public List<Product>? Products { get; set; }
     }
 }

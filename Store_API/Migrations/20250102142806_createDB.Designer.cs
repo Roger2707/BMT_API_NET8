@@ -12,7 +12,7 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250102083802_createDB")]
+    [Migration("20250102142806_createDB")]
     partial class createDB
     {
         /// <inheritdoc />
@@ -126,6 +126,21 @@ namespace Store_API.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("ProductTechnology", b =>
+                {
+                    b.Property<int>("ProductsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TechnologiesId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ProductsId", "TechnologiesId");
+
+                    b.HasIndex("TechnologiesId");
+
+                    b.ToTable("ProductTechnology");
                 });
 
             modelBuilder.Entity("Store_API.Models.Althete", b =>
@@ -438,21 +453,6 @@ namespace Store_API.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Store_API.Models.ProductTechnology", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TechnologyId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductId", "TechnologyId");
-
-                    b.HasIndex("TechnologyId");
-
-                    b.ToTable("ProductTechnologies");
-                });
-
             modelBuilder.Entity("Store_API.Models.Promotion", b =>
                 {
                     b.Property<int>("Id")
@@ -747,6 +747,21 @@ namespace Store_API.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ProductTechnology", b =>
+                {
+                    b.HasOne("Store_API.Models.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store_API.Models.Technology", null)
+                        .WithMany()
+                        .HasForeignKey("TechnologiesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Store_API.Models.Althete", b =>
                 {
                     b.HasOne("Store_API.Models.Product", "Product")
@@ -875,25 +890,6 @@ namespace Store_API.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Store_API.Models.ProductTechnology", b =>
-                {
-                    b.HasOne("Store_API.Models.Product", "Product")
-                        .WithMany("ProductTechnologies")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Store_API.Models.Technology", "Technology")
-                        .WithMany("ProductTechnologies")
-                        .HasForeignKey("TechnologyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Technology");
-                });
-
             modelBuilder.Entity("Store_API.Models.Promotion", b =>
                 {
                     b.HasOne("Store_API.Models.Brand", "Brand")
@@ -951,16 +947,6 @@ namespace Store_API.Migrations
             modelBuilder.Entity("Store_API.Models.OrderAggregate.Order", b =>
                 {
                     b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("Store_API.Models.Product", b =>
-                {
-                    b.Navigation("ProductTechnologies");
-                });
-
-            modelBuilder.Entity("Store_API.Models.Technology", b =>
-                {
-                    b.Navigation("ProductTechnologies");
                 });
 
             modelBuilder.Entity("Store_API.Models.User", b =>

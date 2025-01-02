@@ -430,24 +430,24 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductTechnologies",
+                name: "ProductTechnology",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    TechnologyId = table.Column<int>(type: "int", nullable: false)
+                    ProductsId = table.Column<int>(type: "int", nullable: false),
+                    TechnologiesId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ProductTechnologies", x => new { x.ProductId, x.TechnologyId });
+                    table.PrimaryKey("PK_ProductTechnology", x => new { x.ProductsId, x.TechnologiesId });
                     table.ForeignKey(
-                        name: "FK_ProductTechnologies_Products_ProductId",
-                        column: x => x.ProductId,
+                        name: "FK_ProductTechnology_Products_ProductsId",
+                        column: x => x.ProductsId,
                         principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ProductTechnologies_Technologies_TechnologyId",
-                        column: x => x.TechnologyId,
+                        name: "FK_ProductTechnology_Technologies_TechnologiesId",
+                        column: x => x.TechnologiesId,
                         principalTable: "Technologies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -643,9 +643,9 @@ namespace Store_API.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductTechnologies_TechnologyId",
-                table: "ProductTechnologies",
-                column: "TechnologyId");
+                name: "IX_ProductTechnology_TechnologiesId",
+                table: "ProductTechnology",
+                column: "TechnologiesId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Promotions_BrandId",
@@ -706,7 +706,7 @@ namespace Store_API.Migrations
                 name: "OrderItems");
 
             migrationBuilder.DropTable(
-                name: "ProductTechnologies");
+                name: "ProductTechnology");
 
             migrationBuilder.DropTable(
                 name: "Promotions");

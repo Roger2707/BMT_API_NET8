@@ -50,7 +50,7 @@ namespace Store_API.Data
                         Name = "Duora Z Strike (Ver.2017)",
                         Price = 23,
                         Description = "Two Faces - Expolosive Attack - Solid Hard Defend",
-                        ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729048365/cvha8vb07gw68tjy8n8a.png",
+                        ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828714/products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828716/products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828717/products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828718/products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828719/products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828720/products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj.jpg",
                         QuantityInStock = 10,
                         ProductStatus = ProductStatus.Active,
                         Created = DateTime.Now,
@@ -62,7 +62,7 @@ namespace Store_API.Data
                         Name = "ArcSaber 11 Pro (Ver.2021)",
                         Price = 22,
                         Description = "Controls - Focus - Feel",
-                        ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735788498/products/arcsaber 11 pro/lmfmhdb2uhwbi5qlypi1.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735788500/products/arcsaber 11 pro/nvm3dgqrszkyfdwtvf6w.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735788501/products/arcsaber 11 pro/elbm2zrrpmjprgoaiwdv.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735788502/products/arcsaber 11 pro/tuv4fkgdsvt1jdcmjla5.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735788503/products/arcsaber 11 pro/cemxitfnbtfpp7y4cnvd.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735788503/products/arcsaber 11 pro/txafxg1tftqemx65oftx.webp', N'products/arcsaber 11 pro/lmfmhdb2uhwbi5qlypi1,products/arcsaber 11 pro/nvm3dgqrszkyfdwtvf6w,products/arcsaber 11 pro/elbm2zrrpmjprgoaiwdv,products/arcsaber 11 pro/tuv4fkgdsvt1jdcmjla5,products/arcsaber 11 pro/cemxitfnbtfpp7y4cnvd,products/arcsaber 11 pro/txafxg1tftqemx65oftx.webp",
+                        ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828775/products/arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828777/products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828778/products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828779/products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu.jpg",
                         QuantityInStock = 15,
                         ProductStatus = ProductStatus.Active,
                         Created = DateTime.Now,
@@ -83,11 +83,11 @@ namespace Store_API.Data
                     }, 
                     new Product
                     {
-                        Name = "Astrox 99 Pro (Ver.2021)",
-                        Price = 25,
-                        Description = "Attack - Dominate - Conquers",
-                        ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
-                        QuantityInStock = 15,
+                        Name = "Nanoflare 1000Z",
+                        Price = 25.5,
+                        Description = "King Double - Speed - Power",
+                        ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735830149/products/nanoflare 1000z/yj14npg3jorqi1dhbygd.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830150/products/nanoflare 1000z/ptbxakwyi6dtxsedhog4.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830151/products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830152/products/nanoflare 1000z/syrhneosnjsnoyuwwdte.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830153/products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830154/products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt.jpg",
+                        QuantityInStock = 13,
                         ProductStatus = ProductStatus.Active,
                         Created = DateTime.Now,
                         CategoryId = 1,
@@ -251,6 +251,7 @@ namespace Store_API.Data
                     }
                 );
 
+                // 4. Seed Technology
                 if(!context.Technologies.Any())
                 {
                     context.AddRange(
@@ -264,6 +265,14 @@ namespace Store_API.Data
                         new Technology { Name = "NEW Built-in T-Joint", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech8_mqshpr.webp" },
                         new Technology { Name = "ROTATIONAL GENARATOR SYSTEM", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801836/tech9_jfuxth.jpg" },
                         new Technology { Name = "ENERGY BOOST CAP PLUS", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801837/tech10_myratn.jpg" }
+                    );
+                }
+
+                // 6. Seed Promotions
+                if (!context.Promotions.Any())
+                {
+                    context.AddRange(
+                        new Promotion { CategoryId = 1, BrandId = 1, Start = DateTime.Now, End = DateTime.MaxValue, PercentageDiscount = 15 }
                     );
                 }
 
