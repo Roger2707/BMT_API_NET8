@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.SqlClient;
 using Store_API.Models;
 
 namespace Store_API.Data
@@ -277,6 +278,52 @@ namespace Store_API.Data
                 }
 
                 context.SaveChanges();
+            }
+        }
+
+        public static void SeedData(string connectionString)
+        {
+            SeedProductTechnologyData(connectionString);
+        }
+
+        private static void SeedProductTechnologyData(string connectionString)
+        {
+            using (var connection = new SqlConnection(connectionString))
+            {
+                connection.Open();
+
+                string checkQuery = "SELECT COUNT(*) FROM ProductTechnology";
+                using (var checkCommand = new SqlCommand(checkQuery, connection))
+                {
+                    var count = (int)checkCommand.ExecuteScalar();
+                    if (count > 0)
+                        return;
+                }
+
+                string seedQuery = @"
+                                    INSERT INTO ProductTechnology (ProductsId, TechnologiesId) 
+                                    VALUES 
+                                    (1,1), 
+                                    (1,2),
+                                    (1,3),
+                                    (1,4),
+                                    (2,5),
+                                    (2,6),
+                                    (2,7),
+                                    (2,8),
+                                    (3,1),
+                                    (3,9),
+                                    (3,10),
+                                    (5, 1),
+                                    (5, 2),
+                                    (5, 3),
+                                    (5, 5)
+                                    ";
+
+                using (var seedCommand = new SqlCommand(seedQuery, connection))
+                {
+                    seedCommand.ExecuteNonQuery();
+                }
             }
         }
     }

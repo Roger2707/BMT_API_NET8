@@ -12,7 +12,7 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250102142806_createDB")]
+    [Migration("20250103012327_createDB")]
     partial class createDB
     {
         /// <inheritdoc />

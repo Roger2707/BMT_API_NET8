@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using Store_API;
 using Store_API.Data;
 using Store_API.Helpers;
@@ -99,7 +100,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services
-    .AddIdentity<User, Role>(opt =>
+    .AddIdentity<User, Store_API.Models.Role>(opt =>
     {
         opt.Password.RequiredLength = 7;
         opt.Password.RequireDigit = false;
@@ -174,6 +175,28 @@ builder.Services.AddTransient<IPaymentRepository, PaymentService>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 #endregion 
 
+#region Connect Redis
+
+// Đọc chuỗi kết nối từ cấu hình
+var redisConfig = builder.Configuration.GetSection("Redis");
+var redisConnectionString = redisConfig["ConnectionString"];
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+    var configuration = new ConfigurationOptions
+    {
+        EndPoints = { redisConnectionString },
+        AbortOnConnectFail = false,
+        ConnectTimeout = 15000,
+        //Ssl = true,
+        Password = "tokenredisfirstapp",
+    };
+
+    return ConnectionMultiplexer.Connect(configuration);
+});
+
+#endregion 
+
 var app = builder.Build();
 
 #region Middlewares
@@ -209,6 +232,7 @@ using (var scope = app.Services.CreateScope())
 
     context.Database.Migrate();
     DatabaseSeeding.SeedData(context);
+    DatabaseSeeding.SeedData(builder.Configuration.GetConnectionString("DefaultConnection"));
 }
 
 app.Run();
