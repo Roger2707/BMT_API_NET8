@@ -16,6 +16,8 @@ using Store_API.Services;
 using Store_API.Validations;
 using Stripe;
 using System.Text;
+using Renci.SshNet;
+using Store_API.RedisConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -177,19 +179,27 @@ builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 
 #region Connect Redis
 
-// Đọc chuỗi kết nối từ cấu hình
-var redisConfig = builder.Configuration.GetSection("Redis");
-var redisConnectionString = redisConfig["ConnectionString"];
+var sshConfig = new SshConfig
+{
+    SshHost = "ec2-47-129-57-48.ap-southeast-1.compute.amazonaws.com",
+    SshPort = 22,
+    SshUsername = "ec2-user",
+    SshKeyFile = @"A:\Personal\EConmmercial\jump_server_keypair.pem",
+    LocalPort = 6379,
+    RemoteHost = "rediscache.vejvgg.ng.0001.apse1.cache.amazonaws.com",
+    RemotePort = 6379
+};
 
+builder.Services.AddSingleton(sshConfig);
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
+    var sshManager = new SshTunnelManager(sp.GetRequiredService<SshConfig>());
+    sshManager.StartTunnel();
+
     var configuration = new ConfigurationOptions
     {
-        EndPoints = { redisConnectionString },
+        EndPoints = { "localhost:6379" },
         AbortOnConnectFail = false,
-        ConnectTimeout = 15000,
-        //Ssl = true,
-        Password = "tokenredisfirstapp",
     };
 
     return ConnectionMultiplexer.Connect(configuration);
