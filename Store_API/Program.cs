@@ -18,6 +18,7 @@ using Stripe;
 using System.Text;
 using Renci.SshNet;
 using Store_API.RedisConfig;
+using Store_API.RabbitMQConfig;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -204,6 +205,13 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
     return ConnectionMultiplexer.Connect(configuration);
 });
+
+#endregion 
+
+#region RabbitMQ
+
+builder.Services.AddSingleton<MessageQueue>();
+builder.Services.AddSingleton<RabbitMQService>();
 
 #endregion 
 
