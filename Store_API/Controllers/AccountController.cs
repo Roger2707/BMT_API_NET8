@@ -129,8 +129,8 @@ namespace Store_API.Controllers
                     HttpContext.Response.Headers.Append("Authorization", $"Bearer {userResponse.Token}");
                     return Redirect($"http://localhost:3000/callback");
                 }
-                return BadRequest(new ProblemDetails { Title = "Failed to create user." });
             }
+            return BadRequest();
         }
 
         [HttpPost("sign-up")]

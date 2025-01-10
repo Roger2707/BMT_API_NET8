@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
+﻿using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -7,16 +6,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
-using Store_API;
 using Store_API.Data;
-using Store_API.Helpers;
 using Store_API.Models;
 using Store_API.Repositories;
 using Store_API.Services;
-using Store_API.Validations;
-using Stripe;
 using System.Text;
-using Renci.SshNet;
 using Store_API.RedisConfig;
 using Store_API.RabbitMQConfig;
 
@@ -136,14 +130,6 @@ builder.Services
                 .GetBytes(builder.Configuration["JWTSettings:TokenKey"]))
         };
     })
-    //.AddCookie(options =>
-    //{
-    //    options.Cookie.HttpOnly = true;
-    //    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-    //    options.Cookie.SameSite = SameSiteMode.Lax;
-    //    options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-    //    options.SlidingExpiration = true;
-    //})
     .AddGoogle(options =>
     {
         options.ClientId = builder.Configuration["OAuth:ClientID"];
@@ -178,7 +164,7 @@ builder.Services.AddTransient<IPaymentRepository, PaymentService>();
 builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 #endregion 
 
-#region Connect Redis
+#region Connect Redis (build SSH)
 
 var sshConfig = new SshConfig
 {
