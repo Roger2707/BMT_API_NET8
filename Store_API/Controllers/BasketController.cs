@@ -27,8 +27,7 @@ namespace Store_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetBasket()
         {
-            int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
-            string basketKey = $"basket:{userId}";
+            string basketKey = $"basket:{User.Identity.Name}";
 
             // Get basket existed in redis
             var cacheBasket = await _redis.StringGetAsync(basketKey);
@@ -60,11 +59,13 @@ namespace Store_API.Controllers
             if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });
             string error = "";
             int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
-            string basketKey = $"basket:{userId}";
+            string basketKey = $"basket:{User.Identity.Name}";
             BasketDTO basketDb = null;
 
             try
             {
+                _unitOfWork.BeginTrans();
+
                 // 1. Upsert in Database
                 await _unitOfWork.Basket.HandleBasketMode(userId, productId, true);
 
@@ -72,6 +73,8 @@ namespace Store_API.Controllers
                 basketDb = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
                 var serializedCart = JsonSerializer.Serialize(basketDb);
                 await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
+
+                _unitOfWork.Commit();
             }
             catch (Exception ex)
             {
@@ -89,7 +92,7 @@ namespace Store_API.Controllers
             }
 
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return CreatedAtRoute("get-detail-basket", basketDb);
+            return CreatedAtRoute("get-basket", basketDb);
         }
 
         [Authorize]
@@ -97,25 +100,40 @@ namespace Store_API.Controllers
         public async Task<IActionResult> ToggleItemsStatus(int itemId)
         {
             string error = "";
+            BasketDTO basketDb = null;
+            string basketKey = $"basket:{User.Identity.Name}";
+
             try
             {
                 _unitOfWork.BeginTrans();
 
+                // 1. Upsert in Database
                 await _unitOfWork.Basket.ToggleStatusItems(User.Identity.Name, itemId);
+
+                // 2. Sync in Redis
+                basketDb = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
+                var serializedCart = JsonSerializer.Serialize(basketDb);
+                await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
 
                 _unitOfWork.Commit();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 error = ex.Message;
+
+                // 1. Rollback
                 _unitOfWork.Rollback();
+
+                // 2. Remove Key Redis (Cache Invalidation)
+                await _redis.KeyDeleteAsync(basketKey);
             }
-            finally {  _unitOfWork.CloseConnection();}
+            finally
+            {
+                _unitOfWork.CloseConnection();
+            }
 
-            if(error != "") return BadRequest(new ProblemDetails { Title = error });
-
-            var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-            return CreatedAtRoute("GetDetailBasket", basket);
+            if (error != "") return BadRequest(new ProblemDetails { Title = error });
+            return CreatedAtRoute("get-basket", basketDb);
         }
     }
 }
