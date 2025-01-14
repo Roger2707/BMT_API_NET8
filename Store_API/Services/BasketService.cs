@@ -98,6 +98,7 @@ namespace Store_API.Services
             string query = @" Update Baskets 
                                 SET PaymentIntentId = @PaymentIntentId, ClientSecret = @ClientSecret
                                 WHERE Id = @Id  ";
+
             var p = new { PaymentIntentId = paymentIntentId, ClientSecret = clientSecret, Id = basketId };
 
             try

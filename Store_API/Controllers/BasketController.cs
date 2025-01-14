@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using StackExchange.Redis;
 using Store_API.DTOs.Baskets;
 using Store_API.Models;
 using Store_API.Repositories;
+using System.Text.Json;
 
 namespace Store_API.Controllers
 {
@@ -14,34 +14,42 @@ namespace Store_API.Controllers
     public class BasketController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IDatabase _redis;
         private readonly UserManager<User> _userManager;
-        public BasketController(IUnitOfWork unitOfWork, UserManager<User> userManager)
+        public BasketController(IUnitOfWork unitOfWork, IConnectionMultiplexer redis, UserManager<User> userManager)
         {
             _unitOfWork = unitOfWork;
+            _redis = redis.GetDatabase();
             _userManager = userManager;
         }
 
-        [HttpGet]
-        [Authorize(Roles = "Manager, Admin")]
-        public async Task<IActionResult> GetCustomerBasket(string username)
-        {
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null) return NotFound();
-
-            var basket = await _unitOfWork.Basket.GetBasket(username);
-            if (basket == null) return NotFound();
-
-            return Ok(basket);
-        }
-
-        [HttpGet("get-detail-basket")]
+        [HttpGet("get-basket")]
         [Authorize]
-        public async Task<IActionResult> GetDetailBasket()
+        public async Task<IActionResult> GetBasket()
         {
-            var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-            if (basket == null) return NotFound();
+            int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
+            string basketKey = $"basket:{userId}";
 
-            return Ok(basket);
+            // Get basket existed in redis
+            var cacheBasket = await _redis.StringGetAsync(basketKey);
+
+            // If basket existed in redis, return it
+            if (!string.IsNullOrEmpty(cacheBasket))
+            {
+                var cartFromCache = JsonSerializer.Deserialize<Basket>(cacheBasket);
+                return Ok(cartFromCache);
+            }
+
+            // If basket not existed in redis, get it from database
+            var basketDb = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
+
+            // If basket not existed in database, return not found
+            if (basketDb == null) return NotFound();
+
+            // Store the basket in Redis cache
+            var serializedCart = JsonSerializer.Serialize(basketDb);
+            await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
+            return Ok(basketDb);
         }
 
         [Authorize]
@@ -50,16 +58,30 @@ namespace Store_API.Controllers
         {
             var product = await _unitOfWork.Product.GetById(productId);
             if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });
-
             string error = "";
+            int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
+            string basketKey = $"basket:{userId}";
+            BasketDTO basketDb = null;
+
             try
             {
-                int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
+                // 1. Upsert in Database
                 await _unitOfWork.Basket.HandleBasketMode(userId, productId, true);
+
+                // 2. Sync in Redis
+                basketDb = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
+                var serializedCart = JsonSerializer.Serialize(basketDb);
+                await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
             }
             catch (Exception ex)
             {
                 error = ex.Message;
+
+                // 1. Rollback
+                _unitOfWork.Rollback();
+
+                // 2. Remove Key Redis (Cache Invalidation)
+                await _redis.KeyDeleteAsync(basketKey);
             }
             finally
             {
@@ -67,9 +89,7 @@ namespace Store_API.Controllers
             }
 
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
-
-            var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-            return CreatedAtRoute("get-detail-basket", basket);
+            return CreatedAtRoute("get-detail-basket", basketDb);
         }
 
         [Authorize]
