@@ -35,7 +35,7 @@ namespace Store_API.Controllers
             // If basket existed in redis, return it
             if (!string.IsNullOrEmpty(cacheBasket))
             {
-                var cartFromCache = JsonSerializer.Deserialize<Basket>(cacheBasket);
+                var cartFromCache = JsonSerializer.Deserialize<BasketDTO>(cacheBasket);
                 return Ok(cartFromCache);
             }
 

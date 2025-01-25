@@ -12,30 +12,24 @@ namespace Store_API.Extensions
             // Map Basket to BasketDTO
             foreach (var item in result)
             {
-                // Check Promotion 
-                double discount = item.Discount;
-                double originPrice = item.OriginPrice;
-                double salesPrice = originPrice;
-
-                if (discount > 0)
-                    salesPrice = originPrice - originPrice * (discount / 100);
 
                 BasketItemDTO itemDTO = new BasketItemDTO()
                 {
                     BasketItemId = item.BasketItemId,
                     ProductId = item.ProductId,
                     ProductName = item.ProductName,
+                    ProductFirstImage = item.ProductFirstImage,
                     Quantity = item.Quantity,
                     OriginPrice = item.OriginPrice,
-                    Discount = discount,
-                    SalesPrice = salesPrice,
+                    DiscountPercent = item.DiscountPercent,
+                    DiscountPrice = item.DiscountPrice,
                     Status = item.Status,
                 };
 
                 items.Add(itemDTO);
             }
 
-            double totalPrice = items.Where(i => i.Status == true).Sum(i => i.SalesPrice);
+            double totalPrice = items.Where(i => i.Status == true).Sum(i => i.DiscountPrice);
 
             BasketDTO basket = new BasketDTO
             {

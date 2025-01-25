@@ -18,7 +18,7 @@ namespace Store_API.Services
             StripeConfiguration.ApiKey = _config["StripeSettings:SecretKey"];
             var service = new PaymentIntentService();
             var intent = new PaymentIntent();
-            var subTotal = basket.Items.Where(item => item.Status == true).Sum(item => item.SalesPrice);
+            var subTotal = basket.Items.Where(item => item.Status == true).Sum(item => item.DiscountPrice);
 
             // Will be updated later => ( maybe by the address shipping )
             var deliveryFee = subTotal > 1000000 ? 0 : 25000;

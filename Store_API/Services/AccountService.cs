@@ -1,7 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Win32;
 using Store_API.Data;
 using Store_API.DTOs.Accounts;
 using Store_API.Helpers;

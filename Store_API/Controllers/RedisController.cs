@@ -46,5 +46,20 @@ namespace Store_API.Controllers
                 return BadRequest(new { Error = ex.Message });
             }
         }
+
+        [HttpGet("delete")]
+        public async Task<IActionResult> DelKeyValue(string key)
+        {
+            try
+            {
+                var db = _redis.GetDatabase();
+                var value = await db.KeyDeleteAsync(key);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
     }
 }

@@ -25,17 +25,23 @@ namespace Store_API.Services
         {
             string query = @"
                             SELECT 
-                                basket.Id
-                                , basket.UserId
-                                , items.Id as BasketItemId
-                                , items.ProductId
-                                , product.Name as ProductName
-                                , items.Quantity
-                                , items.Price as OriginPrice
-                                , ISNULL(promotion.PercentageDiscount, 0) as Discount
-                                , items.Status
-                                , basket.PaymentIntentId
-                                , basket.ClientSecret
+
+                            basket.Id
+                            , basket.UserId
+                            , items.Id as BasketItemId
+                            , items.ProductId
+                            , product.Name as ProductName
+                            , IIF(product.ImageUrl IS NOT NULL, 
+                                (SELECT TOP 1 value 
+                                 FROM STRING_SPLIT(product.ImageUrl, ',')), 
+                                '') AS ProductFirstImage
+                            , items.Quantity
+                            , product.Price as OriginPrice
+                            , ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent
+                            , IIF(promotion.PercentageDiscount is not NULL, product.Price - (product.Price * (promotion.PercentageDiscount / 100)), product.Price) as DiscountPrice
+                            , items.Status
+                            , basket.PaymentIntentId
+                            , basket.ClientSecret
 
                             FROM Baskets basket
 
@@ -44,7 +50,7 @@ namespace Store_API.Services
                             INNER JOIN Brands brand ON brand.Id = product.BrandId
                             INNER JOIN Categories category ON category.Id = product.CategoryId
                             LEFT JOIN Promotions promotion 
-                                ON promotion.CategoryId = category.Id AND promotion.BrandId = brand.Id AND GETDATE() <= promotion.[End]
+                            ON promotion.CategoryId = category.Id AND promotion.BrandId = brand.Id AND GETDATE() <= promotion.[End]
                             INNER JOIN AspNetUsers u ON u.Id = basket.UserId
 
                             WHERE u.UserName = @UserName
