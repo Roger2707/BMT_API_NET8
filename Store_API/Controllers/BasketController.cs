@@ -53,7 +53,7 @@ namespace Store_API.Controllers
 
         [Authorize]
         [HttpPost("upsert-basket")]
-        public async Task<IActionResult> UpsertBasket(int productId)
+        public async Task<IActionResult> UpsertBasket(int productId, int mode)
         {
             var product = await _unitOfWork.Product.GetById(productId);
             if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });
@@ -64,26 +64,20 @@ namespace Store_API.Controllers
 
             try
             {
-                _unitOfWork.BeginTrans();
-
                 // 1. Upsert in Database
-                await _unitOfWork.Basket.HandleBasketMode(userId, productId, true);
+                bool modeParam = mode == 1 ? true : false;
+                await _unitOfWork.Basket.HandleBasketMode(userId, productId, modeParam);
 
                 // 2. Sync in Redis
                 basketDb = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
                 var serializedCart = JsonSerializer.Serialize(basketDb);
                 await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
-
-                _unitOfWork.Commit();
             }
             catch (Exception ex)
             {
                 error = ex.Message;
 
-                // 1. Rollback
-                _unitOfWork.Rollback();
-
-                // 2. Remove Key Redis (Cache Invalidation)
+                // Remove Key Redis (Cache Invalidation)
                 await _redis.KeyDeleteAsync(basketKey);
             }
             finally
@@ -92,7 +86,7 @@ namespace Store_API.Controllers
             }
 
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return CreatedAtRoute("get-basket", basketDb);
+            return Ok(basketDb);
         }
 
         [Authorize]
@@ -133,7 +127,7 @@ namespace Store_API.Controllers
             }
 
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return CreatedAtRoute("get-basket", basketDb);
+            return Ok(basketDb);
         }
     }
 }

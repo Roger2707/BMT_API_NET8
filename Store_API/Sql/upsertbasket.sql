@@ -26,7 +26,7 @@ BEGIN TRY
 							END
 						ELSE
 							BEGIN
-								INSERT INTO BasketItems (BasketId, ProductId, Quantity, Status) VALUES (@BasketItemId, @ProductId, 1, 0)
+								INSERT INTO BasketItems (BasketId, ProductId, Quantity, Status) VALUES (@BasketId, @ProductId, 1, 0)
 							END
 					END
 				ELSE
