@@ -2,7 +2,6 @@
 using Dapper;
 using Microsoft.Data.SqlClient;
 using System.Data;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Store_API.Data
 {
@@ -19,98 +18,108 @@ namespace Store_API.Data
             _connectionString = _configuration.GetConnectionString("DefaultConnection");
         }
 
-        #region Open / Close Connect
-        public void CreateConnection()
-        {
-            if (_connection == null || _connection.State == ConnectionState.Closed || _connection.State == ConnectionState.Broken)
-            {
-                if (_connection != null)
-                {
-                    if (_connection.State == ConnectionState.Closed || _connection.State == ConnectionState.Broken)
-                    {
-                        try { _connection.Dispose(); }
-                        catch { }
-                        _connection = null;
-                    }
-                }
-
-                if (_connection == null) _connection = new SqlConnection(_connectionString);
-
-                _connection.Open();
-            }
-        }
-
-        public void CloseConnection()
-        {
-            if (_connection != null)
-            {
-                _connection.Close();
-                _connection = null;
-            }
-        }
-
-        #endregion
-
-
-        #region Transaction
+        #region Transaction Methods
         public void BeginTrans()
         {
-            if (_transaction == null)
-            {
-                CreateConnection();
-                _transaction = _connection.BeginTransaction();
-            }
+            _connection = new SqlConnection(_connectionString);
+            _connection.Open();
+            _transaction = _connection.BeginTransaction();
         }
 
         public void Commit()
         {
-            if (_transaction != null)
+            try
             {
-                _transaction.Commit();
-                Dispose();
+                _transaction?.Commit();
+            }
+            catch
+            {
+                Rollback();  // Nếu commit thất bại, rollback
+                throw;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
         public void Rollback()
         {
-            if (_transaction != null)
+            try
             {
-                _transaction.Rollback();
-                Dispose();
+                _transaction?.Rollback();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                CloseConnection();
             }
         }
 
-        public void Dispose()
+        // Đảm bảo đóng kết nối khi giao dịch kết thúc hoặc khi không còn cần thiết
+        private void CloseConnection()
         {
-            if (_transaction != null) _transaction.Dispose();
+            if (_connection != null && _connection.State == ConnectionState.Open)
+            {
+                _connection.Close();
+            }
         }
 
         #endregion
 
-
-        #region Get / Execute Query
-        public async Task<int> Execute(string query, object p)
+        #region Queries Methods
+        public async Task<int> Execute(string query, object p = null)
         {
-            CreateConnection();
-            int result = await _connection.ExecuteAsync(query, p, _transaction);
-
-            return result;
+            if (_transaction != null)
+            {
+                // Sử dụng giao dịch nếu đã bắt đầu giao dịch trước đó
+                return await _connection.ExecuteAsync(query, p, _transaction);
+            }
+            else
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();  // Mở kết nối bất đồng bộ
+                    return await connection.ExecuteAsync(query, p);
+                }
+            }
         }
 
         public async Task<List<dynamic>> QueryAsync(string query, object p)
         {
-            CreateConnection();
-            IEnumerable<dynamic> result = await _connection.QueryAsync(query, p, _transaction);
-
-            return result.AsList();
+            if (_transaction != null)
+            {
+                // Sử dụng giao dịch nếu đã bắt đầu giao dịch trước đó
+                return (await _connection.QueryAsync<dynamic>(query, p, _transaction)).ToList();
+            }
+            else
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();  // Mở kết nối bất đồng bộ
+                    return (await connection.QueryAsync<dynamic>(query, p)).ToList();
+                }
+            }
         }
 
         public async Task<dynamic> QueryFirstOrDefaultAsync(string query, object p)
         {
-            CreateConnection();
-            dynamic result = await _connection.QueryFirstOrDefaultAsync(query, p, _transaction);
-
-            return result;
+            if (_transaction != null)
+            {
+                // Sử dụng giao dịch nếu đã bắt đầu giao dịch trước đó
+                return await _connection.QueryFirstOrDefaultAsync<dynamic>(query, p, _transaction);
+            }
+            else
+            {
+                using (var connection = new SqlConnection(_connectionString))
+                {
+                    await connection.OpenAsync();  // Mở kết nối bất đồng bộ
+                    return await connection.QueryFirstOrDefaultAsync<dynamic>(query, p);
+                }
+            }
         }
 
         #endregion

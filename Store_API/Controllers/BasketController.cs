@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using StackExchange.Redis;
 using Store_API.DTOs.Baskets;
 using Store_API.Models;
@@ -57,7 +58,7 @@ namespace Store_API.Controllers
         {
             var product = await _unitOfWork.Product.GetById(productId);
             if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });
-            string error = "";
+
             int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
             string basketKey = $"basket:{User.Identity.Name}";
             BasketDTO basketDb = null;
@@ -73,19 +74,18 @@ namespace Store_API.Controllers
                 var serializedCart = JsonSerializer.Serialize(basketDb);
                 await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
             }
-            catch (Exception ex)
+            catch(SqlException ex)
             {
-                error = ex.Message;
-
                 // Remove Key Redis (Cache Invalidation)
                 await _redis.KeyDeleteAsync(basketKey);
+                return StatusCode(500, new { message = ex.Message });
             }
-            finally
+            catch (Exception ex)
             {
-                _unitOfWork.CloseConnection();
+                // Remove Key Redis (Cache Invalidation)
+                await _redis.KeyDeleteAsync(basketKey);
+                return BadRequest(new ProblemDetails { Title = ex.Message });
             }
-
-            if (error != "") return BadRequest(new ProblemDetails { Title = error });
             return Ok(basketDb);
         }
 
@@ -120,10 +120,6 @@ namespace Store_API.Controllers
 
                 // 2. Remove Key Redis (Cache Invalidation)
                 await _redis.KeyDeleteAsync(basketKey);
-            }
-            finally
-            {
-                _unitOfWork.CloseConnection();
             }
 
             if (error != "") return BadRequest(new ProblemDetails { Title = error });

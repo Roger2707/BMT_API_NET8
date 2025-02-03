@@ -143,10 +143,6 @@ namespace Store_API.Controllers
                 error = ex.Message;
                 _unitOfWork.Rollback();
             }
-            finally
-            { 
-                _unitOfWork.CloseConnection();
-            }
             if(result > 0) return Ok(result);
             return BadRequest(new ProblemDetails { Title = error });
         }
@@ -176,10 +172,7 @@ namespace Store_API.Controllers
                 error = ex.Message;
                 _unitOfWork.Rollback();
             }
-            finally
-            {
-                _unitOfWork.CloseConnection();
-            }
+
 
             if (error == "")
                 return Ok();

@@ -34,6 +34,8 @@ namespace Store_API.Services
             Rating = new RatingService(_db, _service);
             Promotion = new PromotionService(_db, _service);
         }
+
+        #region Models Repository
         public ICategoryRepository Category { get; private set; }
         public IBrandRepository Brand { get; private set; }
         public IProductRepository Product { get; private set; }
@@ -44,15 +46,15 @@ namespace Store_API.Services
         public ICommentRepository Comment { get; private set; }
         public IRatingRepository Rating { get; private set; }
         public IPromotionRepository Promotion { get; private set; }
+        #endregion
 
+        #region Dapper Methods
         public void BeginTrans() => _service.BeginTrans();
-
-        public void CloseConnection() => _service.CloseConnection();
-
         public void Commit() => _service.Commit();
-
         public void Rollback() => _service.Rollback();
+        #endregion
 
+        #region Helpers
         public async Task<int> GetMaxId(string tableName)
         {
             string query = @" SELECT MAX(Id) as MaxId FROM " + tableName;
@@ -60,7 +62,6 @@ namespace Store_API.Services
             if (result == null) return 0;
             return CF.GetInt(result[0].MaxId);
         }
-
         public async Task<bool> CheckExisted(string tableName, int id)
         {
             string query = @" SELECT COUNT(*) as Record FROM " + tableName + " WHERE Id = @Id ";
@@ -69,7 +70,6 @@ namespace Store_API.Services
             if (CF.GetInt(result.Record) > 0) return true;
             return false;
         }
-
         public async Task<bool> CheckExisted(string tableName, string name)
         {
             string query = @" SELECT COUNT(*) as Record FROM " + tableName + " WHERE Name = @Name ";
@@ -83,5 +83,6 @@ namespace Store_API.Services
             int result = await _db.SaveChangesAsync();
             return result;
         }
+        #endregion
     }
 }

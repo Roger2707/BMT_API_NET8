@@ -85,15 +85,8 @@ namespace Store_API.Services
         {
             string sqlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sql", "upsertbasket.sql");
             string query = System.IO.File.ReadAllText(sqlFilePath);
-            try
-            {
-                var p = new { UserId = userId, ProductId = productId, Mode = mode };
-                await _dapperService.Execute(query, p);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
-            }
+            var p = new { UserId = userId, ProductId = productId, Mode = mode };
+            await _dapperService.Execute(query, p);
         }
 
         public async Task UpdateBasketPayment(string paymentIntentId, string clientSecret, string username)

@@ -48,7 +48,7 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	PRINT 'An error occurred. Rolling back the transaction';
 	IF @@TRANCOUNT > 0
         ROLLBACK;
+	THROW 50005, 'An error occurred. Rolling back the transaction', 5;
 END CATCH

@@ -18,7 +18,6 @@
         public void BeginTrans();
         public void Commit();
         public void Rollback();
-        public void CloseConnection();
         public Task<int> GetMaxId(string tableName);
         public Task<bool> CheckExisted(string tableName, int id);
         public Task<bool> CheckExisted(string tableName, string name);

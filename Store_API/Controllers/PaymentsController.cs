@@ -52,10 +52,6 @@ namespace Store_API.Controllers
                 error = ex.Message;
                 _unitOfWork.Rollback();
             }
-            finally
-            {
-                _unitOfWork.CloseConnection();
-            }
 
             if (error != "") return BadRequest(new ProblemDetails { Title = "Problem updating basket with intent" });
             var updatedBasket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
