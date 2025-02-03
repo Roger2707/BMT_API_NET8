@@ -74,13 +74,7 @@ namespace Store_API.Controllers
                 var serializedCart = JsonSerializer.Serialize(basketDb);
                 await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
             }
-            catch(SqlException ex)
-            {
-                // Remove Key Redis (Cache Invalidation)
-                await _redis.KeyDeleteAsync(basketKey);
-                return StatusCode(500, new { message = ex.Message });
-            }
-            catch (Exception ex)
+            catch (SqlException ex)
             {
                 // Remove Key Redis (Cache Invalidation)
                 await _redis.KeyDeleteAsync(basketKey);
@@ -93,7 +87,6 @@ namespace Store_API.Controllers
         [HttpPost("toggle-status-item")]
         public async Task<IActionResult> ToggleItemsStatus(int itemId)
         {
-            string error = "";
             BasketDTO basketDb = null;
             string basketKey = $"basket:{User.Identity.Name}";
 
@@ -113,16 +106,14 @@ namespace Store_API.Controllers
             }
             catch (Exception ex)
             {
-                error = ex.Message;
-
                 // 1. Rollback
                 _unitOfWork.Rollback();
 
                 // 2. Remove Key Redis (Cache Invalidation)
                 await _redis.KeyDeleteAsync(basketKey);
-            }
 
-            if (error != "") return BadRequest(new ProblemDetails { Title = error });
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
             return Ok(basketDb);
         }
     }

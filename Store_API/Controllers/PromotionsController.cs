@@ -86,10 +86,6 @@ namespace Store_API.Controllers
                 error = ex.Message;
                 _unitOfWork.Rollback();
             }
-            finally
-            {
-                _unitOfWork.CloseConnection();
-            }
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
             return Ok();
         }

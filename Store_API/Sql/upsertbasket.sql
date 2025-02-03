@@ -4,6 +4,7 @@ DECLARE @OldQuantity INT
 
 BEGIN TRY
 	BEGIN TRANSACTION
+
 		IF(NOT EXISTS(SELECT Id FROM Baskets WHERE UserId = @UserId)) 
 			BEGIN
 				INSERT INTO Baskets (UserId) VALUES (@UserId)
@@ -48,7 +49,6 @@ BEGIN TRY
 END TRY
 
 BEGIN CATCH
-	IF @@TRANCOUNT > 0
-        ROLLBACK;
-	THROW 50005, 'An error occurred. Rolling back the transaction', 5;
+    ROLLBACK;
+	THROW 50005, 'Problem Upsert Basket Item! Status: 400', 1;
 END CATCH
