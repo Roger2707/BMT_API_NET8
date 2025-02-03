@@ -93,7 +93,6 @@ namespace Store_API.Controllers
             try
             {
                 _unitOfWork.BeginTrans();
-
                 // 1. Upsert in Database
                 await _unitOfWork.Basket.ToggleStatusItems(User.Identity.Name, itemId);
 
@@ -108,10 +107,8 @@ namespace Store_API.Controllers
             {
                 // 1. Rollback
                 _unitOfWork.Rollback();
-
                 // 2. Remove Key Redis (Cache Invalidation)
                 await _redis.KeyDeleteAsync(basketKey);
-
                 return BadRequest(new ProblemDetails { Title = ex.Message });
             }
             return Ok(basketDb);
