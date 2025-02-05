@@ -150,7 +150,6 @@ builder.Services.AddAuthorization();
 
 #endregion 
 
-
 #region Services
 
 builder.Services.AddHttpClient();

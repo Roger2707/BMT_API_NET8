@@ -21,10 +21,8 @@ namespace Store_API.Services
             var subTotal = basket.Items.Where(item => item.Status == true).Sum(item => item.DiscountPrice);
 
             // Will be updated later => ( maybe by the address shipping )
-            var deliveryFee = subTotal > 1000000 ? 0 : 25000;
-
-            // Convert vnd -> usd because Stripe don't have vnd
-            var amount = CF.ConvertVndToUsd(subTotal + deliveryFee);
+            var deliveryFee = subTotal > 100 ? 0 : 10;
+            var amount = subTotal + deliveryFee;
 
             if(string.IsNullOrEmpty(basket.PaymentIntentId))
             {

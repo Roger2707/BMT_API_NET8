@@ -29,14 +29,14 @@ namespace Store_API.Extensions
                 items.Add(itemDTO);
             }
 
-            double totalPrice = items.Where(i => i.Status == true).Sum(i => i.DiscountPrice);
+            double totalPrice = items.Where(i => i.Status == true).Sum(i => i.DiscountPrice * i.Quantity);
 
             BasketDTO basket = new BasketDTO
             {
                 Id = result[0].Id,
                 UserId = result[0].UserId,
                 Items = items,
-                TotalPrice = totalPrice,
+                GrandTotal = totalPrice,
                 PaymentIntentId = result[0].PaymentIntentId,
                 ClientSecret = result[0].ClientSecret,
             };

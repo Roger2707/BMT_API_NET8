@@ -3,6 +3,7 @@ using Store_API.Data;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.Helpers;
+using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 
 namespace Store_API.Services
@@ -16,60 +17,63 @@ namespace Store_API.Services
             _db = db;
             _dapperService = dapperService;
         }
-        //public async Task Create(int userId, ShippingAddressDTO address, BasketDTO basket)
-        //{
-        //    // 1. Get Shipping Address
-        //    var orderAddress = new ShippingAddress 
-        //    { 
-        //        StreetAddress = address.StreetAddress,
-        //        City = address.City,
-        //        State = address.State,
-        //        PostalCode = address.PostalCode,
-        //        Country = address.Country,
-        //    };
 
-        //    // 2. Get Items
-        //    var orderItems = new List<OrderItem>();
-        //    foreach (var item in basket.Items)
-        //    {
-        //        var orderItem = new OrderItem
-        //        { 
-        //            ItemPrice = item.SalesPrice,
-        //            Quantity = item.Quantity,
-        //            ProductId = item.ProductId,
-        //        };
-        //        orderItems.Add(orderItem);
-        //    }
+        public async Task Create(int userId, UserAddressDTO address, BasketDTO basket)
+        {
+            // 1. Get Shipping Address
+            var orderAddress = new UserAddress
+            {
+                City = address.City,
+                District = address.District,
+                Ward = address.Ward,
+                StreetAddress = address.StreetAddress,
+                PostalCode = address.PostalCode,
+                Country = address.Country,
+            };
 
-        //    // 3. Calc Total Price
-        //    double totalPrice = 0;
-        //    foreach(var item in orderItems)
-        //    {
-        //        double price = item.ItemPrice;
-        //        totalPrice += price;
-        //    }
+            // 2. Get Items
+            var orderItems = new List<OrderItem>();
+            foreach (var item in basket.Items)
+            {
+                var orderItem = new OrderItem
+                {
+                    Quantity = item.Quantity,
+                    ProductId = item.ProductId,
 
-        //    var order = new Order
-        //    {
-        //        UserId = userId,
-        //        OrderDate = DateTime.Now,
-        //        Status = OrderStatus.Pending,
-        //        ShippingAddress = orderAddress,
-        //        Items = orderItems,
-        //        TotalPrice = basket.TotalPrice,
-        //        DeliveryFee = basket.TotalPrice > 1000000 ? 0 : 25000,
-        //        PaymentIntentId = basket.PaymentIntentId,
-        //    };
+                    SubTotal = item.DiscountPrice * item.Quantity,
+                };
+                orderItems.Add(orderItem);
+            }
 
-        //    // 4. Add Order and Remove/Clear Items in Basket
-        //    await _db.Orders.AddAsync(order);
+            // 3. Calc Grand Total
+            double grandTotal = 0;
+            foreach (var item in orderItems)
+            {
+                double price = item.SubTotal;
+                grandTotal += price;
+            }
 
-        //    var items = await _db.BasketItems.Where(i => i.BasketId == basket.Id && i.Status == true).ToListAsync();
-        //    _db.BasketItems.RemoveRange(items);
+            var order = new Order
+            {
+                UserId = userId,
+                OrderDate = DateTime.Now,
+                Status = OrderStatus.Pending,
+                UserAddress = orderAddress,
+                Items = orderItems,
+                GrandTotal = grandTotal,
+                DeliveryFee = grandTotal > 100 ? 0 : 10,
+                PaymentIntentId = basket.PaymentIntentId,
+            };
 
-        //    // 5. Save 
-        //    await _db.SaveChangesAsync();
-        //}
+            // 4. Add Order and Remove/Clear Items in Basket
+            await _db.Orders.AddAsync(order);
+
+            var items = await _db.BasketItems.Where(i => i.BasketId == basket.Id && i.Status == true).ToListAsync();
+            _db.BasketItems.RemoveRange(items);
+
+            // 5. Save 
+            await _db.SaveChangesAsync();
+        }
 
         //public async Task<OrderDTO> GetAll(int userId)
         //{
