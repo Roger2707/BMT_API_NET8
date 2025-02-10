@@ -42,6 +42,7 @@ namespace Store_API.Services
                 };
                 await service.UpdateAsync(basket.PaymentIntentId, options);
             }
+
             return intent;
         }
     }

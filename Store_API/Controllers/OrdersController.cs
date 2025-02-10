@@ -8,7 +8,7 @@ using Store_API.Repositories;
 
 namespace Store_API.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/orders")]
     [ApiController]
     public class OrdersController : ControllerBase
     {
@@ -44,8 +44,8 @@ namespace Store_API.Controllers
         //    return Ok(order);
         //}
 
-        [HttpPost]
         [Authorize]
+        [HttpPost("create-order")]
         public async Task<IActionResult> Create([FromForm] UserAddressDTO userAddress)
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);

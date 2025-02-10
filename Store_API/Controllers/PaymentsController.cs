@@ -12,7 +12,7 @@ using Stripe;
 
 namespace Store_API.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/payments")]
     [ApiController]
     public class PaymentsController : ControllerBase
     {
@@ -28,8 +28,8 @@ namespace Store_API.Controllers
             _db = db;
         }
 
-        [HttpPost]
         [Authorize]
+        [HttpPost("upsert-payment-intent")]
         public async Task<IActionResult> UpsertPaymentIntent()
         {
             var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);

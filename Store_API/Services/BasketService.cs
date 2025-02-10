@@ -94,9 +94,10 @@ namespace Store_API.Services
             int basketId = await GetBasketIdByUsername(username);
             if (basketId == 0) throw new Exception("Basket is not found !");
 
-            string query = @" Update Baskets 
+            string query = @"   Update Baskets 
                                 SET PaymentIntentId = @PaymentIntentId, ClientSecret = @ClientSecret
-                                WHERE Id = @Id  ";
+                                WHERE Id = @Id  
+                            ";
 
             var p = new { PaymentIntentId = paymentIntentId, ClientSecret = clientSecret, Id = basketId };
 
