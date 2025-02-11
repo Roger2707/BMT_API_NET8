@@ -1,4 +1,5 @@
-﻿using Store_API.DTOs.Baskets;
+﻿using Store_API.Data;
+using Store_API.DTOs.Baskets;
 using Store_API.Helpers;
 using Store_API.Models;
 using Store_API.Repositories;
@@ -9,18 +10,20 @@ namespace Store_API.Services
     public class PaymentService : IPaymentRepository
     {
         private readonly IConfiguration _config;
-        public PaymentService(IConfiguration config)
+        private readonly StoreContext _db;
+        public PaymentService(IConfiguration config, StoreContext db)
         {
             _config = config;
+            _db = db;
         }
+
+
         public async Task<PaymentIntent> UpsertPaymentIntent(BasketDTO basket)
         {
             StripeConfiguration.ApiKey = _config["StripeSettings:SecretKey"];
             var service = new PaymentIntentService();
             var intent = new PaymentIntent();
-            var subTotal = basket.Items.Where(item => item.Status == true).Sum(item => item.DiscountPrice);
-
-            // Will be updated later => ( maybe by the address shipping )
+            var subTotal = basket.Items.Where(item => item.Status == true).Sum(item => item.DiscountPrice * item.Quantity);
             var deliveryFee = subTotal > 100 ? 0 : 10;
             var amount = subTotal + deliveryFee;
 
@@ -42,7 +45,6 @@ namespace Store_API.Services
                 };
                 await service.UpdateAsync(basket.PaymentIntentId, options);
             }
-
             return intent;
         }
     }

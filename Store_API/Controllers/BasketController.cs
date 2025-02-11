@@ -28,28 +28,9 @@ namespace Store_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetBasket()
         {
-            string basketKey = $"basket:{User.Identity.Name}";
-
-            // Get basket existed in redis
-            var cacheBasket = await _redis.StringGetAsync(basketKey);
-
-            // If basket existed in redis, return it
-            if (!string.IsNullOrEmpty(cacheBasket))
-            {
-                var cartFromCache = JsonSerializer.Deserialize<BasketDTO>(cacheBasket);
-                return Ok(cartFromCache);
-            }
-
-            // If basket not existed in redis, get it from database
-            var basketDb = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-
-            // If basket not existed in database, return not found
-            if (basketDb == null) return NotFound();
-
-            // Store the basket in Redis cache
-            var serializedCart = JsonSerializer.Serialize(basketDb);
-            await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
-            return Ok(basketDb);
+            var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
+            if(basket == null) return BadRequest(new ProblemDetails { Title = "Basket is empty now !" });
+            return Ok(basket);
         }
 
         [Authorize]

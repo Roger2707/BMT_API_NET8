@@ -20,30 +20,6 @@ namespace Store_API.Controllers
             _userManager = userManager;
         }
 
-        //[HttpGet]
-        //[Authorize(Roles = "Manager, Admin")]
-        //public async Task<IActionResult> GetOrdersUserId(int userId)
-        //{
-        //    if(userId == 0 || userId.ToString() == "") 
-        //        return BadRequest(new ProblemDetails { Title = "Please enter UserId who want to check !"});
-
-        //    var order = await _unitOfWork.Order.GetAll(userId);
-        //    if (order == null) return NotFound();
-
-        //    return Ok(order);
-        //}
-
-        //[HttpGet]
-        //[Authorize]
-        //public async Task<IActionResult> GetOrders()
-        //{
-        //    int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
-        //    var order = await _unitOfWork.Order.GetAll(userId);
-        //    if(order == null) return NotFound();
-
-        //    return Ok(order);
-        //}
-
         [Authorize]
         [HttpPost("create-order")]
         public async Task<IActionResult> Create([FromForm] UserAddressDTO userAddress)

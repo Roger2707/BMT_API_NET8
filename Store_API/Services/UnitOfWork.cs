@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using StackExchange.Redis;
 using Store_API.Data;
 using Store_API.Helpers;
 using Store_API.Models;
@@ -14,21 +15,24 @@ namespace Store_API.Services
         private readonly IImageRepository _imageService;
         private readonly UserManager<User> _userManager;
         private readonly EmailSenderService _emailSenderService;
+        private readonly IConnectionMultiplexer _redis;
+
         public UnitOfWork(StoreContext db, IDapperService service, IImageRepository imageService
-            , UserManager<User> userManager, EmailSenderService emailSenderService)
+            , UserManager<User> userManager, EmailSenderService emailSenderService, IConnectionMultiplexer redis)
         {
             _db = db;
             _service = service;
             _imageService = imageService;
             _userManager = userManager;
             _emailSenderService = emailSenderService;
+            _redis = redis;
 
             Category = new CategoryService(_db, _service);
             Brand = new BrandService(_service, _db);
             Product = new ProductService(_db, _service, _imageService);
             Althete = new AltheteService(_db, _service, _imageService);
             Account = new AccountService(_db, _service, _imageService, _userManager, _emailSenderService);
-            Basket = new BasketService(_db, _service);
+            Basket = new BasketService(_db, _service, redis);
             Order = new OrderService(_db, _service);
             Comment = new CommentService(_db, _service);
             Rating = new RatingService(_db, _service);

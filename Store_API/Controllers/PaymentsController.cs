@@ -9,6 +9,7 @@ using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 using Stripe;
+using System.Diagnostics;
 
 namespace Store_API.Controllers
 {
@@ -33,42 +34,77 @@ namespace Store_API.Controllers
         public async Task<IActionResult> UpsertPaymentIntent()
         {
             var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
+            if(basket == null) return BadRequest(new ProblemDetails { Title = "There are no items waiting for payments !" });
+
             var intent = await _paymentService.UpsertPaymentIntent(basket);
             if (intent == null) return BadRequest(new ProblemDetails { Title = "Problem creating payment intent" });
+
             var paymentIntentId = basket.PaymentIntentId ?? intent.Id;
             var clientSecret = basket.ClientSecret ?? intent.ClientSecret;
-
-            string error = "";
             try
             {
                 _unitOfWork.BeginTrans();
-
                 await _unitOfWork.Basket.UpdateBasketPayment(paymentIntentId, clientSecret, User.Identity.Name);
-
                 _unitOfWork.Commit();
             }
             catch (Exception ex)
             {
-                error = ex.Message;
                 _unitOfWork.Rollback();
+                return BadRequest(new ProblemDetails { Title = ex.Message });
             }
 
-            if (error != "") return BadRequest(new ProblemDetails { Title = "Problem updating basket with intent" });
-            var updatedBasket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-            return Ok(updatedBasket);
+            return Ok(new { clientSecret = clientSecret });
+        }
+
+        [HttpPost("trigger-payment-success")]
+        public IActionResult TriggerPaymentSuccess()
+        {
+            var processInfo = new ProcessStartInfo
+            {
+                FileName = "stripe",
+                Arguments = "trigger payment_intent.succeeded",
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            Process.Start(processInfo);
+            return Ok("🔄 Webhook event payment_intent.succeeded triggered.");
         }
 
         [HttpPost("webhook")]
-        public async Task<ActionResult> StripeWebhook()
+        public async Task<IActionResult> StripeWebhook()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-            var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], _configuration["StripeSettings:WhSecret"]);
-            var charge = (Charge)stripeEvent.Data.Object;
-            
-            var order = await _db.Orders.FirstOrDefaultAsync(o => o.PaymentIntentId == charge.PaymentIntentId);
-            if(charge.Status == "succeeded") order.Status = OrderStatus.Shipped;
-            await _db.SaveChangesAsync();
-            return new EmptyResult();
+
+            try
+            {
+                var stripeEvent = EventUtility.ConstructEvent(
+                    json,
+                    Request.Headers["Stripe-Signature"],
+                    _configuration["StripeSettings:WhSecret"]
+                );
+
+                if (stripeEvent.Type == Events.PaymentIntentSucceeded)
+                {
+                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+
+                    // 🔹 Tìm đơn hàng có PaymentIntentId khớp
+                    var order = await _db.Orders.FirstOrDefaultAsync(o => o.PaymentIntentId == paymentIntent.Id);
+
+                    if (order != null)
+                    {
+                        order.Status = OrderStatus.Shipped; // Cập nhật trạng thái đơn hàng
+                        await _db.SaveChangesAsync();
+                        Console.WriteLine($"✅ Đơn hàng {order.Id} đã cập nhật trạng thái SHIPPED.");
+                    }
+                }
+                return Ok();
+            }
+            catch (StripeException e)
+            {
+                return BadRequest($"Webhook Error: {e.Message}");
+            }
         }
+
     }
 }

@@ -35,11 +35,12 @@ namespace Store_API.Services
             var orderItems = new List<OrderItem>();
             foreach (var item in basket.Items)
             {
+                if(item.Status == false) continue;
+
                 var orderItem = new OrderItem
                 {
                     Quantity = item.Quantity,
                     ProductId = item.ProductId,
-
                     SubTotal = item.DiscountPrice * item.Quantity,
                 };
                 orderItems.Add(orderItem);
@@ -52,6 +53,8 @@ namespace Store_API.Services
                 double price = item.SubTotal;
                 grandTotal += price;
             }
+
+
 
             var order = new Order
             {
