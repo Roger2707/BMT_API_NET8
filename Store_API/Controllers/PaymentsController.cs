@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
 using Store_API.DTOs.Baskets;
+using Store_API.DTOs.Orders;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
+using Store_API.Services;
 using Stripe;
 using System.Diagnostics;
 
@@ -17,39 +19,41 @@ namespace Store_API.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private readonly IConfiguration _configuration;
-        private readonly IPaymentRepository _paymentService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly StoreContext _db;
-        public PaymentsController(IConfiguration configuration, IPaymentRepository paymentService, IUnitOfWork unitOfWork, StoreContext db)
+        private readonly UserManager<User> _userManager;
+        private readonly IRabbitMQRepository _rabbitMQService;
+        public PaymentsController(IUnitOfWork unitOfWork, UserManager<User> userManager, IRabbitMQRepository rabbitMQService)
         {
-            _configuration = configuration;
-            _paymentService = paymentService;
             _unitOfWork = unitOfWork;
-            _db = db;
+            _userManager = userManager;
+            _rabbitMQService = rabbitMQService;
         }
 
         [Authorize]
         [HttpPost("upsert-payment-intent")]
-        public async Task<IActionResult> UpsertPaymentIntent()
+        public async Task<IActionResult> UpsertPaymentIntent([FromForm] UserAddressDTO userAddress)
         {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            int userId = user.Id;
+
             var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
             if(basket == null) return BadRequest(new ProblemDetails { Title = "There are no items waiting for payments !" });
 
-            var intent = await _paymentService.UpsertPaymentIntent(basket);
+            var intent = await _unitOfWork.Payment.UpsertPaymentIntent(basket);
             if (intent == null) return BadRequest(new ProblemDetails { Title = "Problem creating payment intent" });
 
             var paymentIntentId = basket.PaymentIntentId ?? intent.Id;
             var clientSecret = basket.ClientSecret ?? intent.ClientSecret;
+
             try
             {
-                _unitOfWork.BeginTrans();
                 await _unitOfWork.Basket.UpdateBasketPayment(paymentIntentId, clientSecret, User.Identity.Name);
-                _unitOfWork.Commit();
+                
+                var order = await _unitOfWork.Order.Create(userId, userAddress, basket);
+                await _rabbitMQService.PublishMessage(order);
             }
             catch (Exception ex)
             {
-                _unitOfWork.Rollback();
                 return BadRequest(new ProblemDetails { Title = ex.Message });
             }
 
@@ -72,35 +76,17 @@ namespace Store_API.Controllers
         }
 
         [HttpPost("webhook")]
-        public async Task<IActionResult> StripeWebhook()
+        public async Task<IActionResult> HandleWebhook()
         {
-            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            string json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            string stripeSignatureHeaders = Request.Headers["Stripe-Signature"];
 
             try
             {
-                var stripeEvent = EventUtility.ConstructEvent(
-                    json,
-                    Request.Headers["Stripe-Signature"],
-                    _configuration["StripeSettings:WhSecret"]
-                );
-
-                if (stripeEvent.Type == Events.PaymentIntentSucceeded)
-                {
-                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-
-                    // 🔹 Tìm đơn hàng có PaymentIntentId khớp
-                    var order = await _db.Orders.FirstOrDefaultAsync(o => o.PaymentIntentId == paymentIntent.Id);
-
-                    if (order != null)
-                    {
-                        order.Status = OrderStatus.Shipped; // Cập nhật trạng thái đơn hàng
-                        await _db.SaveChangesAsync();
-                        Console.WriteLine($"✅ Đơn hàng {order.Id} đã cập nhật trạng thái SHIPPED.");
-                    }
-                }
+                await _unitOfWork.Payment.HandleWebHook(json, stripeSignatureHeaders);   
                 return Ok();
             }
-            catch (StripeException e)
+            catch (Exception e)
             {
                 return BadRequest($"Webhook Error: {e.Message}");
             }

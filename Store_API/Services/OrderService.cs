@@ -18,7 +18,7 @@ namespace Store_API.Services
             _dapperService = dapperService;
         }
 
-        public async Task Create(int userId, UserAddressDTO address, BasketDTO basket)
+        public async Task<Order> Create(int userId, UserAddressDTO address, BasketDTO basket)
         {
             // 1. Get Shipping Address
             var orderAddress = new UserAddress
@@ -54,8 +54,6 @@ namespace Store_API.Services
                 grandTotal += price;
             }
 
-
-
             var order = new Order
             {
                 UserId = userId,
@@ -76,6 +74,8 @@ namespace Store_API.Services
 
             // 5. Save 
             await _db.SaveChangesAsync();
+
+            return order;
         }
 
         //public async Task<OrderDTO> GetAll(int userId)

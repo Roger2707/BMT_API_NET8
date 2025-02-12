@@ -130,13 +130,19 @@ namespace Store_API.Services
             string basketKey = $"basket:{username}";
             try
             {
+                _dapperService.BeginTrans();
+
                 await _dapperService.Execute(query, p);
                 // Get basket updated (redis is synced)
                 basketDTO = await GetBasket(username);
+
+                _dapperService.Commit();
             }
             catch (Exception ex)
             {
                 await _redis.KeyDeleteAsync(basketKey);
+                _dapperService.Rollback();
+
                 throw new Exception(ex.Message);
             }
             return basketDTO;

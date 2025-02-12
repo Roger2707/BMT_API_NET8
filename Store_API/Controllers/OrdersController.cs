@@ -24,24 +24,7 @@ namespace Store_API.Controllers
         [HttpPost("create-order")]
         public async Task<IActionResult> Create([FromForm] UserAddressDTO userAddress)
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            int userId = user.Id;
-            var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-
-            if (basket == null || basket.Items.Count == 0) return BadRequest(new ProblemDetails { Title = "There are no items in basket!" });
-
-            try
-            {
-                _unitOfWork.BeginTrans();
-                await _unitOfWork.Order.Create(userId, userAddress, basket);
-                _unitOfWork.Commit();
-            }
-            catch (Exception ex)
-            {
-                _unitOfWork.Rollback();
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
-            return Ok("Order Successfully !");
+            return Ok();
         }
     }
 }

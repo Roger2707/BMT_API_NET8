@@ -7,5 +7,6 @@ namespace Store_API.Repositories
     public interface IPaymentRepository
     {
         public Task<PaymentIntent> UpsertPaymentIntent(BasketDTO basket);
+        public Task HandleWebHook(string json, string stripeSignatureHeaders);
     }
 }

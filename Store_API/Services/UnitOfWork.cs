@@ -16,9 +16,11 @@ namespace Store_API.Services
         private readonly UserManager<User> _userManager;
         private readonly EmailSenderService _emailSenderService;
         private readonly IConnectionMultiplexer _redis;
+        private readonly IConfiguration _config;
 
         public UnitOfWork(StoreContext db, IDapperService service, IImageRepository imageService
-            , UserManager<User> userManager, EmailSenderService emailSenderService, IConnectionMultiplexer redis)
+            , UserManager<User> userManager, EmailSenderService emailSenderService
+            , IConnectionMultiplexer redis, IConfiguration config)
         {
             _db = db;
             _service = service;
@@ -26,17 +28,19 @@ namespace Store_API.Services
             _userManager = userManager;
             _emailSenderService = emailSenderService;
             _redis = redis;
+            _config = config;
 
             Category = new CategoryService(_db, _service);
             Brand = new BrandService(_service, _db);
             Product = new ProductService(_db, _service, _imageService);
             Althete = new AltheteService(_db, _service, _imageService);
             Account = new AccountService(_db, _service, _imageService, _userManager, _emailSenderService);
-            Basket = new BasketService(_db, _service, redis);
+            Basket = new BasketService(_db, _service, _redis);
             Order = new OrderService(_db, _service);
             Comment = new CommentService(_db, _service);
             Rating = new RatingService(_db, _service);
             Promotion = new PromotionService(_db, _service);
+            Payment = new PaymentService(_config, _db);
         }
 
         #region Models Repository
@@ -50,6 +54,8 @@ namespace Store_API.Services
         public ICommentRepository Comment { get; private set; }
         public IRatingRepository Rating { get; private set; }
         public IPromotionRepository Promotion { get; private set; }
+        public IPaymentRepository Payment { get; private set; }
+
         #endregion
 
         #region Dapper Methods
@@ -68,7 +74,7 @@ namespace Store_API.Services
         }
         public async Task<bool> CheckExisted(string tableName, int id)
         {
-            string query = @" SELECT COUNT(*) as Record FROM " + tableName + " WHERE Id = @Id ";
+            string query = @" SELECT COUNT(Id) as Record FROM " + tableName + " WHERE Id = @Id ";
             var p = new { id = id };
             dynamic result = await _service.QueryFirstOrDefaultAsync(query, p);
             if (CF.GetInt(result.Record) > 0) return true;
@@ -76,7 +82,7 @@ namespace Store_API.Services
         }
         public async Task<bool> CheckExisted(string tableName, string name)
         {
-            string query = @" SELECT COUNT(*) as Record FROM " + tableName + " WHERE Name = @Name ";
+            string query = @" SELECT COUNT(Id) as Record FROM " + tableName + " WHERE Name = @Name ";
             var p = new { name = !string.IsNullOrEmpty(name) ? name.ToLower().Trim() : "" };
             dynamic result = await _service.QueryFirstOrDefaultAsync(query, p);
             if (CF.GetInt(result.Record) > 0) return true;
