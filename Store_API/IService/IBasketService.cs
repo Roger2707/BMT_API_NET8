@@ -6,7 +6,7 @@ namespace Store_API.IService
     public interface IBasketService
     {
         Task<BasketDTO> GetBasket(string userName);
-        Task<BasketDTO> HandleBasketMode(int userId, int productId, int mode);
+        Task<Result<BasketDTO>> HandleBasketMode(int userId, int productId, bool mode, string currentUserName);
         Task<Result<BasketDTO>> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username);
     }
 }

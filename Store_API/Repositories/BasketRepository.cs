@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 using Store_API.Data;
+using Store_API.DTOs;
 using Store_API.DTOs.Baskets;
 using Store_API.Extensions;
 using Store_API.Helpers;
@@ -57,7 +58,7 @@ namespace Store_API.Repositories
             return result.MapBasket();
         }
 
-        private async Task<int> GetBasketIdByUsername(string username)
+        public async Task<int> GetBasketIdByUsername(string username)
         {
             string query = @" SELECT b.Id 
                               FROM Baskets b
@@ -70,14 +71,49 @@ namespace Store_API.Repositories
             return basketId;
         }
 
-        public Task HandleBasketMode(int userId, int productId, bool mode)
+        public async Task HandleBasketMode(int userId, int productId, bool mode)
         {
-            throw new NotImplementedException();
+            string sqlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sql", "upsertbasket.sql");
+            string query = System.IO.File.ReadAllText(sqlFilePath);
+            var p = new { UserId = userId, ProductId = productId, Mode = mode };
+            try
+            {
+                _dapperService.BeginTrans();
+                await _dapperService.Execute(query, p);
+                _dapperService.Commit();
+            }
+            catch (Exception ex)
+            {
+                _dapperService.Rollback();
+                throw;
+            }
         }
 
-        public Task ToggleStatusItems(string username, int itemId)
+        public async Task<Result<int>> ToggleStatusItems(string username, int itemId)
         {
-            throw new NotImplementedException();
+            var basket = await GetBasket(username);
+            string query = @"
+                            DECLARE @CurrentStatus BIT
+                            SELECT @CurrentStatus = Status FROM BasketItems WHERE BasketId = @BasketId AND Id = @BasketItemsId
+                            IF(@CurrentStatus = 0)
+                                UPDATE BasketItems SET Status = 1 WHERE BasketId = @BasketId AND Id = @BasketItemsId
+                            ELSE
+                                UPDATE BasketItems SET Status = 0 WHERE BasketId = @BasketId AND Id = @BasketItemsId
+                            ";
+            var p = new { BasketId = basket.Id, BasketItemsId = itemId };
+            try
+            {
+                _dapperService.BeginTrans();
+                await _dapperService.Execute(query, p);
+                _dapperService.Commit();
+
+                return Result<int>.Success(1);
+            }
+            catch (Exception ex)
+            {
+                _dapperService.Rollback();
+                return Result<int>.Failure("Change status failed !");
+            }
         }
 
         public async Task<int> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username)
@@ -103,7 +139,7 @@ namespace Store_API.Repositories
             catch(SqlException ex)
             {
                 _dapperService.Rollback();
-                return 0;
+                throw;
             }
         }
     }

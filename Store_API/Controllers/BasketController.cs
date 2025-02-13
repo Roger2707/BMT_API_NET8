@@ -4,9 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using StackExchange.Redis;
 using Store_API.DTOs.Baskets;
+using Store_API.IService;
 using Store_API.Models;
 using Store_API.Repositories;
 using System.Text.Json;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Store_API.Controllers
 {
@@ -17,11 +19,13 @@ namespace Store_API.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDatabase _redis;
         private readonly UserManager<User> _userManager;
-        public BasketController(IUnitOfWork unitOfWork, IConnectionMultiplexer redis, UserManager<User> userManager)
+        private readonly IBasketService _basketService;
+        public BasketController(IUnitOfWork unitOfWork, IConnectionMultiplexer redis, UserManager<User> userManager, IBasketService basketService)
         {
             _unitOfWork = unitOfWork;
             _redis = redis.GetDatabase();
             _userManager = userManager;
+            _basketService = basketService;
         }
 
         [HttpGet("get-basket")]
@@ -41,58 +45,23 @@ namespace Store_API.Controllers
             if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });
 
             int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
-            string basketKey = $"basket:{User.Identity.Name}";
-            BasketDTO basketDb = null;
-
-            try
-            {
-                // 1. Upsert in Database
-                bool modeParam = mode == 1 ? true : false;
-                await _unitOfWork.Basket.HandleBasketMode(userId, productId, modeParam);
-
-                // 2. Sync in Redis
-                basketDb = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-                var serializedCart = JsonSerializer.Serialize(basketDb);
-                await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
-            }
-            catch (SqlException ex)
-            {
-                // Remove Key Redis (Cache Invalidation)
-                await _redis.KeyDeleteAsync(basketKey);
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
-            return Ok(basketDb);
+            bool modeParam = mode == 1 ? true : false;
+            
+            var result = await _basketService.HandleBasketMode(userId, productId, modeParam, User.Identity.Name);
+            if(!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] }); 
+            return Ok(result);
         }
 
         [Authorize]
         [HttpPost("toggle-status-item")]
         public async Task<IActionResult> ToggleItemsStatus(int itemId)
         {
-            BasketDTO basketDb = null;
-            string basketKey = $"basket:{User.Identity.Name}";
+            var product = await _unitOfWork.Product.GetById(itemId);
+            if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {itemId} not found !" });
 
-            try
-            {
-                _unitOfWork.BeginTrans();
-                // 1. Upsert in Database
-                await _unitOfWork.Basket.ToggleStatusItems(User.Identity.Name, itemId);
-
-                // 2. Sync in Redis
-                basketDb = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
-                var serializedCart = JsonSerializer.Serialize(basketDb);
-                await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
-
-                _unitOfWork.Commit();
-            }
-            catch (Exception ex)
-            {
-                // 1. Rollback
-                _unitOfWork.Rollback();
-                // 2. Remove Key Redis (Cache Invalidation)
-                await _redis.KeyDeleteAsync(basketKey);
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
-            return Ok(basketDb);
+            var result = await _unitOfWork.Basket.ToggleStatusItems(User.Identity.Name, itemId);
+            if (!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+            return Ok(result);
         }
     }
 }

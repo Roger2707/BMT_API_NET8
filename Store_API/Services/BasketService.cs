@@ -5,6 +5,7 @@ using Store_API.DTOs;
 using Store_API.DTOs.Baskets;
 using Store_API.Extensions;
 using Store_API.Helpers;
+using Store_API.IService;
 using Store_API.Models;
 using Store_API.Repositories;
 using Stripe;
@@ -13,7 +14,7 @@ using System.Text.Json;
 
 namespace Store_API.Services
 {
-    public class BasketService : IBasketRepository
+    public class BasketService : IBasketService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDatabase _redis;
@@ -52,12 +53,21 @@ namespace Store_API.Services
         #endregion
 
         #region Actions
-        public async Task HandleBasketMode(int userId, int productId, bool mode)
+        public async Task<Result<BasketDTO>> HandleBasketMode(int userId, int productId, bool mode, string currentUserLogin)
         {
-            string sqlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sql", "upsertbasket.sql");
-            string query = System.IO.File.ReadAllText(sqlFilePath);
-            var p = new { UserId = userId, ProductId = productId, Mode = mode };
-            await _dapperService.Execute(query, p);
+            BasketDTO basketDTO = null;
+            string basketKey = $"basket:{currentUserLogin}";
+            try
+            {
+                await _unitOfWork.Basket.HandleBasketMode(userId, productId, mode);
+                basketDTO = await GetBasket(currentUserLogin);
+            }
+            catch (Exception ex)
+            {
+                await _redis.KeyDeleteAsync(basketKey);
+                return Result<BasketDTO>.Failure(ex.Message);
+            }
+            return Result<BasketDTO>.Success(basketDTO);
         }
 
         public async Task<Result<BasketDTO>> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username)
@@ -72,33 +82,9 @@ namespace Store_API.Services
             catch (Exception ex)
             {
                 await _redis.KeyDeleteAsync(basketKey);
-                throw new Exception(ex.Message);
+                return Result<BasketDTO>.Failure(ex.Message);
             }
-            return basketDTO;
-        }
-
-        public async Task ToggleStatusItems(string username, int itemId)
-        {
-            try
-            {
-                var basket = await GetBasket(username);
-                string query = @"
-                                DECLARE @CurrentStatus BIT
-                                SELECT @CurrentStatus = Status FROM BasketItems WHERE BasketId = @BasketId AND Id = @BasketItemsId
-                                IF(@CurrentStatus = 0)
-                                    UPDATE BasketItems SET Status = 1 WHERE BasketId = @BasketId AND Id = @BasketItemsId
-                                ELSE
-                                    UPDATE BasketItems SET Status = 0 WHERE BasketId = @BasketId AND Id = @BasketItemsId
-                                ";
-
-                var p = new { BasketId = basket.Id, BasketItemsId = itemId };
-
-                await _dapperService.Execute(query, p);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"{ex.Message}");
-            }
+            return Result<BasketDTO>.Success(basketDTO);
         }
 
         #endregion
