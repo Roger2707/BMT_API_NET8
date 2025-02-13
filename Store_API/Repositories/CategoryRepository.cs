@@ -2,16 +2,15 @@
 using Store_API.Data;
 using Store_API.Helpers;
 using Store_API.Models;
-using Store_API.Repositories;
 
-namespace Store_API.Services
+namespace Store_API.Repositories
 {
-    public class CategoryService : ICategoryRepository
+    public class CategoryRepository : ICategoryRepository
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
 
-        public CategoryService(StoreContext db, IDapperService dapperService)
+        public CategoryRepository(StoreContext db, IDapperService dapperService)
         {
             _db = db;
             _dapperService = dapperService;
@@ -25,7 +24,7 @@ namespace Store_API.Services
         {
             Category category = await _db.Categories.FirstOrDefaultAsync(c => c.Id == id);
 
-            if(!string.IsNullOrEmpty(name)) 
+            if (!string.IsNullOrEmpty(name))
                 category.Name = name;
 
             return category;
@@ -55,7 +54,7 @@ namespace Store_API.Services
         public async Task<Category> GetCategoryById(int id)
         {
             string query = " SELECT * FROM Categories WHERE Id = @Id";
-            var p = new { id = id };
+            var p = new { id };
 
             dynamic result = await _dapperService.QueryFirstOrDefaultAsync(query, p);
             Category category = new Category { Id = result.Id, Name = result.Name };
@@ -64,8 +63,8 @@ namespace Store_API.Services
 
         public async Task<bool> CheckCategoryExisted(string name)
         {
-            string query = @" SELECT COUNT(*) as Record FROM Categories WHERE Name = @Name ";
-            var p = new { name = name };
+            string query = @" SELECT COUNT(1) as Record FROM Categories WHERE Name = @Name ";
+            var p = new { name };
 
             var result = await _dapperService.QueryFirstOrDefaultAsync(query, p);
 

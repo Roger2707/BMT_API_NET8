@@ -1,13 +1,12 @@
 ﻿using Store_API.Data;
-using Store_API.Repositories;
 
-namespace Store_API.Services
+namespace Store_API.Repositories
 {
-    public class RatingService : IRatingRepository
+    public class RatingRepository : IRatingRepository
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
-        public RatingService(StoreContext db, IDapperService dapperService)
+        public RatingRepository(StoreContext db, IDapperService dapperService)
         {
             _db = db;
             _dapperService = dapperService;
@@ -17,7 +16,7 @@ namespace Store_API.Services
             string query = @"   SELECT IIF(ROUND(AVG(Star), 2) is NULL, 0, ROUND(AVG(Star), 2)) as Rating 
                                 FROM Ratings 
                                 WHERE ProductId = @ProductId ";
-            var p = new {ProductId = productId};
+            var p = new { ProductId = productId };
             var rating = await _dapperService.QueryFirstOrDefaultAsync(query, p);
             return rating.Rating;
         }
@@ -38,12 +37,12 @@ namespace Store_API.Services
 	                            END
                             ";
             var p = new { ProductId = productId, UserId = userId, Star = star };
-            
+
             try
             {
                 await _dapperService.Execute(query, p);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

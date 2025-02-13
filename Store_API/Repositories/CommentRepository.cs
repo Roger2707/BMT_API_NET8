@@ -2,15 +2,14 @@
 using Store_API.Data;
 using Store_API.DTOs.Comments;
 using Store_API.Models;
-using Store_API.Repositories;
 
-namespace Store_API.Services
+namespace Store_API.Repositories
 {
-    public class CommentService : ICommentRepository
+    public class CommentRepository : ICommentRepository
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
-        public CommentService(StoreContext db, IDapperService dapperService)
+        public CommentRepository(StoreContext db, IDapperService dapperService)
         {
             _db = db;
             _dapperService = dapperService;
@@ -56,7 +55,7 @@ namespace Store_API.Services
 
             var comments = new List<CommentDTO>();
 
-            foreach(var r in result)
+            foreach (var r in result)
             {
                 var comment = new CommentDTO
                 {
@@ -117,12 +116,12 @@ namespace Store_API.Services
         public async Task Update(int commentId, string content)
         {
             string query = " UPDATE Comments SET Content = @Content, Created = GETDATE() WHERE Id = @Id ";
-            var p = new { Content = content, Id = commentId};
+            var p = new { Content = content, Id = commentId };
             try
             {
                 await _dapperService.Execute(query, p);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -132,11 +131,11 @@ namespace Store_API.Services
         {
             try
             {
-                var comment = await _db.Comments.FirstOrDefaultAsync(x => x.Id == commentId);   
+                var comment = await _db.Comments.FirstOrDefaultAsync(x => x.Id == commentId);
                 _db.Comments.Remove(comment);
                 await _db.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }

@@ -2,17 +2,16 @@
 using Store_API.Data;
 using Store_API.DTOs.Althetes;
 using Store_API.Models;
-using Store_API.Repositories;
 
-namespace Store_API.Services
+namespace Store_API.Repositories
 {
-    public class AltheteService : IAltheteRepository
+    public class AltheteRepository : IAltheteRepository
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
         private readonly IImageRepository _imageService;
 
-        public AltheteService(StoreContext db, IDapperService dapperService, IImageRepository imageService)
+        public AltheteRepository(StoreContext db, IDapperService dapperService, IImageRepository imageService)
         {
             _db = db;
             _dapperService = dapperService;
@@ -101,16 +100,16 @@ namespace Store_API.Services
             if (result == null) return null;
 
             var althete = new AltheteDetailDTO
-            { 
+            {
                 Id = result?.Id,
                 Name = result?.Name,
-                Country = result?.Country,  
-                Achivement = result?.Achivement,    
-                Info = result?.Info,    
+                Country = result?.Country,
+                Achivement = result?.Achivement,
+                Info = result?.Info,
                 PictureUrl = result?.PictureUrl,
                 PublicId = result?.PublicId,
                 ProductId = result?.ProductId,
-                ProductName = result?.ProductName   
+                ProductName = result?.ProductName
             };
 
             return althete;

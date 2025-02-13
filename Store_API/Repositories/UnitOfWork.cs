@@ -3,10 +3,10 @@ using StackExchange.Redis;
 using Store_API.Data;
 using Store_API.Helpers;
 using Store_API.Models;
-using Store_API.Repositories;
+using Store_API.Services;
 using Stripe;
 
-namespace Store_API.Services
+namespace Store_API.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
@@ -32,32 +32,31 @@ namespace Store_API.Services
 
             // Updated Services
             Product = new ProductRepository(_service, _db, _imageService, _csvService);
+            Category = new CategoryRepository(_db, _service);
+            Brand = new BrandRepository(_service, _db);
+            Althete = new AltheteRepository(_db, _service, _imageService);
+            Comment = new CommentRepository(_db, _service);
+            Rating = new RatingRepository(_db, _service);
+            Promotion = new PromotionRepository(_db, _service);
+            Basket = new BasketRepository(_service);
 
-            // Processing Update
-            Category = new CategoryService(_db, _service);
-            Brand = new BrandService(_service, _db);
-            Althete = new AltheteService(_db, _service, _imageService);
-            
-            Basket = new BasketService(_db, _service, _redis);
+            // Processing Update      
             Order = new OrderService(_db, _service);
-            Comment = new CommentService(_db, _service);
-            Rating = new RatingService(_db, _service);
-            Promotion = new PromotionService(_db, _service);
             Payment = new PaymentService(_config, _db);
         }
 
         #region Models Repository
         public IProductRepository Product { get; private set; }
-
         public ICategoryRepository Category { get; private set; }
         public IBrandRepository Brand { get; private set; }
         public IAltheteRepository Althete { get; private set; }
-
-        public IBasketRepository Basket { get; private set; }
-        public IOrderRepository Order { get; private set; }
         public ICommentRepository Comment { get; private set; }
         public IRatingRepository Rating { get; private set; }
         public IPromotionRepository Promotion { get; private set; }
+
+
+        public IBasketRepository Basket { get; private set; }
+        public IOrderRepository Order { get; private set; }
         public IPaymentRepository Payment { get; private set; }
 
         // New
@@ -81,7 +80,7 @@ namespace Store_API.Services
         public async Task<bool> CheckExisted(string tableName, int id)
         {
             string query = @" SELECT COUNT(Id) as Record FROM " + tableName + " WHERE Id = @Id ";
-            var p = new { id = id };
+            var p = new { id };
             dynamic result = await _service.QueryFirstOrDefaultAsync(query, p);
             if (CF.GetInt(result.Record) > 0) return true;
             return false;

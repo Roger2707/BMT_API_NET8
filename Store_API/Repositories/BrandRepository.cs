@@ -2,15 +2,14 @@
 using Store_API.DTOs;
 using Store_API.Helpers;
 using Store_API.Models;
-using Store_API.Repositories;
 
-namespace Store_API.Services
+namespace Store_API.Repositories
 {
-    public class BrandService : IBrandRepository
+    public class BrandRepository : IBrandRepository
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
-        public BrandService(IDapperService dapperService, StoreContext db)
+        public BrandRepository(IDapperService dapperService, StoreContext db)
         {
             _dapperService = dapperService;
             _db = db;
@@ -54,7 +53,7 @@ namespace Store_API.Services
         public async Task<Brand> GetBrandById(int id)
         {
             string query = " SELECT * FROM Brands WHERE Id = @Id ";
-            var p = new { id = id };
+            var p = new { id };
 
             dynamic result = await _dapperService.QueryFirstOrDefaultAsync(query, p);
             if (result != null)
@@ -66,8 +65,8 @@ namespace Store_API.Services
 
         public async Task<bool> CheckExisted(int id)
         {
-            string query = " SELECT COUNT(*) as Record FROM Brands WHERE Id = @Id ";
-            var p = new { id = id };
+            string query = " SELECT COUNT(1) as Record FROM Brands WHERE Id = @Id ";
+            var p = new { id };
 
             dynamic result = await _dapperService.QueryFirstOrDefaultAsync(query, p);
             if (CF.GetInt(result.Record) > 0) return true;
@@ -76,8 +75,8 @@ namespace Store_API.Services
 
         public async Task<bool> CheckExisted(string name)
         {
-            string query = " SELECT COUNT(*) as Record FROM Brands WHERE Name = @Name ";
-            var p = new { name = name };
+            string query = " SELECT COUNT(1) as Record FROM Brands WHERE Name = @Name ";
+            var p = new { name };
 
             dynamic result = await _dapperService.QueryFirstOrDefaultAsync(query, p);
             if (CF.GetInt(result.Record) > 0) return true;

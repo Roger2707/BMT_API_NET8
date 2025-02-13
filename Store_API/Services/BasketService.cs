@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StackExchange.Redis;
 using Store_API.Data;
+using Store_API.DTOs;
 using Store_API.DTOs.Baskets;
 using Store_API.Extensions;
 using Store_API.Helpers;
@@ -14,13 +15,11 @@ namespace Store_API.Services
 {
     public class BasketService : IBasketRepository
     {
-        private readonly StoreContext _db;
-        private readonly IDapperService _dapperService;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IDatabase _redis;
-        public BasketService(StoreContext db, IDapperService dapperService, IConnectionMultiplexer redis)
+        public BasketService(IUnitOfWork unitOfWork, IConnectionMultiplexer redis)
         {
-            _db = db;
-            _dapperService = dapperService;  
+            _unitOfWork = unitOfWork;
             _redis = redis.GetDatabase();
         }
 
@@ -41,66 +40,13 @@ namespace Store_API.Services
             }
 
             // If not => Retrieve DB
-
-            string query = @"
-                            SELECT 
-
-                            basket.Id
-                            , basket.UserId
-                            , items.Id as BasketItemId
-                            , items.ProductId
-                            , product.Name as ProductName
-                            , IIF(product.ImageUrl IS NOT NULL, 
-                                (SELECT TOP 1 value 
-                                 FROM STRING_SPLIT(product.ImageUrl, ',')), 
-                                '') AS ProductFirstImage
-                            , items.Quantity
-                            , product.Price as OriginPrice
-                            , ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent
-                            , IIF(promotion.PercentageDiscount is not NULL, product.Price - (product.Price * (promotion.PercentageDiscount / 100)), product.Price) as DiscountPrice
-                            , items.Status
-                            , basket.PaymentIntentId
-                            , basket.ClientSecret
-
-                            FROM Baskets basket
-
-                            INNER JOIN BasketItems items ON items.BasketId = basket.Id
-                            INNER JOIN Products product ON product.Id = items.ProductId
-                            INNER JOIN Brands brand ON brand.Id = product.BrandId
-                            INNER JOIN Categories category ON category.Id = product.CategoryId
-                            LEFT JOIN Promotions promotion 
-                            ON promotion.CategoryId = category.Id AND promotion.BrandId = brand.Id AND GETDATE() <= promotion.[End]
-                            INNER JOIN AspNetUsers u ON u.Id = basket.UserId
-
-                            WHERE u.UserName = @UserName
-
-                            ";
-
-            var p = new { UserName = currentUserLogin };
-            List<dynamic> result = await _dapperService.QueryAsync(query, p);
-
-            if (result == null || result.Count <= 0) return null;
-
-            var basketDTO = result.MapBasket();
+            var basketDTO = await _unitOfWork.Basket.GetBasket(currentUserLogin);
 
             // Store the basket in Redis cache - Set up Time Life
             var serializedCart = JsonSerializer.Serialize(basketDTO);
             await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
 
             return basketDTO;
-        }
-
-        private async Task<int> GetBasketIdByUsername(string username)
-        {
-            string query = @" SELECT b.Id 
-                              FROM Baskets b
-                              INNER JOIN AspNetUsers u ON u.Id = b.UserId
-                              WHERE u.UserName = @UserName
-                            ";
-
-            var p = new { UserName = username };
-            int basketId = CF.GetInt((await _dapperService.QueryFirstOrDefaultAsync(query, p)).Id);
-            return basketId;
         }
 
         #endregion
@@ -114,35 +60,18 @@ namespace Store_API.Services
             await _dapperService.Execute(query, p);
         }
 
-        public async Task<BasketDTO> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username)
+        public async Task<Result<BasketDTO>> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username)
         {
-            int basketId = await GetBasketIdByUsername(username);
-            if (basketId < 1) throw new Exception("Basket is not found !");
-
-            string query = @"   Update Baskets 
-                                SET PaymentIntentId = @PaymentIntentId, ClientSecret = @ClientSecret
-                                WHERE Id = @Id  
-                            ";
-
-            var p = new { PaymentIntentId = paymentIntentId, ClientSecret = clientSecret, Id = basketId };
-
             BasketDTO basketDTO = null;
             string basketKey = $"basket:{username}";
             try
             {
-                _dapperService.BeginTrans();
-
-                await _dapperService.Execute(query, p);
-                // Get basket updated (redis is synced)
+                await _unitOfWork.Basket.UpdateBasketPayment(paymentIntentId, clientSecret, username);
                 basketDTO = await GetBasket(username);
-
-                _dapperService.Commit();
             }
             catch (Exception ex)
             {
                 await _redis.KeyDeleteAsync(basketKey);
-                _dapperService.Rollback();
-
                 throw new Exception(ex.Message);
             }
             return basketDTO;

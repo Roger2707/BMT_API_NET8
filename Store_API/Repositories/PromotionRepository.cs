@@ -4,15 +4,14 @@ using Store_API.Data;
 using Store_API.DTOs.Promotions;
 using Store_API.Helpers;
 using Store_API.Models;
-using Store_API.Repositories;
 
-namespace Store_API.Services
+namespace Store_API.Repositories
 {
-    public class PromotionService : IPromotionRepository
+    public class PromotionRepository : IPromotionRepository
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
-        public PromotionService(StoreContext db, IDapperService dapperService)
+        public PromotionRepository(StoreContext db, IDapperService dapperService)
         {
             _db = db;
             _dapperService = dapperService;
@@ -27,21 +26,21 @@ namespace Store_API.Services
                 DateTime start = new DateTime(CF.GetInt(promotion.Start.Substring(0, 4)), CF.GetInt(promotion.Start.Substring(4, 2)), CF.GetInt(promotion.Start.Substring(6, 2)));
                 DateTime end = new DateTime(CF.GetInt(promotion.End.Substring(0, 4)), CF.GetInt(promotion.End.Substring(4, 2)), CF.GetInt(promotion.End.Substring(6, 2)));
 
-                if(start < DateTime.Now) 
+                if (start < DateTime.Now)
                     throw new Exception("Start Date have to greater than or equal Current Date");
 
-                if(start >= end) 
+                if (start >= end)
                     throw new Exception("Start Date have to smaller than End Date");
 
                 // Check end date
                 string query = @" SELECT MAX([End]) as MaxEndDate from Promotions where CategoryId = @CategoryId and BrandId = @BrandId ";
-                var p = new { CategoryId = promotion.CategoryId, BrandId = promotion.BrandId };
+                var p = new { promotion.CategoryId, promotion.BrandId };
                 dynamic result = await _dapperService.QueryFirstOrDefaultAsync(query, p);
 
-                if(result.MaxEndDate != null)
+                if (result.MaxEndDate != null)
                 {
-                    var maxEndDate = (DateTime)result.MaxEndDate;                    
-                    if(start <= maxEndDate) 
+                    var maxEndDate = (DateTime)result.MaxEndDate;
+                    if (start <= maxEndDate)
                         throw new Exception("There is a promotion for this product available ! Can not add more than 1 promotion in a time");
                 }
 
@@ -53,7 +52,7 @@ namespace Store_API.Services
                     End = end,
                     PercentageDiscount = promotion.PercentageDiscount,
                 };
-                
+
                 await _db.Promotions.AddAsync(newPromotion);
                 await _db.SaveChangesAsync();
             }
@@ -69,8 +68,8 @@ namespace Store_API.Services
                 var existedPromotion = await _db.Promotions.FirstOrDefaultAsync(p => p.Id == id);
                 if (existedPromotion == null) throw new Exception($"Promotion id {id} is not existed !");
 
-                if(existedPromotion.CategoryId != promotion.CategoryId) existedPromotion.CategoryId = promotion.CategoryId;
-                if(existedPromotion.BrandId != promotion.BrandId) existedPromotion.BrandId = promotion.BrandId;
+                if (existedPromotion.CategoryId != promotion.CategoryId) existedPromotion.CategoryId = promotion.CategoryId;
+                if (existedPromotion.BrandId != promotion.BrandId) existedPromotion.BrandId = promotion.BrandId;
 
                 if (promotion.Start.Length != 8 || promotion.End.Length != 8)
                     throw new Exception("Date is invalid");
@@ -78,11 +77,11 @@ namespace Store_API.Services
                 existedPromotion.Start = new DateTime(CF.GetInt(promotion.Start.Substring(0, 4)), CF.GetInt(promotion.Start.Substring(4, 2)), CF.GetInt(promotion.Start.Substring(6, 2)));
                 existedPromotion.End = new DateTime(CF.GetInt(promotion.End.Substring(0, 4)), CF.GetInt(promotion.End.Substring(4, 2)), CF.GetInt(promotion.End.Substring(6, 2)));
 
-                if(existedPromotion.PercentageDiscount != promotion.PercentageDiscount) existedPromotion.PercentageDiscount = promotion.PercentageDiscount;
+                if (existedPromotion.PercentageDiscount != promotion.PercentageDiscount) existedPromotion.PercentageDiscount = promotion.PercentageDiscount;
 
                 await _db.SaveChangesAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception(ex.Message);
             }
@@ -98,7 +97,7 @@ namespace Store_API.Services
                 _db.Promotions.Remove(existedPromotion);
                 await _db.SaveChangesAsync();
             }
-            catch(Exception ex) { throw new Exception(  ex.Message); }
+            catch (Exception ex) { throw new Exception(ex.Message); }
         }
 
         public async Task<List<PromotionDTO>> GetAll(string start, string end)
@@ -121,7 +120,7 @@ namespace Store_API.Services
                             WHERE 1 = 1 --where
 ";
             string where = "";
-            if(!string.IsNullOrEmpty(start))
+            if (!string.IsNullOrEmpty(start))
                 where += " AND promotion.Start >= CONVERT(DATETIME, @StartDate, 106) ";
 
             if (!string.IsNullOrEmpty(end))
@@ -129,11 +128,11 @@ namespace Store_API.Services
 
             query = query.Replace("--where", where);
             List<dynamic> result = await _dapperService.QueryAsync(query, new { StartDate = start, EndDate = end });
-            if(result.Count == 0) return null;
+            if (result.Count == 0) return null;
 
             var promotions = new List<PromotionDTO>();
 
-            foreach(var item in result)
+            foreach (var item in result)
             {
                 var promotion = new PromotionDTO()
                 {
@@ -168,7 +167,7 @@ namespace Store_API.Services
 
                                 WHERE promotion.Start <= GETDATE() AND promotion.[End] >= GETDATE() AND product.Id = @ProductId ";
 
-                var p = new {ProductId = productId};
+                var p = new { ProductId = productId };
                 dynamic result = await _dapperService.QueryFirstOrDefaultAsync(sql, p);
                 if (result == null) return 0;
                 return CF.GetDouble(result.PercentageDiscount);
