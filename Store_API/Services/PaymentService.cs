@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
 using Store_API.DTOs.Baskets;
 using Store_API.Helpers;
@@ -68,8 +69,12 @@ namespace Store_API.Services
                     {
                         order.Status = OrderStatus.Shipped; 
                         await _db.SaveChangesAsync();
-                        Console.WriteLine($"✅ Đơn hàng {order.Id} đã cập nhật trạng thái SHIPPED.");
+                        //await _hubContext.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.Status);
                     }
+                }
+                else if(stripeEvent.Type == Events.PaymentIntentPaymentFailed)
+                {
+
                 }
             }
             catch(StripeException ex)

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.WebUtilities;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 using Store_API.Data;
 using System.Text;
 
@@ -57,6 +59,16 @@ namespace Store_API.Helpers
             if (vnd <= 0) usd = 0;
             usd = vnd / 25000;
             return usd;
+        }
+
+        public static JsonSerializerSettings JsonFormat()
+        {
+            var jsonSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                Formatting = Formatting.Indented
+            };
+            return jsonSettings;
         }
     }
 }

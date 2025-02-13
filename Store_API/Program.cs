@@ -14,6 +14,7 @@ using System.Text;
 using Store_API.RedisConfig;
 using Store_API.Hubs;
 using Store_API.RabbitMQ;
+using Store_API.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -153,14 +154,8 @@ builder.Services.AddAuthorization();
 
 #region Services
 
-builder.Services.AddHttpClient();
+builder.Services.AddApplicationServices();
 
-builder.Services.AddTransient<IDapperService, DapperService>();
-builder.Services.AddTransient<IImageRepository, ImageService>();
-builder.Services.AddTransient<ICSVRepository, CSVService>();
-builder.Services.AddTransient<EmailSenderService>();
-builder.Services.AddTransient<ITokenRepository, TokenIdentityService>();
-builder.Services.AddTransient<IUnitOfWork, UnitOfWork>();
 #endregion 
 
 #region Connect Redis (build SSH)

@@ -13,28 +13,31 @@ namespace Store_API.Services
         private readonly StoreContext _db;
         private readonly IDapperService _service;
         private readonly IImageRepository _imageService;
-        private readonly UserManager<User> _userManager;
         private readonly EmailSenderService _emailSenderService;
         private readonly IConnectionMultiplexer _redis;
         private readonly IConfiguration _config;
+        private readonly ICSVRepository _csvService;
 
         public UnitOfWork(StoreContext db, IDapperService service, IImageRepository imageService
-            , UserManager<User> userManager, EmailSenderService emailSenderService
-            , IConnectionMultiplexer redis, IConfiguration config)
+            , EmailSenderService emailSenderService
+            , IConnectionMultiplexer redis, IConfiguration config, ICSVRepository csvService)
         {
             _db = db;
             _service = service;
             _imageService = imageService;
-            _userManager = userManager;
             _emailSenderService = emailSenderService;
             _redis = redis;
             _config = config;
+            _csvService = csvService;
 
+            // Updated Services
+            Product = new ProductRepository(_service, _db, _imageService, _csvService);
+
+            // Processing Update
             Category = new CategoryService(_db, _service);
             Brand = new BrandService(_service, _db);
-            Product = new ProductService(_db, _service, _imageService);
             Althete = new AltheteService(_db, _service, _imageService);
-            Account = new AccountService(_db, _service, _imageService, _userManager, _emailSenderService);
+            
             Basket = new BasketService(_db, _service, _redis);
             Order = new OrderService(_db, _service);
             Comment = new CommentService(_db, _service);
@@ -44,17 +47,20 @@ namespace Store_API.Services
         }
 
         #region Models Repository
+        public IProductRepository Product { get; private set; }
+
         public ICategoryRepository Category { get; private set; }
         public IBrandRepository Brand { get; private set; }
-        public IProductRepository Product { get; private set; }
         public IAltheteRepository Althete { get; private set; }
-        public IAccountRepository Account { get; private set; }
+
         public IBasketRepository Basket { get; private set; }
         public IOrderRepository Order { get; private set; }
         public ICommentRepository Comment { get; private set; }
         public IRatingRepository Rating { get; private set; }
         public IPromotionRepository Promotion { get; private set; }
         public IPaymentRepository Payment { get; private set; }
+
+        // New
 
         #endregion
 

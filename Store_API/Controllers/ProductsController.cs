@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Store_API.Data;
 using Store_API.DTOs;
 using Store_API.DTOs.Products;
+using Store_API.IService;
 using Store_API.Models;
 using Store_API.Repositories;
 using System.ComponentModel.DataAnnotations;
@@ -19,40 +20,37 @@ namespace Store_API.Controllers
     [Route("api/products")]
     public class ProductsController : ControllerBase
     {
+        private readonly IProductService _productService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly StoreContext _db;
-        private readonly ICSVRepository _csvService;
 
-        public ProductsController(IUnitOfWork unitOfWork, StoreContext db, ICSVRepository csvService)
+        public ProductsController(IProductService productService, IUnitOfWork unitOfWork)
         {
-            _db = db;
+            _productService = productService;
             _unitOfWork = unitOfWork;
-            _csvService = csvService;
-        }
-
-        [HttpGet("get-all")]
-        public async Task<IActionResult> GetAll()
-        {
-            List<Product> products = await _db.Products.Include(p => p.Category).Include(p => p.Brand).ToListAsync();
-            if (products == null || products.Count == 0) return NotFound();
-            return Ok(products);
         }
 
         [HttpGet("get-products-page")]
         public async Task<IActionResult> GetProducts([FromQuery] ProductParams productParams)
         {
-            List<ProductDTO> products = await _unitOfWork.Product.GetSourceProducts(productParams);
+            List<ProductDTO> products = await _productService.GetSourceProducts(productParams);
             if(products == null || products.Count == 0) return NotFound();
-            Pagination<ProductDTO> productPagination = await _unitOfWork.Product.GetPagination(products, productParams);
-            return Ok(productPagination);
+            var result = await _productService.GetPagination(products, productParams);
+
+            if(!result.IsSuccess)
+                return Ok(result.Data);
+
+            return BadRequest();
         }
 
         [HttpGet("get-product-detail", Name = "get-product-detail")]
         public async Task<IActionResult> GetProductDetail([FromQuery] int id)
         {
-            ProductDTO product = await _unitOfWork.Product.GetById(id);
-            if (product == null) return NotFound();
-            return Ok(product);
+            var result = await _unitOfWork.Product.GetById(id);
+
+            if (!result.IsSuccess)
+                return Ok(result.Data);
+
+            return BadRequest(new ProblemDetails { Title = result.Errors[0] });
         }
 
         [HttpGet("get-technologies")]
@@ -61,7 +59,7 @@ namespace Store_API.Controllers
             if (string.IsNullOrEmpty(productId.ToString())) return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
             try
             {
-                var teches = await _unitOfWork.Product.GetTechnologies(productId);
+                var teches = await _productService.GetTechnologies(productId);
                 return Ok(teches);
             }
             catch (Exception ex)
@@ -79,22 +77,12 @@ namespace Store_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            int result = 0;
-            string error = "";
-            try
-            {
-                result = await _unitOfWork.Product.Create(productDTO);
-            }
-            catch (Exception ex)
-            { 
-                error = ex.Message;
-            }
+            var result = await _unitOfWork.Product.Create(productDTO);
 
-            if (result > 0)
-            {
-                return CreatedAtRoute("get-product-detail", new { id = result });
-            }
-            return BadRequest(new ProblemDetails { Title = error });
+            if(!result.IsSuccess)
+                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+
+            return CreatedAtRoute("get-product-detail", new { id = result.Data }); // product id
         }
 
         [HttpPut("update")]
@@ -106,22 +94,12 @@ namespace Store_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            string error = "";
-            try
-            {
-                int result = await _unitOfWork.Product.Update(id, productDTO);
+            var result = await _unitOfWork.Product.Update(id, productDTO);
 
-                if (result > 0) 
-                {
-                    var productResponse = await _unitOfWork.Product.GetById(id);
-                    return Ok(productResponse);
-                }
-            }
-            catch(Exception ex)
-            {
-                error = ex.Message;
-            }
-            return BadRequest(new ProblemDetails { Title = error });
+            if (!result.IsSuccess)
+                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+
+            return Ok();
         }
 
         [HttpPost("change-status")]
@@ -130,54 +108,23 @@ namespace Store_API.Controllers
             if (!await _unitOfWork.CheckExisted("Products", id))
                 return NotFound();
 
-            string error = "";
-            int result = 0;
-            try
-            {
-                _unitOfWork.BeginTrans();
-                result = await _unitOfWork.Product.ChangeStatus(id);
-                _unitOfWork.Commit();
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-                _unitOfWork.Rollback();
-            }
-            if(result > 0) return Ok(result);
-            return BadRequest(new ProblemDetails { Title = error });
+            var result = await _unitOfWork.Product.ChangeStatus(id);
+
+            if (!result.IsSuccess)
+                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+
+            return Ok();
         }
 
         [HttpPost("import-csv")]
         public async Task<IActionResult> ImportCSV(IFormFile csvFile)
         {
-            if (csvFile == null || csvFile.Length == 0)
-                return BadRequest(new ProblemDetails { Title = "Please attach csv file !"});
+            var result = await _unitOfWork.Product.InsertCSV(csvFile);
 
-            var products = await _csvService.ReadCSV<ProductCSV>(csvFile);
-            string error = "";
+            if (!result.IsSuccess)
+                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
 
-            try
-            {
-                _unitOfWork.BeginTrans();
-
-                for (int i = 0; i < products.Count; i++)
-                { 
-                    await _unitOfWork.Product.InsertCSV(products[i]);
-                }
-
-                _unitOfWork.Commit();
-            }
-            catch (Exception ex)
-            {
-                error = ex.Message;
-                _unitOfWork.Rollback();
-            }
-
-
-            if (error == "")
-                return Ok();
-            else
-                return BadRequest(new ProblemDetails { Title = error });
+            return Ok();
         }
     }
 }

@@ -2,11 +2,11 @@
 {
     public interface IUnitOfWork
     {
+        public IProductRepository Product { get; }
+
         public ICategoryRepository Category { get; }
         public IBrandRepository Brand { get; }
-        public IProductRepository Product { get; }
         public IAltheteRepository Althete { get; }
-        public IAccountRepository Account { get; }
         public IBasketRepository Basket { get; }
         public IOrderRepository Order { get; }
         public ICommentRepository Comment { get; }
