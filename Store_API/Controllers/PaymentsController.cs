@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
+using Store_API.IService;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
@@ -19,12 +20,18 @@ namespace Store_API.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private IOrderService _orderService;
+        private IPaymentService _paymentService;
+        private IUnitOfWork _unitOfWork;
+
         private readonly UserManager<User> _userManager;
         private readonly IRabbitMQRepository _rabbitMQService;
-        public PaymentsController(IUnitOfWork unitOfWork, UserManager<User> userManager, IRabbitMQRepository rabbitMQService)
+        public PaymentsController(IOrderService orderService, IPaymentService paymentService, IUnitOfWork unitOfWork, UserManager<User> userManager, IRabbitMQRepository rabbitMQService)
         {
+            _orderService = orderService;
+            _paymentService = paymentService;
             _unitOfWork = unitOfWork;
+
             _userManager = userManager;
             _rabbitMQService = rabbitMQService;
         }
@@ -39,7 +46,7 @@ namespace Store_API.Controllers
             var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
             if(basket == null) return BadRequest(new ProblemDetails { Title = "There are no items waiting for payments !" });
 
-            var intent = await _unitOfWork.Payment.UpsertPaymentIntent(basket);
+            var intent = await _paymentService.UpsertPaymentIntent(basket);
             if (intent == null) return BadRequest(new ProblemDetails { Title = "Problem creating payment intent" });
 
             var paymentIntentId = basket.PaymentIntentId ?? intent.Id;
@@ -49,8 +56,8 @@ namespace Store_API.Controllers
             {
                 await _unitOfWork.Basket.UpdateBasketPayment(paymentIntentId, clientSecret, User.Identity.Name);
                 
-                var order = await _unitOfWork.Order.Create(userId, userAddress, basket);
-                await _rabbitMQService.PublishMessage(order);
+                //var order = await _unitOfWork.Order.Create(userId, userAddress, basket);
+                //await _rabbitMQService.PublishMessage(order);
             }
             catch (Exception ex)
             {
@@ -83,7 +90,7 @@ namespace Store_API.Controllers
 
             try
             {
-                await _unitOfWork.Payment.HandleWebHook(json, stripeSignatureHeaders);   
+                await _paymentService.HandleWebHook(json, stripeSignatureHeaders);   
                 return Ok();
             }
             catch (Exception e)

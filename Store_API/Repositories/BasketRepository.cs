@@ -4,15 +4,18 @@ using Store_API.DTOs;
 using Store_API.DTOs.Baskets;
 using Store_API.Extensions;
 using Store_API.Helpers;
+using Store_API.Models;
 
 namespace Store_API.Repositories
 {
     public class BasketRepository : IBasketRepository
     {
         private readonly IDapperService _dapperService;
-        public BasketRepository(IDapperService dapperService)
+        private readonly StoreContext _db;
+        public BasketRepository(IDapperService dapperService, StoreContext db)
         {
             _dapperService = dapperService;
+            _db = db;
         }
         public async Task<BasketDTO> GetBasket(string currentUserLogin)
         {
@@ -87,6 +90,18 @@ namespace Store_API.Repositories
                 _dapperService.Rollback();
                 throw;
             }
+        }
+
+        public async void RemoveRange(List<BasketItemDTO> items)
+        {
+            var basketItems = new List<BasketItem>();
+
+            foreach (var item in items)
+            {
+                var basketItem = await _db.BasketItems.FindAsync(item.BasketItemId);
+                basketItems.Add(basketItem);
+            }
+            _db.BasketItems.RemoveRange(basketItems);
         }
 
         public async Task<Result<int>> ToggleStatusItems(string username, int itemId)

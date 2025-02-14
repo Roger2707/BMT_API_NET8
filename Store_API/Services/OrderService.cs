@@ -3,19 +3,18 @@ using Store_API.Data;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.Helpers;
+using Store_API.IService;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 
 namespace Store_API.Services
 {
-    public class OrderService : IOrderRepository
+    public class OrderService : IOrderService
     {
-        private readonly StoreContext _db;
-        private readonly IDapperService _dapperService;
-        public OrderService(StoreContext db, IDapperService dapperService)
+        private readonly IUnitOfWork _unitOfWork;
+        public OrderService(IUnitOfWork unitOfWork)
         {
-            _db = db;
-            _dapperService = dapperService;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<Order> Create(int userId, UserAddressDTO address, BasketDTO basket)
@@ -67,13 +66,13 @@ namespace Store_API.Services
             };
 
             // 4. Add Order and Remove/Clear Items in Basket
-            await _db.Orders.AddAsync(order);
+            await _unitOfWork.Order.Create(order);
 
-            var items = await _db.BasketItems.Where(i => i.BasketId == basket.Id && i.Status == true).ToListAsync();
-            _db.BasketItems.RemoveRange(items);
+            var items = basket.Items.Where(x => x.Status == true).ToList();
+            _unitOfWork.Basket.RemoveRange(items);
 
             // 5. Save 
-            await _db.SaveChangesAsync();
+            await _unitOfWork.SaveChanges();
 
             return order;
         }

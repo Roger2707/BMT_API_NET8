@@ -14,20 +14,15 @@ namespace Store_API.Repositories
         private readonly IDapperService _service;
         private readonly IImageRepository _imageService;
         private readonly EmailSenderService _emailSenderService;
-        private readonly IConnectionMultiplexer _redis;
-        private readonly IConfiguration _config;
         private readonly ICSVRepository _csvService;
 
         public UnitOfWork(StoreContext db, IDapperService service, IImageRepository imageService
-            , EmailSenderService emailSenderService
-            , IConnectionMultiplexer redis, IConfiguration config, ICSVRepository csvService)
+            , EmailSenderService emailSenderService, ICSVRepository csvService)
         {
             _db = db;
             _service = service;
             _imageService = imageService;
             _emailSenderService = emailSenderService;
-            _redis = redis;
-            _config = config;
             _csvService = csvService;
 
             // Updated Services
@@ -38,11 +33,8 @@ namespace Store_API.Repositories
             Comment = new CommentRepository(_db, _service);
             Rating = new RatingRepository(_db, _service);
             Promotion = new PromotionRepository(_db, _service);
-            Basket = new BasketRepository(_service);
-
-            // Processing Update      
-            Order = new OrderService(_db, _service);
-            Payment = new PaymentService(_config, _db);
+            Basket = new BasketRepository(_service, _db);
+            Order = new OrderRepository(_service, _db);  
         }
 
         #region Models Repository
@@ -57,8 +49,6 @@ namespace Store_API.Repositories
 
         public IBasketRepository Basket { get; private set; }
         public IOrderRepository Order { get; private set; }
-        public IPaymentRepository Payment { get; private set; }
-
         // New
 
         #endregion

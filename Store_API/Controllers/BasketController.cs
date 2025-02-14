@@ -17,13 +17,11 @@ namespace Store_API.Controllers
     public class BasketController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IDatabase _redis;
         private readonly UserManager<User> _userManager;
         private readonly IBasketService _basketService;
-        public BasketController(IUnitOfWork unitOfWork, IConnectionMultiplexer redis, UserManager<User> userManager, IBasketService basketService)
+        public BasketController(IUnitOfWork unitOfWork, UserManager<User> userManager, IBasketService basketService)
         {
             _unitOfWork = unitOfWork;
-            _redis = redis.GetDatabase();
             _userManager = userManager;
             _basketService = basketService;
         }

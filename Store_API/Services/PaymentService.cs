@@ -10,7 +10,7 @@ using Stripe;
 
 namespace Store_API.Services
 {
-    public class PaymentService : IPaymentRepository
+    public class PaymentService : IPaymentService
     {
         private readonly IConfiguration _config;
         private readonly StoreContext _db;

@@ -36,10 +36,8 @@ namespace Store_API.Controllers
             if(products == null || products.Count == 0) return NotFound();
             var result = await _productService.GetPagination(products, productParams);
 
-            if(!result.IsSuccess)
-                return Ok(result.Data);
-
-            return BadRequest();
+            if(!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+            return Ok(result.Data);
         }
 
         [HttpGet("get-product-detail", Name = "get-product-detail")]
@@ -48,9 +46,9 @@ namespace Store_API.Controllers
             var result = await _unitOfWork.Product.GetById(id);
 
             if (!result.IsSuccess)
-                return Ok(result.Data);
+                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
 
-            return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+            return Ok(result.Data);
         }
 
         [HttpGet("get-technologies")]

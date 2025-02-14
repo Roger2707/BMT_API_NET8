@@ -160,31 +160,31 @@ builder.Services.AddApplicationServices();
 
 #region Connect Redis (build SSH)
 
-var sshConfig = new SshConfig
-{
-    SshHost = "ec2-47-129-57-48.ap-southeast-1.compute.amazonaws.com",
-    SshPort = 22,
-    SshUsername = "ec2-user",
-    SshKeyFile = @"E:\Projects\E-Commercial\jump_server_keypair.pem",
-    LocalPort = 6379,
-    RemoteHost = "rediscache.vejvgg.ng.0001.apse1.cache.amazonaws.com",
-    RemotePort = 6379
-};
+//var sshConfig = new SshConfig
+//{
+//    SshHost = "ec2-47-129-57-48.ap-southeast-1.compute.amazonaws.com",
+//    SshPort = 22,
+//    SshUsername = "ec2-user",
+//    SshKeyFile = @"A:\Personal\EConmmercial\jump_server_keypair.pem",
+//    LocalPort = 6379,
+//    RemoteHost = "rediscache.vejvgg.ng.0001.apse1.cache.amazonaws.com",
+//    RemotePort = 6379
+//};
 
-builder.Services.AddSingleton(sshConfig);
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-{
-    var sshManager = new SshTunnelManager(sp.GetRequiredService<SshConfig>());
-    sshManager.StartTunnel();
+//builder.Services.AddSingleton(sshConfig);
+//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+//{
+//    var sshManager = new SshTunnelManager(sp.GetRequiredService<SshConfig>());
+//    sshManager.StartTunnel();
 
-    var configuration = new ConfigurationOptions
-    {
-        EndPoints = { "localhost:6379" },
-        AbortOnConnectFail = false,
-    };
+//    var configuration = new ConfigurationOptions
+//    {
+//        EndPoints = { "localhost:6379" },
+//        AbortOnConnectFail = false,
+//    };
 
-    return ConnectionMultiplexer.Connect(configuration);
-});
+//    return ConnectionMultiplexer.Connect(configuration);
+//});
 
 #endregion 
 
@@ -192,10 +192,10 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 
 builder.Services.AddSignalR();
 
-builder.Services.AddSingleton<IRabbitMQRepository, RabbitMQService>();
+//builder.Services.AddSingleton<IRabbitMQRepository, RabbitMQService>();
 
 // Đăng ký BackgroundService (Consumer xử lý RabbitMQ)
-builder.Services.AddHostedService<RabbitMQConsumer>();
+//builder.Services.AddHostedService<RabbitMQConsumer>();
 
 #endregion 
 

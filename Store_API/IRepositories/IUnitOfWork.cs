@@ -12,7 +12,6 @@
         public ICommentRepository Comment { get; }
         public IRatingRepository Rating { get; }
         public IPromotionRepository Promotion { get; }
-        public IPaymentRepository Payment { get; }
 
         Task<int> SaveChanges();
 

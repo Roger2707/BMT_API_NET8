@@ -9,9 +9,16 @@ namespace Store_API.Extensions
     {
         public static void AddApplicationServices(this IServiceCollection services)
         {
-            // Service
+            // DB
+            services.AddScoped<IDapperService, DapperService>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
+
+            // Services
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
+            //services.AddScoped<IBasketService, BasketService>();
+            services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IPaymentService, PaymentService>();
 
             // Others
             services.AddHttpClient();
@@ -19,10 +26,6 @@ namespace Store_API.Extensions
             services.AddTransient<IImageRepository, ImageService>();
             services.AddTransient<ICSVRepository, CSVService>();
             services.AddScoped<ITokenRepository, TokenIdentityService>();
-
-            // DB
-            services.AddScoped<IDapperService, DapperService>();
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
         }
     }
 }
