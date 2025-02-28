@@ -7,10 +7,10 @@ namespace Store_API.Controllers
     [ApiController]
     public class RedisController : ControllerBase
     {
-        private readonly IConnectionMultiplexer _redis;
+        private readonly IDatabase _redis;
         public RedisController(IConnectionMultiplexer redis)
         {
-            _redis = redis;
+            _redis = redis.GetDatabase();
         }
 
         [HttpGet("set")]
@@ -18,8 +18,7 @@ namespace Store_API.Controllers
         {
             try
             {
-                var db = _redis.GetDatabase();
-                await db.StringSetAsync(key, value, TimeSpan.FromMinutes(15));
+                await _redis.StringSetAsync(key, value, TimeSpan.FromMinutes(15));
                 return Ok(new { Message = $"Key '{key}' set with value '{value}'" });
             }
             catch (Exception ex)
@@ -33,8 +32,7 @@ namespace Store_API.Controllers
         {
             try
             {
-                var db = _redis.GetDatabase();
-                var value = await db.StringGetAsync(key);
+                var value = await _redis.StringGetAsync(key);
                 if (value.IsNullOrEmpty)
                 {
                     return NotFound(new { Message = $"Key '{key}' not found" });
@@ -52,13 +50,26 @@ namespace Store_API.Controllers
         {
             try
             {
-                var db = _redis.GetDatabase();
-                var value = await db.KeyDeleteAsync(key);
+                var value = await _redis.KeyDeleteAsync(key);
                 return Ok();
             }
             catch (Exception ex)
             {
                 return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpGet("test-ping")]
+        public async Task<IActionResult> TestPing()
+        {
+            try
+            {
+                var pong = await _redis.PingAsync();
+                return Ok(new { Pong = pong });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.ToString() });
             }
         }
     }

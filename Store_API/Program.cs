@@ -15,6 +15,8 @@ using Store_API.RedisConfig;
 using Store_API.Hubs;
 using Store_API.RabbitMQ;
 using Store_API.Extensions;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Sockets;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -162,12 +164,12 @@ builder.Services.AddApplicationServices();
 
 //var sshConfig = new SshConfig
 //{
-//    SshHost = "ec2-47-129-57-48.ap-southeast-1.compute.amazonaws.com",
+//    SshHost = "ec2-47-129-101-54.ap-southeast-1.compute.amazonaws.com",
 //    SshPort = 22,
 //    SshUsername = "ec2-user",
-//    SshKeyFile = @"A:\Personal\EConmmercial\jump_server_keypair.pem",
+//    SshKeyFile = @"A:\Personal\EConmmercial\jump-ssh-keypair.pem",
 //    LocalPort = 6379,
-//    RemoteHost = "rediscache.vejvgg.ng.0001.apse1.cache.amazonaws.com",
+//    RemoteHost = "master.redisvalkeynoncluster.ohpidg.apse1.cache.amazonaws.com",
 //    RemotePort = 6379
 //};
 
@@ -183,8 +185,14 @@ builder.Services.AddApplicationServices();
 //        AbortOnConnectFail = false,
 //    };
 
-//    return ConnectionMultiplexer.Connect(configuration);
+//    Console.WriteLine("🔄 Connecting Redis...");
+//    var connection = ConnectionMultiplexer.Connect(configuration);
+//    Console.WriteLine("✅ Connected Redis Successfully !!");
+//    return connection;
 //});
+
+var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString");
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));
 
 #endregion 
 
