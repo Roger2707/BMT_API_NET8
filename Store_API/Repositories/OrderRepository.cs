@@ -60,46 +60,46 @@ namespace Store_API.Repositories
 
             List<dynamic> result = await _dapperService.QueryAsync(query, new { Id = orderId });
             if (result.Count == 0) return null;
-            var orderItems = new List<OrderItemDTO>();
-            foreach (var r in result)
-            {
-                var orderItem = new OrderItemDTO
-                {
-                    Id = r.OrderItemId,
-                    ProductId = r.ProductId,
-                    ProductName = r.ProductName,
-                    ProductImageUrl = r.ProductImageUrl,
-                    Quantity = r.Quantity,
-                    SubTotal = r.SubTotal,
-                };
-                orderItems.Add(orderItem);
-            }
 
-            var order = new OrderDTO
-            {
-                Id = result[0].Id,
-                UserId = result[0].UserId,
-                FullName = result[0].FullName,
-                Email = result[0].Email,
-                PhoneNumber = result[0].PhoneNumber,
-                OrderDate = result[0].OrderDate,
-                Status = result[0].OrderStatus,
+            var orderGroup = result
+                            .GroupBy(o => new { o.Id, o.UserId, o.FullName, o.Email, o.PhoneNumber, o.OrderDate
+                                                , o.DeliveryFee, o.OrderStatus, o.GrandTotal
+                                                , o.City, o.District, o.Ward, o.StreetAddress, o.PostalCode, o.Country 
+                                    })
+                            .Select(g => 
+                                new OrderDTO 
+                                {
+                                    Id = g.Key.Id,
+                                    UserId = g.Key.UserId,
+                                    FullName = g.Key.FullName,
+                                    Email = g.Key.Email,
+                                    PhoneNumber = g.Key.PhoneNumber,
+                                    OrderDate = g.Key.OrderDate,
+                                    Status = g.Key.OrderStatus,
+                                    DeliveryFee = g.Key.DeliveryFee,
+                                    GrandTotal = g.Key.GrandTotal,
 
-                UserAddress = new UserAddress
-                {
-                    City = result[0].City,
-                    District = result[0].District,
-                    Ward = result[0].Ward,
-                    StreetAddress = result[0].StreetAddress,
-                    PostalCode = result[0].PostalCode,
-                    Country = result[0].Country,
-                },
-                Items = orderItems,
-                DeliveryFee = result[0].DeliveryFee,
-                GrandTotal = result[0].GrandTotal,
-            };
+                                    UserAddress = new UserAddress
+                                    {
+                                        City = g.Key.City,
+                                        District = g.Key.District,
+                                        Ward = g.Key.Ward,
+                                        StreetAddress = g.Key.StreetAddress,
+                                        PostalCode = g.Key.PostalCode,
+                                        Country = g.Key.Country,
+                                    },
 
-            return order;
+                                    Items = g.Select(oi => new OrderItemDTO
+                                    {
+                                        Id = oi.OrderItemId,
+                                        ProductId = oi.ProductId,
+                                        ProductName = oi.ProductName,
+                                        ProductImageUrl = oi.ProductImageUrl,
+                                        Quantity = oi.Quantity,
+                                        SubTotal = oi.SubTotal,
+                                    }).ToList(),
+                                }).FirstOrDefault();
+            return orderGroup;
         }
     }
 }
