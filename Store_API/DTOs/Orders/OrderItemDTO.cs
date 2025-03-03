@@ -9,6 +9,6 @@ namespace Store_API.DTOs.Orders
         public string ProductName { get; set; }
         public string ProductImageUrl { get; set; }
         public int Quantity { get; set; }
-        public double ItemPrice { get; set; } 
+        public double SubTotal { get; set; } 
     }
 }

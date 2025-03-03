@@ -1,4 +1,6 @@
-﻿namespace Store_API.Repositories
+﻿using Store_API.IRepositories;
+
+namespace Store_API.Repositories
 {
     public interface IUnitOfWork
     {
@@ -12,6 +14,7 @@
         public ICommentRepository Comment { get; }
         public IRatingRepository Rating { get; }
         public IPromotionRepository Promotion { get; }
+        public IUserAddressRepository UserAddress { get; }
 
         Task<int> SaveChanges();
 

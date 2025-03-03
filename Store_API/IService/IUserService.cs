@@ -37,13 +37,5 @@ namespace Store_API.IService
 
         #endregion
 
-        #region Address Handles
-
-        Task<Result<List<UserAddressDTO>>> GetUserAddresses(string userName);
-        Task<Result<dynamic>> UpsertUserAddresses(string userName, UserAddressDTO userAddressDTO);
-        Task<Result<string>> Delete(int userAddressId);
-
-        #endregion
-
     }
 }

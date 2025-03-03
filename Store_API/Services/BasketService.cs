@@ -50,6 +50,18 @@ namespace Store_API.Services
             return basketDTO;
         }
 
+        public async Task<BasketDTO> SetBasket(string currentUserLogin)
+        {
+            string basketKey = $"basket:{currentUserLogin}";
+            await _redis.KeyDeleteAsync(basketKey);
+
+            var basketDTO = await _unitOfWork.Basket.GetBasket(currentUserLogin);
+            var serializedCart = JsonSerializer.Serialize(basketDTO);
+
+            await _redis.StringSetAsync(basketKey, serializedCart, TimeSpan.FromMinutes(30));
+            return basketDTO;
+        }
+
         #endregion
 
         #region Actions
@@ -60,7 +72,7 @@ namespace Store_API.Services
             try
             {
                 await _unitOfWork.Basket.HandleBasketMode(userId, productId, mode);
-                basketDTO = await GetBasket(currentUserLogin);
+                basketDTO = await SetBasket(currentUserLogin);
             }
             catch (Exception ex)
             {
@@ -70,6 +82,23 @@ namespace Store_API.Services
             return Result<BasketDTO>.Success(basketDTO);
         }
 
+        public async Task<Result<int>> ToggleStatusItems(string username, int itemId)
+        {
+            BasketDTO basketDTO = null;
+            string basketKey = $"basket:{username}";
+            try
+            {
+                await _unitOfWork.Basket.ToggleStatusItems(username, itemId);
+                basketDTO = await SetBasket(username);
+            }
+            catch (Exception ex)
+            {
+                await _redis.KeyDeleteAsync(basketKey);
+                return Result<int>.Failure(ex.Message);
+            }
+            return Result<int>.Success(1);
+        }
+
         public async Task<Result<BasketDTO>> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username)
         {
             BasketDTO basketDTO = null;
@@ -77,7 +106,7 @@ namespace Store_API.Services
             try
             {
                 await _unitOfWork.Basket.UpdateBasketPayment(paymentIntentId, clientSecret, username);
-                basketDTO = await GetBasket(username);
+                basketDTO = await SetBasket(username);
             }
             catch (Exception ex)
             {

@@ -6,6 +6,7 @@ namespace Store_API.IService
 {
     public interface IOrderService
     {
-        Task<Order> Create(int userId, UserAddressDTO address, BasketDTO basket);
+        Task<int> Create(int userId, BasketDTO basket, int userAddressId, UserAddressDTO userAddressDTO);
+        Task<OrderDTO> GetOrder(int orderId);
     }
 }

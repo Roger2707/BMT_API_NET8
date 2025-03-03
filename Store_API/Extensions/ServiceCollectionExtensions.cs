@@ -16,7 +16,7 @@ namespace Store_API.Extensions
             // Services
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IProductService, ProductService>();
-            //services.AddScoped<IBasketService, BasketService>();
+            services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPaymentService, PaymentService>();
 

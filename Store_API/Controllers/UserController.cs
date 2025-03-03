@@ -157,37 +157,5 @@ namespace Store_API.Controllers
 
             return Ok(new { Title = result.Data });
         }
-
-        [HttpGet("get-user-address")]
-        [Authorize]
-        public async Task<IActionResult> GetUserAddresses()
-        {
-            string userName = User.Identity.Name;
-            var result = await _userService.GetUserAddresses(userName);
-            return Ok(result.Data);
-        }
-
-        [HttpPost("upsert-user-address")]
-        [Authorize]
-        public async Task<IActionResult> UpsertUserAddress([FromForm] UserAddressDTO userAddressDTO)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            var result = await _userService.UpsertUserAddresses(User.Identity.Name, userAddressDTO);
-
-            if(!result.IsSuccess)
-                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
-
-            return Ok(result.Data);
-        }
-
-        [HttpDelete("delete-user-address")]
-        [Authorize]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var result = await _userService.Delete(id);
-
-            if(!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] });
-            return Ok(result.Data);
-        }
     }
 }

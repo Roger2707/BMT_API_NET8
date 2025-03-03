@@ -92,7 +92,7 @@ namespace Store_API.Repositories
             }
         }
 
-        public async void RemoveRange(List<BasketItemDTO> items)
+        public async Task RemoveRange(List<BasketItemDTO> items)
         {
             var basketItems = new List<BasketItem>();
 

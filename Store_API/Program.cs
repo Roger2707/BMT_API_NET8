@@ -160,7 +160,7 @@ builder.Services.AddApplicationServices();
 
 #endregion 
 
-#region Connect Redis (build SSH)
+#region Connect Redis 
 
 //var sshConfig = new SshConfig
 //{

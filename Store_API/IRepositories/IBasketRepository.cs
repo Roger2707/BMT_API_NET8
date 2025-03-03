@@ -11,6 +11,6 @@ namespace Store_API.Repositories
         public Task HandleBasketMode(int userId, int productId, bool mode);
         public Task<int> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username);
         public Task<Result<int>> ToggleStatusItems(string username, int itemId);
-        public void RemoveRange(List<BasketItemDTO> items);
+        public Task RemoveRange(List<BasketItemDTO> items);
     }
 }

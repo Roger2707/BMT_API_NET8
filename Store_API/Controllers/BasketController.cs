@@ -30,7 +30,7 @@ namespace Store_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetBasket()
         {
-            var basket = await _unitOfWork.Basket.GetBasket(User.Identity.Name);
+            var basket = await _basketService.GetBasket(User.Identity.Name);
             if(basket == null) return BadRequest(new ProblemDetails { Title = "Basket is empty now !" });
             return Ok(basket);
         }
@@ -57,7 +57,7 @@ namespace Store_API.Controllers
             var product = await _unitOfWork.Product.GetById(itemId);
             if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {itemId} not found !" });
 
-            var result = await _unitOfWork.Basket.ToggleStatusItems(User.Identity.Name, itemId);
+            var result = await _basketService.ToggleStatusItems(User.Identity.Name, itemId);
             if (!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] });
             return Ok(result);
         }

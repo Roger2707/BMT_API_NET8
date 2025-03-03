@@ -2,6 +2,7 @@
 using StackExchange.Redis;
 using Store_API.Data;
 using Store_API.Helpers;
+using Store_API.IRepositories;
 using Store_API.Models;
 using Store_API.Services;
 using Stripe;
@@ -33,8 +34,9 @@ namespace Store_API.Repositories
             Comment = new CommentRepository(_db, _service);
             Rating = new RatingRepository(_db, _service);
             Promotion = new PromotionRepository(_db, _service);
+            UserAddress = new UserAddressRepository(_db, _service);
             Basket = new BasketRepository(_service, _db);
-            Order = new OrderRepository(_service, _db);  
+            Order = new OrderRepository(_service, _db);
         }
 
         #region Models Repository
@@ -45,6 +47,7 @@ namespace Store_API.Repositories
         public ICommentRepository Comment { get; private set; }
         public IRatingRepository Rating { get; private set; }
         public IPromotionRepository Promotion { get; private set; }
+        public IUserAddressRepository UserAddress { get; private set; }
 
 
         public IBasketRepository Basket { get; private set; }
@@ -88,6 +91,16 @@ namespace Store_API.Repositories
             int result = await _db.SaveChangesAsync();
             return result;
         }
+
+        public async Task<User> FindByNameAsync(string userName)
+        {
+            string query = @" SELECT * FROM AspNetUsers WHERE UserName  = @UserName ";
+            var p = new { UserName = userName };
+            var result = await _service.QueryFirstOrDefaultAsync(query, p);
+            return result;
+        }
         #endregion
+
     }
+        
 }
