@@ -29,24 +29,7 @@ namespace Store_API.Services
             var deliveryFee = subTotal > 100 ? 0 : 10;
             var amount = subTotal + deliveryFee;
 
-            if(string.IsNullOrEmpty(basket.PaymentIntentId))
-            {
-                var options = new PaymentIntentCreateOptions
-                {
-                    Amount = CF.GetLong(amount),
-                    Currency = "usd",
-                    PaymentMethodTypes = new List<string>() { "card" },
-                };
-                intent = await service.CreateAsync(options);
-            }
-            else
-            {
-                var options = new PaymentIntentUpdateOptions
-                {
-                    Amount = CF.GetLong(amount),
-                };
-                await service.UpdateAsync(basket.PaymentIntentId, options);
-            }
+            
             return intent;
         }
 
@@ -63,14 +46,7 @@ namespace Store_API.Services
                 if (stripeEvent.Type == Events.PaymentIntentSucceeded)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                    var order = await _db.Orders.FirstOrDefaultAsync(o => o.PaymentIntentId == paymentIntent.Id);
 
-                    if (order != null)
-                    {
-                        order.Status = OrderStatus.Shipped; 
-                        await _db.SaveChangesAsync();
-                        //await _hubContext.Clients.All.SendAsync("OrderStatusUpdated", order.Id, order.Status);
-                    }
                 }
                 else if(stripeEvent.Type == Events.PaymentIntentPaymentFailed)
                 {

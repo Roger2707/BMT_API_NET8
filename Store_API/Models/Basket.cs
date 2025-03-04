@@ -10,8 +10,5 @@ namespace Store_API.Models
         public User User { get; set; }
 
         public List<BasketItem> Items { get; set; }
-
-        public string PaymentIntentId { get; set; }
-        public string ClientSecret { get; set; }
     }
 }

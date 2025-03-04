@@ -31,7 +31,7 @@ namespace Store_API.Repositories
 	                            , au.PhoneNumber
 	                            , o.Id
 	                            , o.OrderDate
-	                            , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Completed', IIF(o.Status = 2, 'Shipped', 'Cancelled'))) as OrderStatus
+	                            , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Completed', IIF(o.Status = 2, 'Cancelled', 'Refunded'))) as OrderStatus
 	                            , o.DeliveryFee
 	                            , o.GrandTotal
                                 , o.Id as OrderItemId
@@ -61,44 +61,47 @@ namespace Store_API.Repositories
             List<dynamic> result = await _dapperService.QueryAsync(query, new { Id = orderId });
             if (result.Count == 0) return null;
 
-            var orderGroup = result
-                            .GroupBy(o => new { o.Id, o.UserId, o.FullName, o.Email, o.PhoneNumber, o.OrderDate
-                                                , o.DeliveryFee, o.OrderStatus, o.GrandTotal
-                                                , o.City, o.District, o.Ward, o.StreetAddress, o.PostalCode, o.Country 
-                                    })
-                            .Select(g => 
-                                new OrderDTO 
-                                {
-                                    Id = g.Key.Id,
-                                    UserId = g.Key.UserId,
-                                    FullName = g.Key.FullName,
-                                    Email = g.Key.Email,
-                                    PhoneNumber = g.Key.PhoneNumber,
-                                    OrderDate = g.Key.OrderDate,
-                                    Status = g.Key.OrderStatus,
-                                    DeliveryFee = g.Key.DeliveryFee,
-                                    GrandTotal = g.Key.GrandTotal,
+            var orderGroup = 
+                result
+                    .GroupBy(o => new 
+                            { o.Id, o.UserId, o.FullName, o.Email, o.PhoneNumber, o.OrderDate
+                                , o.DeliveryFee, o.OrderStatus, o.GrandTotal
+                                , o.City, o.District, o.Ward, o.StreetAddress, o.PostalCode, o.Country 
+                            })
+                    .Select(g => 
+                        new OrderDTO 
+                        {
+                            Id = g.Key.Id,
+                            UserId = g.Key.UserId,
+                            FullName = g.Key.FullName,
+                            Email = g.Key.Email,
+                            PhoneNumber = g.Key.PhoneNumber,
+                            OrderDate = g.Key.OrderDate,
+                            Status = g.Key.OrderStatus,
+                            DeliveryFee = g.Key.DeliveryFee,
+                            GrandTotal = g.Key.GrandTotal,
 
-                                    UserAddress = new UserAddress
-                                    {
-                                        City = g.Key.City,
-                                        District = g.Key.District,
-                                        Ward = g.Key.Ward,
-                                        StreetAddress = g.Key.StreetAddress,
-                                        PostalCode = g.Key.PostalCode,
-                                        Country = g.Key.Country,
-                                    },
+                            UserAddress = new UserAddress
+                            {
+                                City = g.Key.City,
+                                District = g.Key.District,
+                                Ward = g.Key.Ward,
+                                StreetAddress = g.Key.StreetAddress,
+                                PostalCode = g.Key.PostalCode,
+                                Country = g.Key.Country,
+                            },
 
-                                    Items = g.Select(oi => new OrderItemDTO
-                                    {
-                                        Id = oi.OrderItemId,
-                                        ProductId = oi.ProductId,
-                                        ProductName = oi.ProductName,
-                                        ProductImageUrl = oi.ProductImageUrl,
-                                        Quantity = oi.Quantity,
-                                        SubTotal = oi.SubTotal,
-                                    }).ToList(),
-                                }).FirstOrDefault();
+                            Items = g.Select(oi => new OrderItemDTO
+                            {
+                                Id = oi.OrderItemId,
+                                ProductId = oi.ProductId,
+                                ProductName = oi.ProductName,
+                                ProductImageUrl = oi.ProductImageUrl,
+                                Quantity = oi.Quantity,
+                                SubTotal = oi.SubTotal,
+                            }).ToList(),
+                        }).FirstOrDefault();
+
             return orderGroup;
         }
     }

@@ -56,7 +56,6 @@ namespace Store_API.Services
                     Items = orderItems,
                     GrandTotal = grandTotal,
                     DeliveryFee = grandTotal > 100 ? 0 : 10,
-                    PaymentIntentId = basket.PaymentIntentId,
                 };
 
                 await _unitOfWork.Order.Create(order);

@@ -37,8 +37,6 @@ namespace Store_API.Extensions
                 UserId = result[0].UserId,
                 Items = items,
                 GrandTotal = totalPrice,
-                PaymentIntentId = result[0].PaymentIntentId,
-                ClientSecret = result[0].ClientSecret,
             };
 
             return basket;
