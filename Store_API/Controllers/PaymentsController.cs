@@ -1,18 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Store_API.Data;
-using Store_API.DTOs.Baskets;
-using Store_API.DTOs.Orders;
-using Store_API.IService;
-using Store_API.Models;
-using Store_API.Models.OrderAggregate;
+﻿using Microsoft.AspNetCore.Mvc;
 using Store_API.Repositories;
-using Store_API.Services;
 using Stripe;
-using System.Diagnostics;
 
 namespace Store_API.Controllers
 {
@@ -20,21 +8,31 @@ namespace Store_API.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private IOrderService _orderService;
         private IPaymentService _paymentService;
+        private IConfiguration _configuration;
 
-        private readonly UserManager<User> _userManager;
-        private readonly IRabbitMQRepository _rabbitMQService;
-        public PaymentsController(IOrderService orderService, IPaymentService paymentService, UserManager<User> userManager, IRabbitMQRepository rabbitMQService)
+        public PaymentsController(IPaymentService paymentService, IConfiguration configuration)
         {
-            _orderService = orderService;
             _paymentService = paymentService;
-
-            _userManager = userManager;
-            _rabbitMQService = rabbitMQService;
+            _configuration = configuration;
         }
 
-        
+        [HttpPost("create-intent/{orderId}")]
+        public async Task<IActionResult> CreatePaymentIntent(int orderId, [FromBody] decimal amount)
+        {
+            var intent = await _paymentService.CreatePaymentIntentAsync(orderId, amount);
+            return Ok(new { clientSecret = intent.ClientSecret });
+        }
 
+        [HttpPost("webhook")]
+        public async Task<IActionResult> StripeWebhook()
+        {
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            var whSecret = _configuration["StripeSettings:WhSecret"];
+
+            var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], whSecret);
+            await _paymentService.HandleStripeWebhookAsync(stripeEvent);
+            return Ok();
+        }
     }
 }

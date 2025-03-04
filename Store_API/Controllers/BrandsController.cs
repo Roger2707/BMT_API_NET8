@@ -45,7 +45,7 @@ namespace Store_API.Controllers
             var brand = new Brand() { Name = brandDTO.Name, Country = brandDTO.Country };
 
             await _unitOfWork.Brand.Create(brand);
-            await _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return CreatedAtRoute("GetBrandById", new { id = brand.Id }, brand);
         }
@@ -57,7 +57,7 @@ namespace Store_API.Controllers
                 return NotFound();
 
             Brand updatedBrand = await _unitOfWork.Brand.Update(id, brandDTO);
-            await _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
             return Ok(updatedBrand);
         }
 
@@ -68,7 +68,7 @@ namespace Store_API.Controllers
             if (brand == null) return NotFound();
 
             await _unitOfWork.Brand.Delete(id);
-            await _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok();
         }

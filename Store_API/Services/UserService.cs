@@ -344,7 +344,7 @@ namespace Store_API.Services
                 user.PublicId = imageResult.PublicId;
             }
 
-            int result = await _unitOfWork.SaveChanges();
+            int result = await _unitOfWork.SaveChangesAsync();
 
             if (result > 0)
             {

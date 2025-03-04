@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Storage;
 using StackExchange.Redis;
 using Store_API.Data;
 using Store_API.Helpers;
@@ -12,31 +13,32 @@ namespace Store_API.Repositories
     public class UnitOfWork : IUnitOfWork
     {
         private readonly StoreContext _db;
-        private readonly IDapperService _service;
+        private readonly IDapperService _dapper;
         private readonly IImageRepository _imageService;
         private readonly EmailSenderService _emailSenderService;
         private readonly ICSVRepository _csvService;
 
-        public UnitOfWork(StoreContext db, IDapperService service, IImageRepository imageService
+        public UnitOfWork(StoreContext db, IDapperService dapper, IImageRepository imageService
             , EmailSenderService emailSenderService, ICSVRepository csvService)
         {
             _db = db;
-            _service = service;
+            _dapper = dapper;
             _imageService = imageService;
             _emailSenderService = emailSenderService;
             _csvService = csvService;
 
             // Updated Services
-            Product = new ProductRepository(_service, _db, _imageService, _csvService);
-            Category = new CategoryRepository(_db, _service);
-            Brand = new BrandRepository(_service, _db);
-            Althete = new AltheteRepository(_db, _service, _imageService);
-            Comment = new CommentRepository(_db, _service);
-            Rating = new RatingRepository(_db, _service);
-            Promotion = new PromotionRepository(_db, _service);
-            UserAddress = new UserAddressRepository(_db, _service);
-            Basket = new BasketRepository(_service, _db);
-            Order = new OrderRepository(_service, _db);
+            Product = new ProductRepository(_dapper, _db, _imageService, _csvService);
+            Category = new CategoryRepository(_db, _dapper);
+            Brand = new BrandRepository(_dapper, _db);
+            Althete = new AltheteRepository(_db, _dapper, _imageService);
+            Comment = new CommentRepository(_db, _dapper);
+            Rating = new RatingRepository(_db, _dapper);
+            Promotion = new PromotionRepository(_db, _dapper);
+            UserAddress = new UserAddressRepository(_db, _dapper);
+            Basket = new BasketRepository(_dapper, _db);
+            Order = new OrderRepository(_dapper, _db);
+            Payment = new PaymentRepository(_db);
         }
 
         #region Models Repository
@@ -52,29 +54,54 @@ namespace Store_API.Repositories
 
         public IBasketRepository Basket { get; private set; }
         public IOrderRepository Order { get; private set; }
-        // New
+        public IPaymentRepository Payment { get; private set; }
+
+        #endregion
+
+        #region EF Core Methods
+        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        {
+            return await _db.Database.BeginTransactionAsync();
+        }
+
+        public async Task<int> SaveChangesAsync()
+        {
+            int result = await _db.SaveChangesAsync();
+            return result;
+        }
 
         #endregion
 
         #region Dapper Methods
-        public void BeginTrans() => _service.BeginTrans();
-        public void Commit() => _service.Commit();
-        public void Rollback() => _service.Rollback();
+        public async Task BeginTransactionDapperAsync()
+        {
+            await _dapper.BeginTransactionAsync();
+        }
+
+        public async Task CommitAsync()
+        {
+            await _dapper.CommitAsync();
+        }
+
+        public async Task RollbackAsync()
+        {
+            await _dapper.RollbackAsync();
+        }
+
+        public async Task CloseConnectionAsync()
+        {
+            await _dapper.CloseConnectionAsync();
+        }
+
         #endregion
 
-        #region Helpers
-        public async Task<int> GetMaxId(string tableName)
-        {
-            string query = @" SELECT MAX(Id) as MaxId FROM " + tableName;
-            List<dynamic> result = await _service.QueryAsync(query, new { });
-            if (result == null) return 0;
-            return CF.GetInt(result[0].MaxId);
-        }
+        #region Check Exisred Field in Table
+
         public async Task<bool> CheckExisted(string tableName, int id)
         {
             string query = @" SELECT COUNT(Id) as Record FROM " + tableName + " WHERE Id = @Id ";
             var p = new { id };
-            dynamic result = await _service.QueryFirstOrDefaultAsync(query, p);
+            dynamic result = await _dapper.QueryFirstOrDefaultAsync(query, p);
             if (CF.GetInt(result.Record) > 0) return true;
             return false;
         }
@@ -82,23 +109,11 @@ namespace Store_API.Repositories
         {
             string query = @" SELECT COUNT(Id) as Record FROM " + tableName + " WHERE Name = @Name ";
             var p = new { name = !string.IsNullOrEmpty(name) ? name.ToLower().Trim() : "" };
-            dynamic result = await _service.QueryFirstOrDefaultAsync(query, p);
+            dynamic result = await _dapper.QueryFirstOrDefaultAsync(query, p);
             if (CF.GetInt(result.Record) > 0) return true;
             return false;
         }
-        public async Task<int> SaveChanges()
-        {
-            int result = await _db.SaveChangesAsync();
-            return result;
-        }
 
-        public async Task<User> FindByNameAsync(string userName)
-        {
-            string query = @" SELECT * FROM AspNetUsers WHERE UserName  = @UserName ";
-            var p = new { UserName = userName };
-            var result = await _service.QueryFirstOrDefaultAsync(query, p);
-            return result;
-        }
         #endregion
 
     }

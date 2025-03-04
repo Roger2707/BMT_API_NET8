@@ -1,6 +1,5 @@
 ﻿using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
-using Store_API.Models.OrderAggregate;
 
 namespace Store_API.IService
 {

@@ -23,6 +23,9 @@ namespace Store_API.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+
+
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Reply> Replies { get; set; }
         public DbSet<Rating> Ratings { get; set; }

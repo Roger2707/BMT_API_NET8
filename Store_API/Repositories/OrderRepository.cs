@@ -1,4 +1,5 @@
-﻿using Store_API.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Store_API.Data;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.Models;
@@ -19,6 +20,11 @@ namespace Store_API.Repositories
         public async Task Create(Order order)
         {
             await _db.Orders.AddAsync(order);
+        }
+
+        public async Task<Order> FirstOrDefaultAsync(int orderId)
+        {
+            return await _db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
         public async Task<OrderDTO> GetOrder(int orderId)
@@ -103,6 +109,13 @@ namespace Store_API.Repositories
                         }).FirstOrDefault();
 
             return orderGroup;
+        }
+
+        public async Task UpdateOrderStatus(int orderId, OrderStatus orderStatus)
+        {
+            var order = await FirstOrDefaultAsync(orderId);
+            if (order == null) throw new Exception("Order not found");
+            order.Status = orderStatus;
         }
     }
 }

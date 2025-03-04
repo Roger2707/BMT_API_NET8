@@ -12,16 +12,14 @@ namespace Store_API.Services
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly StoreContext _db;
-        public OrderService(IUnitOfWork unitOfWork, StoreContext db)
+        public OrderService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _db = db;
         }
 
         public async Task<int> Create(int userId, BasketDTO basket, int userAddressId, UserAddressDTO userAddressDTO)
         {
-            using var transaction = await _db.Database.BeginTransactionAsync();
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
             {
                 // 1. Get Order Items
@@ -65,7 +63,7 @@ namespace Store_API.Services
                 await _unitOfWork.Basket.RemoveRange(items);
 
                 // 5. Save 
-                await _db.SaveChangesAsync();
+                await _unitOfWork.SaveChangesAsync();
 
                 await transaction.CommitAsync();
                 return order.Id;

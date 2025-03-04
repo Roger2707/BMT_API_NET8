@@ -120,7 +120,7 @@ namespace Store_API.Repositories
             }
             catch (SqlException ex)
             {
-                _dapperService.Rollback();
+                await _dapperService.RollbackAsync();
                 return Result<dynamic>.Failure(ex.Message);
             }
         }
@@ -131,13 +131,13 @@ namespace Store_API.Repositories
             var p = new { Id = userAddressId };
             try
             {
-                _dapperService.BeginTrans();
+                await _dapperService.BeginTransactionAsync();
                 await _dapperService.Execute(query, p);
-                _dapperService.Commit();
+                await _dapperService.CommitAsync();
             }
             catch (SqlException ex)
             {
-                _dapperService.Rollback();
+                await _dapperService.RollbackAsync();
                 return Result<string>.Failure(ex.Message);
             }
             return Result<string>.Success("Deleted UserAddress Successfully !");

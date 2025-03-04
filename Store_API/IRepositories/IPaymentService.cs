@@ -1,12 +1,16 @@
-﻿using Store_API.DTOs.Baskets;
-using Store_API.Models;
+﻿using Store_API.Models;
 using Stripe;
 
 namespace Store_API.Repositories
 {
     public interface IPaymentService
     {
-        public Task<PaymentIntent> UpsertPaymentIntent(BasketDTO basket);
-        public Task HandleWebHook(string json, string stripeSignatureHeaders);
+        Task AddAsync(Payment payment);
+        Task<Payment> GetByPaymentIntentIdAsync(string paymentIntentId);
+        Task<List<Payment>> GetPaymentsByOrderIdAsync(int orderId);
+
+        // 
+        Task<PaymentIntent> CreatePaymentIntentAsync(int orderId, decimal amount);
+        Task HandleStripeWebhookAsync(Event stripeEvent);
     }
 }

@@ -40,7 +40,7 @@ namespace Store_API.Controllers
             if (await _unitOfWork.Category.CheckCategoryExisted(name)) return BadRequest(new ProblemDetails { Title = "Category has existed !"});
             Category category = new() { Name = name };
             await _unitOfWork.Category.Create(category);
-            await _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return CreatedAtRoute("GetById", new { id = category.Id }, category);
         }
@@ -52,7 +52,7 @@ namespace Store_API.Controllers
             if (category == null) return NotFound();
 
             Category updatedCategory = await _unitOfWork.Category.Update(id, name);
-            await _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok(updatedCategory);
         }
@@ -64,7 +64,7 @@ namespace Store_API.Controllers
             if (category == null) return NotFound();
 
             await _unitOfWork.Category.Delete(id);
-            await _unitOfWork.SaveChanges();
+            await _unitOfWork.SaveChangesAsync();
 
             return Ok();
         }

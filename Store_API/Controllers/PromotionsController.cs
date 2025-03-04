@@ -33,16 +33,16 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                _unitOfWork.BeginTrans();
+                await _unitOfWork.BeginTransactionDapperAsync();
 
                 await _unitOfWork.Promotion.Create(promotion);
 
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
                 error = ex.Message;
-                _unitOfWork.Rollback();
+                await _unitOfWork.RollbackAsync();
             }
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
             return Ok();
@@ -54,16 +54,16 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                _unitOfWork.BeginTrans();
+                await _unitOfWork.BeginTransactionDapperAsync();
 
                 await _unitOfWork.Promotion.Update(id, promotion);
 
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
                 error = ex.Message;
-                _unitOfWork.Rollback();
+                await _unitOfWork.RollbackAsync();
             }
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
             return Ok();
@@ -75,16 +75,16 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                _unitOfWork.BeginTrans();
+                await _unitOfWork.BeginTransactionDapperAsync();
 
                 await _unitOfWork.Promotion.Delete(id);
 
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {
                 error = ex.Message;
-                _unitOfWork.Rollback();
+                await _unitOfWork.RollbackAsync();
             }
             if (error != "") return BadRequest(new ProblemDetails { Title = error });
             return Ok();

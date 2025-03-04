@@ -7,5 +7,7 @@ namespace Store_API.Repositories
     {
         Task Create(Order order);
         Task<OrderDTO> GetOrder(int orderId);
+        Task<Order> FirstOrDefaultAsync(int orderId);
+        Task UpdateOrderStatus(int orderId, OrderStatus orderStatus);
     }
 }

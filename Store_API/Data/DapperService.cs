@@ -9,8 +9,8 @@ namespace Store_API.Data
     {
         private readonly IConfiguration _configuration;
         private readonly string _connectionString;
-        private IDbConnection _connection = null;
-        private IDbTransaction _transaction = null;
+        private SqlConnection _connection;
+        private SqlTransaction _transaction;
 
         public DapperService(IConfiguration configuration)
         {
@@ -19,53 +19,56 @@ namespace Store_API.Data
         }
 
         #region Transaction Methods
-        public void BeginTrans()
+        public async Task BeginTransactionAsync()
         {
-            _connection = new SqlConnection(_connectionString);
-            _connection.Open();
-            _transaction = _connection.BeginTransaction();
+            if (_connection == null || _connection.State == ConnectionState.Closed)
+            {
+                _connection = new SqlConnection(_connectionString);
+                await _connection.OpenAsync();
+            }
+            _transaction = (SqlTransaction)await _connection.BeginTransactionAsync();
         }
 
-        public void Commit()
+        public async Task CommitAsync()
         {
-            try
+            if (_transaction != null)
             {
-                _transaction?.Commit();
-            }
-            catch
-            {
-                Rollback();  // Nếu commit thất bại, rollback
-                throw;
-            }
-            finally
-            {
-                CloseConnection();
+                await _transaction.CommitAsync();
+                DisposeTransaction();
             }
         }
 
-        public void Rollback()
+        public async Task RollbackAsync()
         {
-            try
+            if (_transaction != null)
             {
-                _transaction?.Rollback();
-            }
-            catch
-            {
-                throw;
-            }
-            finally
-            {
-                CloseConnection();
+                await _transaction.RollbackAsync();
+                DisposeTransaction();
             }
         }
 
-        // Đảm bảo đóng kết nối khi giao dịch kết thúc hoặc khi không còn cần thiết
-        private void CloseConnection()
+        public async Task CloseConnectionAsync()
         {
-            if (_connection != null && _connection.State == ConnectionState.Open)
+            if (_connection != null && _transaction == null && _connection.State != ConnectionState.Closed)
             {
-                _connection.Close();
+                await _connection.CloseAsync();
+                _connection.Dispose();
+                _connection = null;
             }
+        }
+
+        private void DisposeTransaction()
+        {
+            _transaction?.Dispose();
+            _transaction = null;
+            _connection?.Close();
+            _connection?.Dispose();
+            _connection = null;
+        }
+
+        public void Dispose()
+        {
+            DisposeTransaction();
         }
 
         #endregion

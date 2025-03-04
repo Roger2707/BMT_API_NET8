@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using Store_API.Data;
-using Store_API.DTOs.Baskets;
-using Store_API.Helpers;
+using Store_API.Hubs;
+using Store_API.IRepositories;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
@@ -12,55 +10,87 @@ namespace Store_API.Services
 {
     public class PaymentService : IPaymentService
     {
-        private readonly IConfiguration _config;
-        private readonly StoreContext _db;
-        public PaymentService(IConfiguration config, StoreContext db)
+        private readonly IUnitOfWork _unitOfWork;
+        private readonly IHubContext<OrderHub> _hubContext;
+        public PaymentService(IUnitOfWork unitOfWork, IHubContext<OrderHub> hubContext)
         {
-            _config = config;
-            _db = db;
+            _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
         }
 
-        public async Task<PaymentIntent> UpsertPaymentIntent(BasketDTO basket)
+        #region CRUD
+
+        public async Task AddAsync(Payment payment)
         {
-            StripeConfiguration.ApiKey = _config["StripeSettings:SecretKey"];
+            await _unitOfWork.Payment.AddAsync(payment);
+        }
+
+        public async Task<Payment> GetByPaymentIntentIdAsync(string paymentIntentId)
+        {
+            return await _unitOfWork.Payment.GetByPaymentIntent(paymentIntentId);
+        }
+
+        public async Task<List<Payment>> GetPaymentsByOrderIdAsync(int orderId)
+        {
+            return await _unitOfWork.Payment.GetByOrderId(orderId);
+        }
+
+        #endregion
+
+        #region Payment Methods
+
+        public async Task<PaymentIntent> CreatePaymentIntentAsync(int orderId, decimal amount)
+        {
+            var order = await _unitOfWork.Order.GetOrder(orderId);
+            if (order == null) throw new Exception("Order not found !");
+
+            // Exchange rate (vnd - usd)
+            decimal exchangeRate = 0.000039m; 
+            decimal amountUSD = Math.Round(amount * exchangeRate, 2);
+
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = (long)(amountUSD * 100),
+                Currency = "usd",
+                PaymentMethodTypes = new List<string> { "card" }
+            };
+
             var service = new PaymentIntentService();
-            var intent = new PaymentIntent();
-            var subTotal = basket.Items.Where(item => item.Status == true).Sum(item => item.DiscountPrice * item.Quantity);
-            var deliveryFee = subTotal > 100 ? 0 : 10;
-            var amount = subTotal + deliveryFee;
+            var paymentIntent = await service.CreateAsync(options);
 
-            
-            return intent;
+            var payment = new Payment
+            {
+                OrderId = orderId,
+                PaymentIntentId = paymentIntent.Id,
+                Amount = amount,
+                Status = Models.OrderAggregate.OrderStatus.Pending,
+            };
+
+            await AddAsync(payment);
+
+            return paymentIntent;
         }
 
-        public async Task HandleWebHook(string json, string stripeSignatureHeaders)
+        public async Task HandleStripeWebhookAsync(Event stripeEvent)
         {
-            try
+            if (stripeEvent.Type == Events.PaymentIntentSucceeded)
             {
-                var stripeEvent = EventUtility.ConstructEvent(
-                    json,
-                    stripeSignatureHeaders,
-                    _config["StripeSettings:WhSecret"]
-                );
+                var intent = stripeEvent.Data.Object as PaymentIntent;
+                var payment = await GetByPaymentIntentIdAsync(intent.Id);
 
-                if (stripeEvent.Type == Events.PaymentIntentSucceeded)
+                if (payment != null)
                 {
-                    var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+                    payment.Status = OrderStatus.Completed;
+                    await _unitOfWork.Payment.UpdatePaymentAsync(payment);
+                    await _unitOfWork.Order.UpdateOrderStatus(payment.OrderId, OrderStatus.Completed);
+                    await _unitOfWork.SaveChangesAsync();
 
+                    // SignalIR
+                    await _hubContext.Clients.All.SendAsync("OrderUpdated", payment.OrderId, OrderStatus.Completed);
                 }
-                else if(stripeEvent.Type == Events.PaymentIntentPaymentFailed)
-                {
-
-                }
-            }
-            catch(StripeException ex)
-            {
-                throw new Exception(ex.Message);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception(ex.Message);
             }
         }
+
+        #endregion
     }
 }

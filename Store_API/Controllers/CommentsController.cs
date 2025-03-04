@@ -31,16 +31,16 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                _unitOfWork.BeginTrans();
+                await _unitOfWork.BeginTransactionDapperAsync();
 
                 await _unitOfWork.Comment.Create(userId, productId, content);
 
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
             }
             catch(Exception ex)
             {
                 error = ex.Message;
-                _unitOfWork.Rollback();
+                await _unitOfWork.RollbackAsync();
             }
             if (error != "") return BadRequest(new ProblemDetails { Title = "Comment is not created !" });
             return Ok();
@@ -62,14 +62,14 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                _unitOfWork.BeginTrans();
+                await _unitOfWork.BeginTransactionDapperAsync();
                 await _unitOfWork.Comment.Update(commentId, content);
-                _unitOfWork.Commit();
+                await _unitOfWork.CommitAsync();
             }
             catch(Exception ex)
             {
                 error = ex.Message;
-                _unitOfWork.Rollback();
+                await _unitOfWork.RollbackAsync();
             }
             
             if(error != "") return BadRequest(new ProblemDetails { Title = error });

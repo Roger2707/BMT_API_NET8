@@ -81,13 +81,13 @@ namespace Store_API.Repositories
             var p = new { UserId = userId, ProductId = productId, Mode = mode };
             try
             {
-                _dapperService.BeginTrans();
+                await _dapperService.BeginTransactionAsync();
                 await _dapperService.Execute(query, p);
-                _dapperService.Commit();
+                await _dapperService.CommitAsync();
             }
             catch (Exception ex)
             {
-                _dapperService.Rollback();
+                await _dapperService.RollbackAsync();
                 throw;
             }
         }
@@ -118,15 +118,15 @@ namespace Store_API.Repositories
             var p = new { BasketId = basket.Id, BasketItemsId = itemId };
             try
             {
-                _dapperService.BeginTrans();
+                await _dapperService.BeginTransactionAsync();
                 await _dapperService.Execute(query, p);
-                _dapperService.Commit();
+                 await _dapperService.CommitAsync();
 
                 return Result<int>.Success(1);
             }
             catch (Exception ex)
             {
-                _dapperService.Rollback();
+                await _dapperService.RollbackAsync();
                 return Result<int>.Failure("Change status failed !");
             }
         }
@@ -145,15 +145,15 @@ namespace Store_API.Repositories
 
             try
             {
-                _dapperService.BeginTrans();
+                await _dapperService.BeginTransactionAsync();
                 await _dapperService.Execute(query, p);
-                _dapperService.Commit();
+                await _dapperService.CommitAsync();
 
                 return 1;
             }
             catch(SqlException ex)
             {
-                _dapperService.Rollback();
+                await _dapperService.RollbackAsync();
                 throw;
             }
         }

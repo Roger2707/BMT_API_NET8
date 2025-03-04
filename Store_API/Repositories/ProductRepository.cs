@@ -96,7 +96,7 @@ namespace Store_API.Repositories
             {
                 try
                 {
-                    _dapperService.BeginTrans();
+                    await _dapperService.BeginTransactionAsync();
                     for(int i = 0; i < products.Count; i ++)
                     {
                         var p = new
@@ -111,11 +111,11 @@ namespace Store_API.Repositories
                         };
                         await _dapperService.Execute(query, p);
                     }
-                    _dapperService.Commit();
+                    await _dapperService.CommitAsync();
                 }
                 catch(SqlException ex)
                 {
-                    _dapperService.Rollback();
+                    await _dapperService.RollbackAsync();
                     return Result<int>.Failure(ex.Message);
                 }
             }

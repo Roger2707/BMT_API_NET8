@@ -45,7 +45,7 @@ namespace Store_API.Controllers
             try
             {
                 await _unitOfWork.Althete.Create(model);
-                result = await _unitOfWork.SaveChanges();
+                result = await _unitOfWork.SaveChangesAsync();
             }
             catch (Exception ex)
             {
@@ -54,8 +54,8 @@ namespace Store_API.Controllers
 
             if (result > 0)
             {
-                int maxId = await _unitOfWork.GetMaxId("Althetes");
-                return CreatedAtRoute("GetAltheteById", new { id = maxId }, model);
+                // fix later 
+                return CreatedAtRoute("GetAltheteById", new { id = 1 }, model);
             }
             return BadRequest(new ProblemDetails { Title = error });
         }
@@ -70,7 +70,7 @@ namespace Store_API.Controllers
             try
             {
                 Althete updatedPlayer = await _unitOfWork.Althete.Update(id, model);
-                int result = await _unitOfWork.SaveChanges();
+                int result = await _unitOfWork.SaveChangesAsync();
 
                 if (result > 0) return Ok(updatedPlayer);
             }
@@ -92,7 +92,7 @@ namespace Store_API.Controllers
             try
             {
                 await _unitOfWork.Althete.Delete(id);
-                result = await _unitOfWork.SaveChanges();
+                result = await _unitOfWork.SaveChangesAsync();
             }
             catch (Exception ex)
             {
