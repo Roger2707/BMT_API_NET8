@@ -10,7 +10,7 @@ namespace Store_API.Repositories
         Task<List<Payment>> GetPaymentsByOrderIdAsync(int orderId);
 
         // 
-        Task<PaymentIntent> CreatePaymentIntentAsync(int orderId, decimal amount);
+        Task<PaymentIntent> CreatePaymentIntentAsync(int orderId, double amount);
         Task HandleStripeWebhookAsync(Event stripeEvent);
     }
 }

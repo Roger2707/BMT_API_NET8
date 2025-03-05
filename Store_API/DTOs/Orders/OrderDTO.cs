@@ -15,5 +15,6 @@ namespace Store_API.DTOs.Orders
         public UserAddress UserAddress { get; set; }
         public List<OrderItemDTO> Items { get; set; }
         public double GrandTotal { get; set; }
+        public string ClientSecret { get; set; }
     }
 }

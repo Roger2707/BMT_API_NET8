@@ -10,10 +10,6 @@ using Store_API.IService;
 using Store_API.Models;
 using Store_API.Repositories;
 using System.Security.Claims;
-using Store_API.DTOs.Orders;
-using Microsoft.Data.SqlClient;
-using Store_API.Models.OrderAggregate;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Store_API.Services
 {
@@ -76,7 +72,7 @@ namespace Store_API.Services
             foreach (var user in result)
             {
                 var userDTO = new UserDTO()
-                {
+                {                  
                     UserName = user.UserName,
                     FullName = user.FullName,
                     Email = user.Email,
@@ -84,7 +80,7 @@ namespace Store_API.Services
                     Dob = user.Dob,
                     ImageUrl = user.ImageUrl,
                     RoleName = user.RoleName,
-                    BasketId = user.BasketId
+                    BasketId = user.BasketId ?? 0
                 };
 
                 users.Add(userDTO);
@@ -95,16 +91,34 @@ namespace Store_API.Services
 
         public async Task<Result<UserDTO>> GetCurrentUser(string userName)
         {
-            var user = await _userManager.FindByNameAsync(userName);
+            string query = @" 
+                            SELECT 
+                                u.Id
+                                , FullName
+                                , UserName
+                                , Email
+                                , Dob
+                                , PhoneNumber
+                                , ImageUrl
+                                , b.Id as BasketId
+                                FROM AspNetUsers u
+								LEFT JOIN Baskets b ON b.UserId = u.Id
+                                WHERE UserName = @UserName
+                                ";
+
+            var user = await _dapperService.QueryFirstOrDefaultAsync(query, new { UserName = userName });
+            if (user == null) return null;
 
             var respone = new UserDTO
             {
                 FullName = user.FullName,
+                UserName = user.UserName,
                 Email = user.Email,
                 Dob = user.Dob,
                 PhoneNumber = user.PhoneNumber,
                 ImageUrl = user.ImageUrl,
-                Token = await _tokenService.GenerateToken(user),
+                Token = await _tokenService.GenerateToken(new User { Id = user.Id, Email = user.Email, UserName = user.UserName }),
+                BasketId  = user.BasketId
             };
 
             return Result<UserDTO>.Success(respone);

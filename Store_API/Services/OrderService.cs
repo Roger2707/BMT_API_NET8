@@ -4,6 +4,7 @@ using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.Helpers;
 using Store_API.IService;
+using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 
@@ -12,12 +13,14 @@ namespace Store_API.Services
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public OrderService(IUnitOfWork unitOfWork)
+        private readonly IPaymentService _paymentService;
+        public OrderService(IUnitOfWork unitOfWork, IPaymentService paymentService)
         {
             _unitOfWork = unitOfWork;
+            _paymentService = paymentService;
         }
 
-        public async Task<int> Create(int userId, BasketDTO basket, int userAddressId, UserAddressDTO userAddressDTO)
+        public async Task<OrderResponseDTO> Create(int userId, BasketDTO basket, int userAddressId, UserAddressDTO userAddressDTO)
         {
             using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
@@ -57,16 +60,37 @@ namespace Store_API.Services
                 };
 
                 await _unitOfWork.Order.Create(order);
+                await _unitOfWork.SaveChangesAsync();
 
                 // 4. Remove Items in Basket
                 var items = basket.Items.Where(x => x.Status == true).ToList();
                 await _unitOfWork.Basket.RemoveRange(items);
 
-                // 5. Save 
-                await _unitOfWork.SaveChangesAsync();
+                // 5. Create PaymentIntent on Stripe
+                var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
 
+                // 6. Create Payment in DB
+                var payment = new Payment 
+                { 
+                    OrderId = order.Id
+                    , PaymentIntentId = paymentIntent.Id
+                    , Amount = grandTotal
+                    , Status = OrderStatus.Pending, CreatedAt = DateTime.UtcNow 
+                };
+                await _paymentService.AddAsync(payment);
+
+                // 7. Save and Commit
+                await _unitOfWork.SaveChangesAsync();
                 await transaction.CommitAsync();
-                return order.Id;
+
+                return new OrderResponseDTO
+                {
+                    Id = order.Id,
+                    GrandTotal = order.GrandTotal,
+                    CreatedAt = DateTime.UtcNow,
+                    OrderStatus = OrderStatus.Pending,
+                    ClientSecret = paymentIntent.ClientSecret
+                };
             }
             catch (Exception ex)
             {

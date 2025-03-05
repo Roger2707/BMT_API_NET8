@@ -36,8 +36,6 @@ namespace Store_API.Repositories
                             , ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent
                             , IIF(promotion.PercentageDiscount is not NULL, product.Price - (product.Price * (promotion.PercentageDiscount / 100)), product.Price) as DiscountPrice
                             , items.Status
-                            , basket.PaymentIntentId
-                            , basket.ClientSecret
 
                             FROM Baskets basket
 

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Store_API.Helpers;
 using Store_API.Hubs;
-using Store_API.IRepositories;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
@@ -12,10 +12,20 @@ namespace Store_API.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IHubContext<OrderHub> _hubContext;
-        public PaymentService(IUnitOfWork unitOfWork, IHubContext<OrderHub> hubContext)
+        private readonly IConfiguration _configuration;
+        private readonly string _apiKey;
+
+        public PaymentService(IUnitOfWork unitOfWork, IHubContext<OrderHub> hubContext, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            _configuration = configuration;
             _hubContext = hubContext;
+            _apiKey = _configuration["Stripe:SecretKey"];
+
+            if (string.IsNullOrEmpty(_apiKey)) throw new Exception("Stripe API Key is missing from configuration.");
+
+            if (string.IsNullOrEmpty(StripeConfiguration.ApiKey))
+                StripeConfiguration.ApiKey = _apiKey;
         }
 
         #region CRUD
@@ -39,14 +49,11 @@ namespace Store_API.Services
 
         #region Payment Methods
 
-        public async Task<PaymentIntent> CreatePaymentIntentAsync(int orderId, decimal amount)
+        public async Task<PaymentIntent> CreatePaymentIntentAsync(int orderId, double amount)
         {
-            var order = await _unitOfWork.Order.GetOrder(orderId);
-            if (order == null) throw new Exception("Order not found !");
-
             // Exchange rate (vnd - usd)
-            decimal exchangeRate = 0.000039m; 
-            decimal amountUSD = Math.Round(amount * exchangeRate, 2);
+            decimal exchangeRate = 0.000039m;
+            decimal amountUSD = Math.Round(CF.GetDecimal(amount) * exchangeRate, 2);
 
             var options = new PaymentIntentCreateOptions
             {
@@ -63,7 +70,7 @@ namespace Store_API.Services
                 OrderId = orderId,
                 PaymentIntentId = paymentIntent.Id,
                 Amount = amount,
-                Status = Models.OrderAggregate.OrderStatus.Pending,
+                Status = OrderStatus.Pending,
             };
 
             await AddAsync(payment);

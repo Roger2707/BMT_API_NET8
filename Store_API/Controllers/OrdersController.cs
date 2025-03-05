@@ -24,7 +24,7 @@ namespace Store_API.Controllers
 
         [Authorize]
         [HttpPost("create-order")]
-        public async Task<IActionResult> Create([FromForm] UserAddressDTO? userAddress, int userAddressId)
+        public async Task<IActionResult> Create([FromForm] UserAddressDTO userAddress, int userAddressId)
         {
             // 1. Get Basket - Current User 
             var basketDTO = await _basketService.GetBasket(User.Identity.Name);
@@ -34,10 +34,8 @@ namespace Store_API.Controllers
             int userId = user.Id;
 
             // 2. Order processing
-            var orderId = await _orderService.Create(userId, basketDTO, userAddressId, userAddress);
-
-            if(orderId <= 0) return BadRequest(new ProblemDetails { Title = "Problem creating order" });
-            return Ok(orderId);
+            var orderResponse = await _orderService.Create(userId, basketDTO, userAddressId, userAddress);
+            return Ok(orderResponse);
         }
 
         [Authorize]

@@ -41,6 +41,17 @@ namespace Store_API.Helpers
             }
         }
 
+        public static decimal GetDecimal(object val)
+        {
+            if (val is decimal) return (decimal)val;
+            else
+            {
+                decimal d;
+                decimal.TryParse(val + "", out d);
+                return d;
+            }
+        }
+
         public static string Base64ForUrlEncode(string str)
         {
             byte[] encbuff = Encoding.UTF8.GetBytes(str);
