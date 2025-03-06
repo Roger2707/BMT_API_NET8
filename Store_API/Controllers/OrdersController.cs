@@ -46,5 +46,16 @@ namespace Store_API.Controllers
             if (order == null) return NotFound(new ProblemDetails { Title = "Order not found" });
             return Ok(order);
         }
+
+        #region Helpers
+
+        [HttpPost("update-order-status")]
+        public async Task<IActionResult> UpdateOrderStatus(int orderId)
+        {
+            await _orderService.UpdateOrderStatus(orderId, Models.OrderAggregate.OrderStatus.Completed);
+            return Ok();
+        }
+
+        #endregion 
     }
 }

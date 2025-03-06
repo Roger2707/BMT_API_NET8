@@ -99,6 +99,7 @@ namespace Store_API.Repositories
                         new SqlParameter("@Id", userId)
                     };
                     await _db.Database.ExecuteSqlRawAsync(query, parameters);
+                    await _db.SaveChangesAsync();
                     return Result<dynamic>.Success(id);
                 }
                 else

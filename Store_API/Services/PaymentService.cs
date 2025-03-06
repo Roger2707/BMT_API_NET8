@@ -53,11 +53,11 @@ namespace Store_API.Services
         {
             // Exchange rate (vnd - usd)
             decimal exchangeRate = 0.000039m;
-            decimal amountUSD = Math.Round(CF.GetDecimal(amount) * exchangeRate, 2);
+            long amountInCents = (long)(CF.GetDecimal(amount) * exchangeRate * 100);
 
             var options = new PaymentIntentCreateOptions
             {
-                Amount = (long)(amountUSD * 100),
+                Amount = amountInCents,
                 Currency = "usd",
                 PaymentMethodTypes = new List<string> { "card" }
             };
@@ -71,6 +71,7 @@ namespace Store_API.Services
                 PaymentIntentId = paymentIntent.Id,
                 Amount = amount,
                 Status = OrderStatus.Pending,
+                CreatedAt = DateTime.UtcNow,
             };
 
             await AddAsync(payment);
@@ -80,21 +81,33 @@ namespace Store_API.Services
 
         public async Task HandleStripeWebhookAsync(Event stripeEvent)
         {
-            if (stripeEvent.Type == Events.PaymentIntentSucceeded)
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                var intent = stripeEvent.Data.Object as PaymentIntent;
-                var payment = await GetByPaymentIntentIdAsync(intent.Id);
-
-                if (payment != null)
+                if (stripeEvent.Type == Events.PaymentIntentSucceeded)
                 {
-                    payment.Status = OrderStatus.Completed;
-                    await _unitOfWork.Payment.UpdatePaymentAsync(payment);
-                    await _unitOfWork.Order.UpdateOrderStatus(payment.OrderId, OrderStatus.Completed);
-                    await _unitOfWork.SaveChangesAsync();
+                    var intent = stripeEvent.Data.Object as PaymentIntent;
+                    var payment = await GetByPaymentIntentIdAsync(intent.Id);
+                    var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
 
-                    // SignalIR
-                    await _hubContext.Clients.All.SendAsync("OrderUpdated", payment.OrderId, OrderStatus.Completed);
+                    if (payment != null && order != null)
+                    {
+                        payment.Status = OrderStatus.Completed;
+                        order.Status = OrderStatus.Completed;
+                        await _unitOfWork.SaveChangesAsync();
+
+                        // SignalIR
+                        await _hubContext.Clients.All.SendAsync("OrderUpdated", payment.OrderId, OrderStatus.Completed);
+                    }
+                    else throw new Exception("Exception Webhook - Not found Payment or Order !");
                 }
+
+                await transaction.CommitAsync();
+            }
+            catch(Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
             }
         }
 

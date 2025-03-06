@@ -66,20 +66,10 @@ namespace Store_API.Services
                 var items = basket.Items.Where(x => x.Status == true).ToList();
                 await _unitOfWork.Basket.RemoveRange(items);
 
-                // 5. Create PaymentIntent on Stripe
+                // 5. Create PaymentIntent on Stripe (add payment in db)
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
 
-                // 6. Create Payment in DB
-                var payment = new Payment 
-                { 
-                    OrderId = order.Id
-                    , PaymentIntentId = paymentIntent.Id
-                    , Amount = grandTotal
-                    , Status = OrderStatus.Pending, CreatedAt = DateTime.UtcNow 
-                };
-                await _paymentService.AddAsync(payment);
-
-                // 7. Save and Commit
+                // 6. Save and Commit
                 await _unitOfWork.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -104,5 +94,15 @@ namespace Store_API.Services
             var orderDTO = await _unitOfWork.Order.GetOrder(orderId);
             return orderDTO;
         }
+
+        #region Helpers
+
+        public async Task UpdateOrderStatus(int orderId, OrderStatus status)
+        {
+            await _unitOfWork.Order.UpdateOrderStatus(orderId, status);
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        #endregion 
     }
 }

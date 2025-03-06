@@ -20,15 +20,22 @@ namespace Store_API.Controllers
         [HttpPost("webhook")]
         public async Task<IActionResult> StripeWebhook()
         {
-            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-            var whSecret = _configuration["Stripe:WhSecret"];
+            try
+            {
+                var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+                var whSecret = _configuration["Stripe:WhSecret"];
+                var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], whSecret);
+                await _paymentService.HandleStripeWebhookAsync(stripeEvent);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
 
-            var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], whSecret);
-            await _paymentService.HandleStripeWebhookAsync(stripeEvent);
             return Ok();
         }
 
-        #region API test
+        #region API test helpers
 
         [HttpPost("confirm-payment")]
         public async Task<IActionResult> ConfirmPayment(string paymentIntentId)
