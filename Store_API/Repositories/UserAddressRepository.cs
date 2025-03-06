@@ -96,7 +96,7 @@ namespace Store_API.Repositories
                         new SqlParameter("@StreetAddress", userAddressDTO.StreetAddress ?? (object)DBNull.Value),
                         new SqlParameter("@PostalCode", userAddressDTO.PostalCode ?? (object)DBNull.Value),
                         new SqlParameter("@Country", userAddressDTO.Country ?? (object)DBNull.Value),
-                        new SqlParameter("@Id", userId)
+                        new SqlParameter("@Id", id)
                     };
                     await _db.Database.ExecuteSqlRawAsync(query, parameters);
                     await _db.SaveChangesAsync();

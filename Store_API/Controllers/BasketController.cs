@@ -54,9 +54,6 @@ namespace Store_API.Controllers
         [HttpPost("toggle-status-item")]
         public async Task<IActionResult> ToggleItemsStatus(int itemId)
         {
-            var product = await _unitOfWork.Product.GetById(itemId);
-            if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {itemId} not found !" });
-
             var result = await _basketService.ToggleStatusItems(User.Identity.Name, itemId);
             if (!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] });
             return Ok(result);
