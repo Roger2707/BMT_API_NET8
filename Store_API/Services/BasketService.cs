@@ -1,15 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using StackExchange.Redis;
-using Store_API.Data;
+﻿using StackExchange.Redis;
 using Store_API.DTOs;
 using Store_API.DTOs.Baskets;
-using Store_API.Extensions;
-using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Models;
 using Store_API.Repositories;
-using Stripe;
-using System.Linq.Expressions;
 using System.Text.Json;
 
 namespace Store_API.Services

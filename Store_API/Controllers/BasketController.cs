@@ -1,14 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using StackExchange.Redis;
-using Store_API.DTOs.Baskets;
 using Store_API.IService;
 using Store_API.Models;
 using Store_API.Repositories;
-using System.Text.Json;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace Store_API.Controllers
 {
