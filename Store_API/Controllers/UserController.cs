@@ -39,7 +39,7 @@ namespace Store_API.Controllers
         [HttpGet("external-login")]
         public IActionResult ExternalLogin()
         {
-            var redirectUrl = Url.Action("ExternalLoginCallback", "Account");
+            var redirectUrl = Url.Action("ExternalLoginCallback", "User");
             var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
             return Challenge(properties, "Google");
         }

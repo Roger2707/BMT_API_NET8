@@ -24,18 +24,28 @@ namespace Store_API.Controllers
 
         [Authorize]
         [HttpPost("create-order")]
-        public async Task<IActionResult> Create([FromForm] UserAddressDTO userAddress, int userAddressId)
+        public async Task<IActionResult> Create(int userAddressId)
         {
-            // 1. Get Basket - Current User 
-            var basketDTO = await _basketService.GetBasket(User.Identity.Name);
-            if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty" });
+            try
+            {
+                // 1. Check userAddressId 
+                if(userAddressId == 0) return BadRequest(new ProblemDetails { Title = "User Address is not found" });
 
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            int userId = user.Id;
+                // 2. Get Basket - Current User 
+                var basketDTO = await _basketService.GetBasket(User.Identity.Name);
+                if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
 
-            // 2. Order processing
-            var orderResponse = await _orderService.Create(userId, basketDTO, userAddressId, userAddress);
-            return Ok(orderResponse);
+                var user = await _userManager.FindByNameAsync(User.Identity.Name);
+                int userId = user.Id;
+
+                // 3. Order processing
+                var orderResponse = await _orderService.Create(userId, basketDTO, userAddressId);
+                return Ok(orderResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
         }
 
         [Authorize]

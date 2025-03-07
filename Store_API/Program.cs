@@ -106,7 +106,7 @@ builder.Services
         opt.Password.RequiredLength = 7;
         opt.Password.RequireDigit = false;
         opt.Password.RequireUppercase = false;
-        opt.User.RequireUniqueEmail = true;
+        //opt.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<StoreContext>()
     .AddDefaultTokenProviders();

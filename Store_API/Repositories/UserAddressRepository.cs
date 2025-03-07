@@ -73,7 +73,6 @@ namespace Store_API.Repositories
 
         #endregion
 
-
         #region CRUD
 
         public async Task<Result<dynamic>> UpsertUserAddresses(int userId, UserAddressDTO userAddressDTO)

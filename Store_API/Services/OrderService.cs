@@ -17,7 +17,7 @@ namespace Store_API.Services
             _paymentService = paymentService;
         }
 
-        public async Task<OrderResponseDTO> Create(int userId, BasketDTO basket, int userAddressId, UserAddressDTO userAddressDTO)
+        public async Task<OrderResponseDTO> Create(int userId, BasketDTO basket, int userAddressId)
         {
             using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
@@ -37,20 +37,13 @@ namespace Store_API.Services
                 // 2. Calc Grand Total
                 double grandTotal = orderItems.Sum(item => item.SubTotal);
 
-                // 3. Handle User Address
-                int addressId = userAddressId;
-                if (userAddressId == 0)
-                {
-                    addressId = (await _unitOfWork.UserAddress.UpsertUserAddresses(userId, userAddressDTO)).Data;
-                }
-
-                // 3. Add Order and Remove/Clear Items in Basket
+                // 3. Add Order in DB
                 var order = new Order
                 {
                     UserId = userId,
                     OrderDate = DateTime.Now,
                     Status = OrderStatus.Pending,
-                    UserAddressId = addressId,
+                    UserAddressId = userAddressId,
                     Items = orderItems,
                     GrandTotal = grandTotal,
                     DeliveryFee = grandTotal > 100 ? 0 : 10,
@@ -63,7 +56,7 @@ namespace Store_API.Services
                 var items = basket.Items.Where(x => x.Status == true).ToList();
                 await _unitOfWork.Basket.RemoveRange(items);
 
-                // 5. Create PaymentIntent on Stripe (add payment in db)
+                // 5. Create PaymentIntent on Stripe (Add Payment in db)
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
 
                 // 6. Save and Commit
