@@ -11,13 +11,15 @@ namespace Store_API.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IPaymentService _paymentService;
-        public OrderService(IUnitOfWork unitOfWork, IPaymentService paymentService)
+        private readonly IBasketService _basketService;
+        public OrderService(IUnitOfWork unitOfWork, IPaymentService paymentService, IBasketService basketService)
         {
             _unitOfWork = unitOfWork;
             _paymentService = paymentService;
+            _basketService = basketService;
         }
 
-        public async Task<OrderResponseDTO> Create(int userId, BasketDTO basket, int userAddressId)
+        public async Task<OrderResponseDTO> Create(int userId, string userName, BasketDTO basket, int userAddressId)
         {
             using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
@@ -52,9 +54,9 @@ namespace Store_API.Services
                 await _unitOfWork.Order.Create(order);
                 await _unitOfWork.SaveChangesAsync();
 
-                // 4. Remove Items in Basket
+                // 4. Remove Items in Basket - Sync Redis
                 var items = basket.Items.Where(x => x.Status == true).ToList();
-                await _unitOfWork.Basket.RemoveRange(items);
+                await _basketService.RemoveRange(userName, items);
 
                 // 5. Create PaymentIntent on Stripe (Add Payment in db)
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
@@ -83,6 +85,12 @@ namespace Store_API.Services
         {
             var orderDTO = await _unitOfWork.Order.GetOrder(orderId);
             return orderDTO;
+        }
+
+        public async Task<IEnumerable<OrderDTO>> GetOrders(int orderId)
+        {
+            var orders = await _unitOfWork.Order.GetOrders(orderId);
+            return orders;
         }
 
         #region Helpers

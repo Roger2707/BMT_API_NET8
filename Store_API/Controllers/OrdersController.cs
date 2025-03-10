@@ -39,7 +39,7 @@ namespace Store_API.Controllers
                 int userId = user.Id;
 
                 // 3. Order processing
-                var orderResponse = await _orderService.Create(userId, basketDTO, userAddressId);
+                var orderResponse = await _orderService.Create(userId, User.Identity.Name, basketDTO, userAddressId);
                 return Ok(orderResponse);
             }
             catch (Exception ex)
@@ -55,6 +55,16 @@ namespace Store_API.Controllers
             var order = await _orderService.GetOrder(orderId);
             if (order == null) return NotFound(new ProblemDetails { Title = "Order not found" });
             return Ok(order);
+        }
+
+        [Authorize]
+        [HttpGet("get-orders")]
+        public async Task<IActionResult> GetOrders()
+        {
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            var orders = await _orderService.GetOrders(user.Id);
+            return Ok(orders);
         }
 
         #region Helpers

@@ -26,7 +26,6 @@ namespace Store_API.Controllers
         public async Task<IActionResult> GetBasket()
         {
             var basket = await _basketService.GetBasket(User.Identity.Name);
-            if(basket == null) return BadRequest(new ProblemDetails { Title = "Basket is empty now !" });
             return Ok(basket);
         }
 

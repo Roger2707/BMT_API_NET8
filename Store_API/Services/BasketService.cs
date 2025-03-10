@@ -109,6 +109,23 @@ namespace Store_API.Services
             return Result<BasketDTO>.Success(basketDTO);
         }
 
+        public async Task<Result<int>> RemoveRange(string username, List<BasketItemDTO> items)
+        {
+            BasketDTO basketDTO = null;
+            string basketKey = $"basket:{username}";
+            try
+            {
+                await _unitOfWork.Basket.RemoveRange(items);
+                basketDTO = await SetBasket(username);
+            }
+            catch (Exception ex)
+            {
+                await _redis.KeyDeleteAsync(basketKey);
+                return Result<int>.Failure(ex.Message);
+            }
+            return Result<int>.Success(1);
+        }
+
         #endregion
 
     }
