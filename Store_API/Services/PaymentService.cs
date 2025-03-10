@@ -97,7 +97,7 @@ namespace Store_API.Services
                         await _unitOfWork.SaveChangesAsync();
 
                         // SignalIR
-                        await _hubContext.Clients.All.SendAsync("OrderUpdated", payment.OrderId, OrderStatus.Completed);
+                        await _hubContext.Clients.All.SendAsync("ReceiveOrderUpdate", payment.OrderId, OrderStatus.Completed);
                     }
                     else throw new Exception("Exception Webhook - Not found Payment or Order !");
                 }

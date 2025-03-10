@@ -196,9 +196,16 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Conn
 
 #endregion 
 
-#region RabbitMQ Service
+#region Signal IR
 
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    options.EnableDetailedErrors = true;
+});
+
+#endregion
+
+#region RabbitMQ Service
 
 //builder.Services.AddSingleton<IRabbitMQRepository, RabbitMQService>();
 
@@ -236,6 +243,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapHub<OrderHub>("/orderHub");
+
 
 using (var scope = app.Services.CreateScope())
 {
