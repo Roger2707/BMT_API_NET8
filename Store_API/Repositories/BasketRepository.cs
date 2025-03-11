@@ -100,6 +100,7 @@ namespace Store_API.Repositories
                 basketItems.Add(basketItem);
             }
             _db.BasketItems.RemoveRange(basketItems);
+            await _db.SaveChangesAsync();
         }
 
         public async Task<Result<int>> ToggleStatusItems(string username, int itemId)
@@ -118,9 +119,9 @@ namespace Store_API.Repositories
             {
                 await _dapperService.BeginTransactionAsync();
                 await _dapperService.Execute(query, p);
-                 await _dapperService.CommitAsync();
+                await _dapperService.CommitAsync();
 
-                return Result<int>.Success(1);
+                return Result<int>.Success(itemId);
             }
             catch (Exception ex)
             {

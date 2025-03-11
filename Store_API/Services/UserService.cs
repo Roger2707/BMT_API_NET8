@@ -118,9 +118,8 @@ namespace Store_API.Services
                 PhoneNumber = user.PhoneNumber,
                 ImageUrl = user.ImageUrl,
                 Token = await _tokenService.GenerateToken(new User { Id = user.Id, Email = user.Email, UserName = user.UserName }),
-                BasketId  = user.BasketId
+                BasketId  = CF.GetInt(user.BasketId)
             };
-
             return Result<UserDTO>.Success(respone);
         }
 
