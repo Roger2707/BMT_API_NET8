@@ -1,36 +1,36 @@
-﻿using Newtonsoft.Json;
-using RabbitMQ.Client;
-using Store_API.DTOs.Orders;
-using Store_API.Models.OrderAggregate;
-using Store_API.Repositories;
+﻿using RabbitMQ.Client;
+using Store_API.IService;
 using System.Text;
 
 namespace Store_API.Services
 {
-    public class RabbitMQService : IRabbitMQRepository
+    public class RabbitMQService : IRabbitMQService, IDisposable
     {
-        private readonly IConfiguration _config;
-        public RabbitMQService(IConfiguration config)
-        {
-            _config = config;
-        }
-        public async Task PublishMessage(Order order)
+        private readonly IConnection _connection;
+        private readonly IModel _channel;
+
+        public RabbitMQService()
         {
             var factory = new ConnectionFactory
             {
-                Uri = new Uri(_config["RabbitMQ:HostName"]),
-                UserName = _config["RabbitMQ:UserName"],
-                Password = _config["RabbitMQ:Password"]
+                HostName = "localhost",
+                DispatchConsumersAsync = true
             };
+            _connection = factory.CreateConnection();
+            _channel = _connection.CreateModel();
+        }
 
-            using var connection = factory.CreateConnection();
-            using var channel = connection.CreateModel();
-            channel.QueueDeclare(queue: _config["RabbitMQ:QueueName"], durable: true, exclusive: false, autoDelete: false);
-
-            var message = JsonConvert.SerializeObject(order);
+        public async Task PublishAsync(string queueName, string message)
+        {
             var body = Encoding.UTF8.GetBytes(message);
+            _channel.BasicPublish(exchange: "", routingKey: queueName, basicProperties: null, body: body);
+            await Task.CompletedTask;
+        }
 
-            channel.BasicPublish(exchange: "", routingKey: _config["RabbitMQ:QueueName"], basicProperties: null, body: body);
+        public void Dispose()
+        {
+            _channel?.Close();
+            _connection?.Close();
         }
     }
 }

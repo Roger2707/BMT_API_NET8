@@ -11,7 +11,7 @@ namespace Store_API.Extensions
         {
             // DB
             services.AddScoped<IDapperService, DapperService>();
-            services.AddTransient<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Services
             services.AddScoped<IUserService, UserService>();
@@ -26,6 +26,7 @@ namespace Store_API.Extensions
             services.AddTransient<IImageRepository, ImageService>();
             services.AddTransient<ICSVRepository, CSVService>();
             services.AddScoped<ITokenRepository, TokenIdentityService>();
+            services.AddSingleton<IRabbitMQService, RabbitMQService>();
         }
     }
 }

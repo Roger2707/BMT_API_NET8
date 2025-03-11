@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Store_API.IService;
 using Store_API.Repositories;
 using Stripe;
 
@@ -25,7 +26,9 @@ namespace Store_API.Controllers
                 var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
                 var whSecret = _configuration["Stripe:WhSecret"];
                 var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], whSecret);
+
                 await _paymentService.HandleStripeWebhookAsync(stripeEvent);
+
             }
             catch (Exception ex)
             {

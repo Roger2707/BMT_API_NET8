@@ -8,15 +8,10 @@ using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using Store_API.Data;
 using Store_API.Models;
-using Store_API.Repositories;
-using Store_API.Services;
 using System.Text;
-using Store_API.RedisConfig;
 using Store_API.Hubs;
-using Store_API.RabbitMQ;
 using Store_API.Extensions;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Sockets;
+using Store_API.RabbitMQ;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -205,12 +200,10 @@ builder.Services.AddSignalR(options =>
 
 #endregion
 
-#region RabbitMQ Service
-
-//builder.Services.AddSingleton<IRabbitMQRepository, RabbitMQService>();
+#region RabbitMQ
 
 // Đăng ký BackgroundService (Consumer xử lý RabbitMQ)
-//builder.Services.AddHostedService<RabbitMQConsumer>();
+builder.Services.AddHostedService<RabbitMQConsumerService>();
 
 #endregion 
 

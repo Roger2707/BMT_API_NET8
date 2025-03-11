@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using Store_API.DTOs;
 using Store_API.Helpers;
 using Store_API.Hubs;
+using Store_API.IService;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
@@ -11,15 +14,16 @@ namespace Store_API.Services
     public class PaymentService : IPaymentService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IHubContext<OrderHub> _hubContext;
+        private readonly IRabbitMQService _rabbitMQService;
         private readonly IConfiguration _configuration;
         private readonly string _apiKey;
 
-        public PaymentService(IUnitOfWork unitOfWork, IHubContext<OrderHub> hubContext, IConfiguration configuration)
+        public PaymentService(IUnitOfWork unitOfWork, IRabbitMQService rabbitMQService, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            _rabbitMQService = rabbitMQService;
             _configuration = configuration;
-            _hubContext = hubContext;
+
             _apiKey = _configuration["Stripe:SecretKey"];
 
             if (string.IsNullOrEmpty(_apiKey)) throw new Exception("Stripe API Key is missing from configuration.");
@@ -81,33 +85,22 @@ namespace Store_API.Services
 
         public async Task HandleStripeWebhookAsync(Event stripeEvent)
         {
-            using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
             {
                 if (stripeEvent.Type == Events.PaymentIntentSucceeded)
                 {
                     var intent = stripeEvent.Data.Object as PaymentIntent;
-                    var payment = await GetByPaymentIntentIdAsync(intent.Id);
-                    var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
+                    if (intent == null) return;
 
-                    if (payment != null && order != null)
-                    {
-                        payment.Status = OrderStatus.Completed;
-                        order.Status = OrderStatus.Completed;
-                        await _unitOfWork.SaveChangesAsync();
+                    var paymentMessage = new PaymentProcessingMessage { PaymentIntentId = intent.Id };
+                    var messageBody = JsonConvert.SerializeObject(paymentMessage);
 
-                        // SignalIR
-                        await _hubContext.Clients.All.SendAsync("ReceiveOrderUpdate", payment.OrderId, OrderStatus.Completed);
-                    }
-                    else throw new Exception("Exception Webhook - Not found Payment or Order !");
+                    await _rabbitMQService.PublishAsync("payment_queue", messageBody);
                 }
-
-                await transaction.CommitAsync();
             }
             catch(Exception ex)
             {
-                await transaction.RollbackAsync();
-                throw;
+
             }
         }
 
