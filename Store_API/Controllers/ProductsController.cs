@@ -1,16 +1,6 @@
-﻿using CloudinaryDotNet.Actions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Store_API.Data;
-using Store_API.DTOs;
+﻿using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Products;
 using Store_API.IService;
-using Store_API.Models;
 using Store_API.Repositories;
 using System.ComponentModel.DataAnnotations;
 

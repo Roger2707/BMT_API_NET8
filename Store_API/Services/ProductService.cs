@@ -13,7 +13,7 @@ namespace Store_API.Services
 {
     public class ProductService : IProductService
     {
-        private readonly int count_in_page = 8;
+        private readonly int count_in_page = 5;
 
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
