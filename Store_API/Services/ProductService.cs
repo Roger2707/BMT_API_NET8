@@ -1,19 +1,15 @@
-﻿using Dapper;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Store_API.Data;
+﻿using Store_API.Data;
 using Store_API.DTOs;
 using Store_API.DTOs.Products;
 using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Models;
 using Store_API.Repositories;
 
 namespace Store_API.Services
 {
     public class ProductService : IProductService
     {
-        private readonly int count_in_page = 5;
+        private readonly int count_in_page = 10;
 
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
