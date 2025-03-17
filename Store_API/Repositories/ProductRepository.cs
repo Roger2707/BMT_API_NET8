@@ -40,25 +40,19 @@ namespace Store_API.Repositories
             if (productCreateDTO.ImageUrl != null)
             {
                 string folderPath = $"products/{productCreateDTO.Name.Trim().ToLower()}";
-                var imageResults = await _imageService.AddMultipleImageAsync(productCreateDTO.ImageUrl, folderPath);
 
-                int index = 0;
-                foreach (var imageResult in imageResults)
-                {
-                    if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
+                // Upload Multiple Images
+                var uploadTasks = productCreateDTO.ImageUrl
+                    .Select(image =>  _imageService.AddImageAsync(image, folderPath))
+                    .ToList();
 
-                    if (index == imageResults.Count - 1)
-                    {
-                        product.ImageUrl += imageResult.SecureUrl.ToString();
-                        product.PublicId += imageResult.PublicId;
-                    }
-                    else
-                    {
-                        product.ImageUrl += imageResult.SecureUrl.ToString() + ",";
-                        product.PublicId += imageResult.PublicId + ",";
-                    }
-                    index++;
-                }
+                // Multi thread - run all task at the same time and wait for all to complete
+                var imageResults = await Task.WhenAll(uploadTasks); 
+
+                // Check image error != null -> save db
+                var validImages = imageResults.Where(img => img.Error == null).ToList();
+                product.ImageUrl = string.Join(",", validImages.Select(img => img.SecureUrl.ToString()));
+                product.PublicId = string.Join(",", validImages.Select(img => img.PublicId));
             }
 
             await _db.Products.AddAsync(product);
@@ -265,7 +259,6 @@ namespace Store_API.Repositories
         }
 
         #endregion
-
 
     }
 }

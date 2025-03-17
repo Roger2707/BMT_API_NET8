@@ -21,6 +21,10 @@ namespace Store_API.Services
             _imageService = imageService;
         }
 
+        #region CRUD
+
+        #endregion
+
         #region Search / Sort / Filter
 
         public async Task<int> GetTotalRecord(ProductParams productParams)
