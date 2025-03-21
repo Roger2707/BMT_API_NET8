@@ -10,6 +10,9 @@ using Store_API.IService;
 using Store_API.Models;
 using Store_API.Repositories;
 using System.Security.Claims;
+using Store_API.DTOs.User;
+using Google.Apis.Auth;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace Store_API.Services
 {
@@ -24,8 +27,10 @@ namespace Store_API.Services
         private readonly IImageRepository _imageService;
         private readonly EmailSenderService _emailSenderService;
         private readonly ITokenRepository _tokenService;
+        private readonly IConfiguration _configuration;
+
         public UserService(UserManager<User> userManager, SignInManager<User> signInManager, EmailSenderService emailSenderService
-            , IUnitOfWork unitOfWork, ITokenRepository tokenService, IImageRepository imageService, IDapperService dapperService) 
+            , IUnitOfWork unitOfWork, ITokenRepository tokenService, IImageRepository imageService, IDapperService dapperService, IConfiguration configuration) 
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -36,6 +41,7 @@ namespace Store_API.Services
             _emailSenderService = emailSenderService;
             _tokenService = tokenService;
             _imageService = imageService;
+            _configuration = configuration;
         }
 
         #region Retrieve
@@ -202,7 +208,7 @@ namespace Store_API.Services
         #endregion
 
         #region OAUth
-        public async Task<Result<LoginResponse>> ExternalLoginCallBack()
+        public async Task<Result<LoginResponse>> ExternalLoginRedirect()
         {
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -245,6 +251,60 @@ namespace Store_API.Services
                 }
             }
             return Result<LoginResponse>.Failure("Something went wrong.");
+        }
+
+        public async Task<Result<LoginResponse>> ExternalLoginPopUp(GoogleAuthRequest request)
+        {
+            if (string.IsNullOrEmpty(request.AuthCode))
+                return Result<LoginResponse>.Failure("Authorization Code is required");
+
+            var tokenRequestUri = "https://oauth2.googleapis.com/token";
+            var requestBody = new Dictionary<string, string>
+            {
+                { "code", request.AuthCode },
+                { "client_id", _configuration["OAuth:ClientID"] },
+                { "client_secret", _configuration["OAuth:ClientSecret"] },
+                { "redirect_uri", "postmessage" },
+                { "grant_type", "authorization_code" }
+            };
+
+            using var httpClient = new HttpClient();
+            var response = await httpClient.PostAsync(tokenRequestUri, new FormUrlEncodedContent(requestBody));
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            if (!response.IsSuccessStatusCode)
+                return Result<LoginResponse>.Failure("Error: Authorization Code");
+
+
+            var tokenResponse = JsonConvert.DeserializeObject<GoogleTokenResponse>(responseString);
+            if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.Id_token))
+                return Result<LoginResponse>.Failure("Could not retrieve id_token");
+
+            var settings = new GoogleJsonWebSignature.ValidationSettings()
+            {
+                Audience = new[] { _configuration["OAuth:ClientID"] }
+            };
+            var payload = GoogleJsonWebSignature.ValidateAsync(tokenResponse.Id_token, settings).Result;
+            var user = await _userManager.FindByEmailAsync(payload.Email);
+
+            if (user == null)
+            {
+                user = new User { UserName = payload.Email, Email = payload.Email, FullName = payload.Name };
+                var createResult = await _userManager.CreateAsync(user);
+
+                if (!createResult.Succeeded)
+                    return Result<LoginResponse>.Failure("Failed to create user");
+
+                await _userManager.AddToRoleAsync(user, "Customer");
+            }
+            var token = await _tokenService.GenerateToken(user);
+            var userResponse = new LoginResponse
+            {
+                FullName = payload.Name,
+                Email = payload.Email,
+                Token = token
+            };
+            return Result<LoginResponse>.Success(userResponse);
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using Store_API.DTOs;
 using Store_API.DTOs.Accounts;
 using Store_API.DTOs.Orders;
+using Store_API.DTOs.User;
 using Store_API.Models;
 
 namespace Store_API.IService
@@ -22,7 +23,8 @@ namespace Store_API.IService
         Task<Result<User>> CreateUserAsync(SignUpRequest request);
         Task<Result<User>> AssignRoleAsync(User user, string role);
         Task<Result<LoginResponse>> SignInAsync(LoginRequest request);
-        Task<Result<LoginResponse>> ExternalLoginCallBack();
+        Task<Result<LoginResponse>> ExternalLoginRedirect();
+        Task<Result<LoginResponse>> ExternalLoginPopUp(GoogleAuthRequest request);
         #endregion
 
         #region Password Handles

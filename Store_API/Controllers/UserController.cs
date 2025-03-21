@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Google.Apis.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Store_API.DTOs.Accounts;
 using Store_API.DTOs.Orders;
+using Store_API.DTOs.User;
 using Store_API.Helpers;
 using Store_API.IService;
 using Store_API.Models;
@@ -36,33 +38,23 @@ namespace Store_API.Controllers
             return Ok(users);
         }
 
-        [HttpGet("external-login")]
-        public IActionResult ExternalLogin()
+        [HttpPost("external-login")]
+        public async Task<IActionResult> ExternalLogin([FromBody] GoogleAuthRequest model)
         {
-            var redirectUrl = Url.Action("ExternalLoginCallback", "User");
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties("Google", redirectUrl);
-            return Challenge(properties, "Google");
-        }
-
-        [HttpGet("external-login-callback")]
-        public async Task<IActionResult> ExternalLoginCallback()
-        {        
-            var result = await _userService.ExternalLoginCallBack();
-
-            if (result.IsSuccess)
+            try
             {
-                var userResponse = result.Data;
-                HttpContext.Response.Cookies.Append("user", JsonConvert.SerializeObject(userResponse, CF.JsonFormat()), new CookieOptions
+                var result = await _userService.ExternalLoginPopUp(model);
+                if (result.IsSuccess)
                 {
-                    Secure = false,
-                    SameSite = SameSiteMode.Lax,
-                    Expires = DateTime.UtcNow.AddHours(1)
-                });
-
-                HttpContext.Response.Headers.Append("Authorization", $"Bearer {userResponse.Token}");
-                return Redirect($"http://localhost:3000/callback");
+                    var userResponse = result.Data;
+                    return Ok(userResponse);
+                }
+                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
             }
-            return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+            catch(Exception ex)
+            {
+                return StatusCode(500, new { message = "Internal Server Error", error = ex.Message });
+            }
         }
 
         [HttpPost("sign-up")]

@@ -19,9 +19,6 @@ builder.Services.AddControllers();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    // Vô hiệu hóa kiểm tra ModelState tự động bằng cách cấu hình ApiBehaviorOptions
-    options.SuppressModelStateInvalidFilter = true;
-
     // Custom Errors Validations
     options.InvalidModelStateResponseFactory = context =>
     {
@@ -112,11 +109,7 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options => {
 });
 
 builder.Services
-    .AddAuthentication(options =>
-    {
-        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = GoogleDefaults.AuthenticationScheme;
-    })
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(opt =>
     {
         opt.TokenValidationParameters = new TokenValidationParameters
@@ -133,9 +126,7 @@ builder.Services
     {
         options.ClientId = builder.Configuration["OAuth:ClientID"];
         options.ClientSecret = builder.Configuration["OAuth:ClientSecret"];
-        options.CallbackPath = "/signin-google";
-    })
-;
+    });
 
 //Cookie Policy needed for External Auth
 builder.Services.Configure<CookiePolicyOptions>(options =>
@@ -227,6 +218,12 @@ if (app.Environment.IsDevelopment())
 
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+//app.Use(async (context, next) =>
+//{
+//    context.Response.Headers["Cross-Origin-Opener-Policy"] = "unsafe-none";
+//    await next();
+//});
 
 app.UseCors("AllowSpecificOrigin");
 
