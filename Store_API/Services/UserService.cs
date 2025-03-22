@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 using Store_API.Data;
 using Store_API.DTOs;
@@ -12,7 +10,6 @@ using Store_API.Repositories;
 using System.Security.Claims;
 using Store_API.DTOs.User;
 using Google.Apis.Auth;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Store_API.Services
 {
@@ -298,6 +295,9 @@ namespace Store_API.Services
                 await _userManager.AddToRoleAsync(user, "Customer");
             }
             var token = await _tokenService.GenerateToken(user);
+
+            // Log in into system -> set User.identity.IsAuthenticated
+            await _signInManager.SignInAsync(user, isPersistent: false);
             var userResponse = new LoginResponse
             {
                 FullName = payload.Name,

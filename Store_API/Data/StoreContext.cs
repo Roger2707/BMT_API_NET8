@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
-using Stripe;
-using System.Reflection.Emit;
 
 namespace Store_API.Data
 {
@@ -15,7 +13,7 @@ namespace Store_API.Data
         }
 
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Store_API.Models.Product> Products { get; set; }
+        public DbSet<Product> Products { get; set; }
         public DbSet<Althete> Althetes { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Basket> Baskets { get; set; }
@@ -71,7 +69,6 @@ namespace Store_API.Data
                 .WithMany()
                 .HasForeignKey(o => o.UserAddressId)
                 .OnDelete(DeleteBehavior.Restrict);
-
         }
     }
 }

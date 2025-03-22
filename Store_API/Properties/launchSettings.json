@@ -8,7 +8,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "http://test-vnpay.com:5110"
+      "applicationUrl": "http://roger-app.com:5110"
     },
     "https": {
       "commandName": "Project",

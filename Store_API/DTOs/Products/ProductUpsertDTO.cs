@@ -1,16 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
-using Store_API.Models;
+﻿using Store_API.Models;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Store_API.DTOs.Products
 {
     public class ProductUpsertDTO
     {
         [Required]
+        [Length(1, 100)]
         public string Name { get; set; }
         [Required]
-        [Range(1, 200)]
+        [Range(10000, 20000000)]
         public double Price { get; set; }
         [Required]
         [Length(0, 5000)]

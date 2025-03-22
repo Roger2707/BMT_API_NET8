@@ -17,25 +17,25 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
-builder.Services.Configure<ApiBehaviorOptions>(options =>
-{
-    // Custom Errors Validations
-    options.InvalidModelStateResponseFactory = context =>
-    {
-        var errorResponse = new
-        {
-            StatusCode = 400,
-            Errors = context.ModelState
-                            .Where(m => m.Value.Errors.Count > 0)
-                            .ToDictionary
-                            (
-                                    d => char.ToLower(d.Key[0]) + d.Key.Substring(1),
-                                    d => d.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                            )
-        };
-        return new BadRequestObjectResult(errorResponse);
-    };
-});
+//builder.Services.Configure<ApiBehaviorOptions>(options =>
+//{
+//    // Custom Errors Validations
+//    options.InvalidModelStateResponseFactory = context =>
+//    {
+//        var errorResponse = new
+//        {
+//            StatusCode = 400,
+//            Errors = context.ModelState
+//                            .Where(m => m.Value.Errors.Count > 0)
+//                            .ToDictionary
+//                            (
+//                                    d => char.ToLower(d.Key[0]) + d.Key.Substring(1),
+//                                    d => d.Value.Errors.Select(e => e.ErrorMessage).ToArray()
+//                            )
+//        };
+//        return new BadRequestObjectResult(errorResponse);
+//    };
+//});
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -219,11 +219,11 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-//app.Use(async (context, next) =>
-//{
-//    context.Response.Headers["Cross-Origin-Opener-Policy"] = "unsafe-none";
-//    await next();
-//});
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
+    await next();
+});
 
 app.UseCors("AllowSpecificOrigin");
 
