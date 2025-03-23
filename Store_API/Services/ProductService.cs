@@ -59,12 +59,15 @@ namespace Store_API.Services
                             SELECT 
                                 product.Id
                                 , product.Name
-                                , product.Price
-	                            , product.Price - (product.Price * (promotion.PercentageDiscount / 100)) as DiscountPrice
+                                , color.Price
+                                , IIF(promotion.PercentageDiscount is NULL
+		                            , color.Price
+		                            , color.Price - (color.Price * (promotion.PercentageDiscount / 100))) 
+	                            as DiscountPrice
                                 , Description
                                 , ImageUrl
                                 , Created
-                                , QuantityInStock
+                                , color.QuantityInStock
                                 , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus
                                 , product.CategoryId
                                 , category.Name as CategoryName
@@ -76,6 +79,7 @@ namespace Store_API.Services
 
                             INNER JOIN Categories as category ON product.CategoryId = category.Id
                             INNER JOIN Brands as brand ON product.BrandId = brand.Id 
+                            INNER JOIN ProductColors as color ON color.ProductId = product.Id
                             LEFT JOIN Promotions as promotion 
                             ON product.CategoryId = promotion.CategoryId 
                                 AND product.BrandId = promotion.BrandId 
