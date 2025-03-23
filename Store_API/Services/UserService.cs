@@ -103,9 +103,9 @@ namespace Store_API.Services
                                 , Dob
                                 , PhoneNumber
                                 , ImageUrl
-                                , b.Id as BasketId
+                                , ISNULL(b.Id, NULL) as BasketId
                                 FROM AspNetUsers u
-								LEFT JOIN Baskets b ON b.UserId = u.Id
+								INNER JOIN Baskets b ON b.UserId = u.Id
                                 WHERE UserName = @UserName
                                 ";
 

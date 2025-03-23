@@ -28,10 +28,8 @@ namespace Store_API.Repositories
             var product = new Product()
             {
                 Name = productCreateDTO.Name,
-                Price = productCreateDTO.Price,
                 Description = productCreateDTO.Description,
                 Created = productCreateDTO.Created,
-                QuantityInStock = productCreateDTO.QuantityInStock,
                 ProductStatus = productCreateDTO.ProductStatus,
                 CategoryId = productCreateDTO.CategoryId,
                 BrandId = productCreateDTO.BrandId,
@@ -123,12 +121,8 @@ namespace Store_API.Repositories
             // Update Different Fields / != NULL
             if (productUpdateDTO.Name != "" && productUpdateDTO.Name != existedProduct.Name)
                 existedProduct.Name = productUpdateDTO.Name;
-            if (productUpdateDTO.Price != existedProduct.Price && productUpdateDTO.Price > 0)
-                existedProduct.Price = productUpdateDTO.Price;
             if (productUpdateDTO.Description != "")
                 existedProduct.Description = productUpdateDTO.Description;
-            if (productUpdateDTO.QuantityInStock != existedProduct.QuantityInStock)
-                existedProduct.QuantityInStock = productUpdateDTO.QuantityInStock;
             if (productUpdateDTO.ProductStatus != existedProduct.ProductStatus)
                 existedProduct.ProductStatus = productUpdateDTO.ProductStatus;
             if (productUpdateDTO.CategoryId != existedProduct.CategoryId)

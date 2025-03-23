@@ -19,7 +19,7 @@ namespace Store_API.DTOs.Products
         [Range(1, 100)]
         public int QuantityInStock { get; set; }
         [Required]
-        public ProductStatus ProductStatus { get; set; }
+        public int ProductStatus { get; set; } = 1;
         [Required]
         public DateTime Created { get; set; }
         public int CategoryId { get; set; }

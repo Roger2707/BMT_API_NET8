@@ -29,6 +29,7 @@ namespace Store_API.Data
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<Technology> Technologies { get; set; }
+        public DbSet<ProductColor> ProductColors { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

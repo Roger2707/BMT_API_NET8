@@ -12,7 +12,7 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250321152731_createDB")]
+    [Migration("20250323170759_createDB")]
     partial class createDB
     {
         /// <inheritdoc />
@@ -450,17 +450,11 @@ namespace Store_API.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double>("Price")
-                        .HasColumnType("float");
-
                     b.Property<int>("ProductStatus")
                         .HasColumnType("int");
 
                     b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("QuantityInStock")
-                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -469,6 +463,36 @@ namespace Store_API.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Store_API.Models.ProductColor", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExtraName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("QuantityInStock")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductColors");
                 });
 
             modelBuilder.Entity("Store_API.Models.Promotion", b =>
@@ -919,6 +943,17 @@ namespace Store_API.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("Store_API.Models.ProductColor", b =>
+                {
+                    b.HasOne("Store_API.Models.Product", "Product")
+                        .WithMany("ProductColors")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Store_API.Models.Promotion", b =>
                 {
                     b.HasOne("Store_API.Models.Brand", "Brand")
@@ -976,6 +1011,11 @@ namespace Store_API.Migrations
             modelBuilder.Entity("Store_API.Models.OrderAggregate.Order", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Store_API.Models.Product", b =>
+                {
+                    b.Navigation("ProductColors");
                 });
 
             modelBuilder.Entity("Store_API.Models.User", b =>

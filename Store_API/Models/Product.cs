@@ -6,12 +6,10 @@ namespace Store_API.Models
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public double Price { get; set; }
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
         public string? PublicId { get; set; }
-        public int QuantityInStock { get; set; }
-        public ProductStatus ProductStatus { get; set; } = ProductStatus.Active;
+        public int ProductStatus { get; set; } = 1;
         public DateTime Created { get; set; } = DateTime.Now;
         public int CategoryId { get; set; }
         [ForeignKey("CategoryId")]
@@ -22,5 +20,6 @@ namespace Store_API.Models
         public Brand Brand { get; set; }
 
         public List<Technology>? Technologies { get; set; }
+        public List<ProductColor> ProductColors { get; set; }
     }
 }
