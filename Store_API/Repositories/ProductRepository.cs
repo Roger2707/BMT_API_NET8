@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
 using Store_API.DTOs;
 using Store_API.DTOs.Products;
@@ -69,7 +70,7 @@ namespace Store_API.Repositories
 
         public async Task<Result<Guid>> Update(ProductUpsertDTO productUpdateDTO)
         {
-            Product existedProduct = await _db.Products.FindAsync(productUpdateDTO.Id);
+            Product existedProduct = await _db.Products.Include(p => p.Details).FirstOrDefaultAsync(p => p.Id == productUpdateDTO.Id);
 
             // Update Different Fields / != NULL
             if (!string.IsNullOrWhiteSpace(productUpdateDTO.Name) && productUpdateDTO.Name != existedProduct.Name)
