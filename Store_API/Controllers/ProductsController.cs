@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using Store_API.DTOs.Products;
 using Store_API.IService;
+using Store_API.Models;
 using Store_API.Repositories;
 using System.ComponentModel.DataAnnotations;
 
@@ -75,12 +77,10 @@ namespace Store_API.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update([FromForm] ProductUpsertDTO productDTO)
+        public async Task<IActionResult> Update([FromBody] ProductUpsertDTO productDTO)
         {
             if (productDTO.Id == null || productDTO.Id == Guid.Empty)
                 return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
-
-            var product = await _unitOfWork.Product.GetById(productDTO.Id);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
