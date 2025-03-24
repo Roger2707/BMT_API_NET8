@@ -8,6 +8,6 @@
         public string Country { get; set; }
         public string Info { get; set; }
         public string Achivement { get; set; }
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
     }
 }

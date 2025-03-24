@@ -23,9 +23,9 @@ namespace Store_API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> Create(int productId, [FromForm] string content)
+        public async Task<IActionResult> Create(Guid productId, [FromForm] string content)
         {
-            if (productId == 0 || productId.ToString() == "") return NotFound();
+            if (productId == Guid.Empty) return NotFound();
             int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
 
             string error = "";

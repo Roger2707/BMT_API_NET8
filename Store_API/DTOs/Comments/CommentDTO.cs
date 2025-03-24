@@ -9,7 +9,7 @@ namespace Store_API.DTOs.Comments
         public string Content { get; set; }
         public string Created { get; set; }
         public string Status { get; set; }
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         public string ProductName { get; set; }
         public int UserId { get; set; }
         public string UserName { get; set; }

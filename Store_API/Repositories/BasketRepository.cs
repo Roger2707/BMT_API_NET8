@@ -31,10 +31,10 @@ namespace Store_API.Repositories
                                 (SELECT TOP 1 value 
                                  FROM STRING_SPLIT(product.ImageUrl, ',')), 
                                 '') AS ProductFirstImage
-                            , items.Quantity
-                            , product.Price as OriginPrice
-                            , ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent
-                            , IIF(promotion.PercentageDiscount is not NULL, product.Price - (product.Price * (promotion.PercentageDiscount / 100)), product.Price) as DiscountPrice
+                            --, items.Quantity
+                            --, product.Price as OriginPrice
+                            --, ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent
+                            --, IIF(promotion.PercentageDiscount is not NULL, product.Price - (product.Price * (promotion.PercentageDiscount / 100)), product.Price) as DiscountPrice
                             , items.Status
 
                             FROM Baskets basket
@@ -72,7 +72,7 @@ namespace Store_API.Repositories
             return basketId;
         }
 
-        public async Task HandleBasketMode(int userId, int productId, bool mode)
+        public async Task HandleBasketMode(int userId, Guid productId, bool mode)
         {
             string sqlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sql", "upsertbasket.sql");
             string query = System.IO.File.ReadAllText(sqlFilePath);

@@ -10,7 +10,7 @@ namespace Store_API.Models.OrderAggregate
         [ForeignKey("OrderId")]
         public Order Order { get; set; }
 
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
 

@@ -14,7 +14,7 @@ namespace Store_API.Repositories
             _db = db;
             _dapperService = dapperService;
         }
-        public async Task Create(int userId, int productId, string content)
+        public async Task Create(int userId, Guid productId, string content)
         {
             var comment = new Comment
             {

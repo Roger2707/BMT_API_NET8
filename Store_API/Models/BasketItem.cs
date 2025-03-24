@@ -10,7 +10,7 @@ namespace Store_API.Models
         [ForeignKey("BasketId")]
         public Basket Basket { get; set; }
 
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
         public int Quantity { get; set; }

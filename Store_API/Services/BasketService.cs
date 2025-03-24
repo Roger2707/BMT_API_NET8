@@ -58,7 +58,7 @@ namespace Store_API.Services
         #endregion
 
         #region Actions
-        public async Task<Result<BasketDTO>> HandleBasketMode(int userId, int productId, bool mode, string currentUserLogin)
+        public async Task<Result<BasketDTO>> HandleBasketMode(int userId, Guid productId, bool mode, string currentUserLogin)
         {
             BasketDTO basketDTO = null;
             string basketKey = $"basket:{currentUserLogin}";

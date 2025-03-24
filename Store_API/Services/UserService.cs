@@ -105,7 +105,7 @@ namespace Store_API.Services
                                 , ImageUrl
                                 , ISNULL(b.Id, NULL) as BasketId
                                 FROM AspNetUsers u
-								INNER JOIN Baskets b ON b.UserId = u.Id
+								LEFT JOIN Baskets b ON b.UserId = u.Id
                                 WHERE UserName = @UserName
                                 ";
 

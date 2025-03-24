@@ -56,43 +56,48 @@ namespace Store_API.Services
         public async Task<List<ProductDTO>> GetSourceProducts(ProductParams productParams)
         {
             string query = @" 
-                            SELECT 
-                                product.Id
-                                , product.Name
-                                , color.Price
-                                , IIF(promotion.PercentageDiscount is NULL
-		                            , color.Price
-		                            , color.Price - (color.Price * (promotion.PercentageDiscount / 100))) 
+                            WITH ProductPagination AS 
+                            (
+	                            SELECT 
+		                            product.Id
+		                            , product.Name
+		                            , Description
+		                            , ImageUrl
+		                            , Created
+		                            , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus
+		                            , product.CategoryId
+		                            , category.Name as CategoryName
+		                            , product.BrandId
+		                            , brand.Name as BrandName
+		                            , brand.Country as BrandCountry
+
+	                            FROM Products as product
+
+	                            INNER JOIN Categories as category ON product.CategoryId = category.Id
+	                            INNER JOIN Brands as brand ON product.BrandId = brand.Id 
+
+	                            WHERE product.ProductStatus = 1 
+	                            --where                         
+                                --orderBy
+	                            OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
+                            )
+                            SELECT
+	                            page.*
+	                            , detail.Id as DetailId
+	                            , detail.Price
+	                            , detail.Color
+	                            , detail.ExtraName
+	                            , IIF(promotion.PercentageDiscount is NULL
+		                            , detail.Price
+		                            , detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) 
 	                            as DiscountPrice
-                                , Description
-                                , ImageUrl
-                                , Created
-                                , color.QuantityInStock
-                                , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus
-                                , product.CategoryId
-                                , category.Name as CategoryName
-                                , product.BrandId
-                                , brand.Name as BrandName
-                                , brand.Country as BrandCountry
-
-                            FROM Products as product
-
-                            INNER JOIN Categories as category ON product.CategoryId = category.Id
-                            INNER JOIN Brands as brand ON product.BrandId = brand.Id 
-                            INNER JOIN ProductColors as color ON color.ProductId = product.Id
+	                            , detail.QuantityInStock
+                            FROM ProductPagination as page
+                            INNER JOIN ProductDetails detail ON detail.ProductId = page.Id
                             LEFT JOIN Promotions as promotion 
-                            ON product.CategoryId = promotion.CategoryId 
-                                AND product.BrandId = promotion.BrandId 
-                                AND promotion.[End] >= GETDATE()
-
-                            WHERE product.ProductStatus = 1 
-
-                            --where
-                            
-                            --orderBy
-
-                            OFFSET @Skip ROWS
-                            FETCH NEXT @Take ROWS ONLY;
+	                            ON page.CategoryId = promotion.CategoryId 
+		                            AND page.BrandId = promotion.BrandId 
+		                            AND promotion.[End] >= GETDATE()
 
 ";
 
@@ -109,30 +114,32 @@ namespace Store_API.Services
 
             if (result.Count == 0) return null;
 
-            List<ProductDTO> products = new List<ProductDTO>();
-
-            for (int i = 0; i < result.Count; i++)
-            {
-                var product = new ProductDTO
+            var products = result
+                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.ProductStatus, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry })
+                .Select(s => new ProductDTO
                 {
-                    Id = result[i].Id,
-                    Name = result[i].Name,
-                    Price = CF.GetDouble(result[i].Price),
-                    DiscountPrice = CF.GetDouble(result[i].DiscountPrice),
-                    Description = result[i].Description,
-                    ImageUrl = result[i].ImageUrl,
-                    Created = result[i].Created,
-                    QuantityInStock = result[i].QuantityInStock,
-                    ProductStatus = result[i].ProductStatus,
-                    CategoryId = result[i].CategoryId,
-                    CategoryName = result[i].CategoryName,
-                    BrandId = result[i].BrandId,
-                    BrandName = result[i].BrandName,
-                    BrandCountry = result[i].BrandCountry,
-                };
-
-                products.Add(product);
-            }
+                    Id = s.Key.Id,
+                    Name = s.Key.Name,
+                    Description = s.Key.Description,
+                    ImageUrl = s.Key.ImageUrl,
+                    Created = s.Key.Created,
+                    ProductStatus = s.Key.ProductStatus,
+                    CategoryId = s.Key.CategoryId,
+                    CategoryName = s.Key.CategoryName,
+                    BrandId = s.Key.BrandId,
+                    BrandName = s.Key.BrandName,
+                    BrandCountry = s.Key.BrandCountry,
+                    Details = s.Select(d => new ProductDetailDTO
+                    {
+                        Id = d.DetailId,
+                        ProductId = s.Key.Id,
+                        Color = d.Color,
+                        Price = CF.GetDouble(d.Price),
+                        DiscountPrice = CF.GetDouble(d.DiscountPrice),
+                        QuantityInStock = CF.GetInt(d.QuantityInStock),
+                        ExtraName = d.ExtraName
+                    }).ToList()
+                }).ToList();
 
             return products;
         }
@@ -169,7 +176,7 @@ namespace Store_API.Services
         #endregion
 
         #region Helpers
-
+        
         private string GetConditionString(ProductParams productParams)
         {
             string where = "";

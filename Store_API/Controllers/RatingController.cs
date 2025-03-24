@@ -21,7 +21,7 @@ namespace Store_API.Controllers
 
         [HttpGet]
         [Authorize]
-        public async Task<IActionResult> GetProductRate(int productId)
+        public async Task<IActionResult> GetProductRate(Guid productId)
         {
             var product = await _unitOfWork.Product.GetById(productId);
             if (product == null) return NotFound();
@@ -31,7 +31,7 @@ namespace Store_API.Controllers
 
         [HttpPost]
         [Authorize]
-        public async Task<IActionResult> SetRating(int productId, double star)
+        public async Task<IActionResult> SetRating(Guid productId, double star)
         {
             var product = await _unitOfWork.Product.GetById(productId);
             if (product == null) return NotFound();

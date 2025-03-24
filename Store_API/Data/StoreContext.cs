@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
+using System.Reflection.Emit;
 
 namespace Store_API.Data
 {
@@ -29,7 +31,7 @@ namespace Store_API.Data
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<Technology> Technologies { get; set; }
-        public DbSet<ProductColor> ProductColors { get; set; }
+        public DbSet<ProductDetail> ProductDetails { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -42,6 +44,23 @@ namespace Store_API.Data
                 .WithOne(u => u.User)
                 .HasForeignKey<Basket>(b => b.UserId);
 
+            // Seed Admin User
+            var adminUser = new User
+            {
+                Id = 1,
+                UserName = "admin",
+                NormalizedUserName = "ADMIN",
+                Email = "admin@example.com",
+                NormalizedEmail = "ADMIN@EXAMPLE.COM",
+                EmailConfirmed = true,
+                SecurityStamp = Guid.NewGuid().ToString()
+            };
+
+            // Hash mật khẩu (123456)
+            PasswordHasher<User> hasher = new PasswordHasher<User>();
+            adminUser.PasswordHash = hasher.HashPassword(adminUser, "Admin@123");
+            builder.Entity<User>().HasData(adminUser);
+
             // Seed Role Data
             builder.Entity<Role>()
                 .HasData(
@@ -49,6 +68,14 @@ namespace Store_API.Data
                     new { Id = 2, Name = "Admin", NormalizedName = "ADMIN" },
                     new { Id = 3, Name = "Customer", NormalizedName = "CUSTOMER" }
             );
+
+            // Seed Admin Role
+            var adminUserRole = new IdentityUserRole<int>
+            {
+                UserId = 1,
+                RoleId = 2
+            };
+            builder.Entity<IdentityUserRole<int>>().HasData(adminUserRole);
 
             // User - Address (1-N)
             builder.Entity<UserAddress>()
@@ -70,6 +97,13 @@ namespace Store_API.Data
                 .WithMany()
                 .HasForeignKey(o => o.UserAddressId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Config Relation Product (1 -> n) ProductDetail
+            builder.Entity<Product>()
+                .HasMany(p => p.Details)
+                .WithOne(d => d.Product)
+                .HasForeignKey(d => d.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

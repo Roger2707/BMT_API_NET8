@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Store_API.DTOs.Products;
 using Store_API.IService;
 using Store_API.Repositories;
@@ -31,7 +32,7 @@ namespace Store_API.Controllers
         }
 
         [HttpGet("get-product-detail", Name = "get-product-detail")]
-        public async Task<IActionResult> GetProductDetail([FromQuery] int id)
+        public async Task<IActionResult> GetProductDetail([FromQuery] Guid id)
         {
             var result = await _unitOfWork.Product.GetById(id);
 
@@ -70,19 +71,21 @@ namespace Store_API.Controllers
             if(!result.IsSuccess)
                 return BadRequest(new ProblemDetails { Title = result.Errors[0] });
 
-            return CreatedAtRoute("get-product-detail", new { id = result.Data }); // product id
+            return CreatedAtRoute("get-product-detail", new { id = result.Data }); // productId
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update([Required] int id, [FromForm] ProductUpsertDTO productDTO)
+        public async Task<IActionResult> Update([FromForm] ProductUpsertDTO productDTO)
         {
-            if (!await _unitOfWork.CheckExisted("Products", id))
-                return NotFound();
+            if (productDTO.Id == null || productDTO.Id == Guid.Empty)
+                return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
+
+            var product = await _unitOfWork.Product.GetById(productDTO.Id);
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _unitOfWork.Product.Update(id, productDTO);
+            var result = await _unitOfWork.Product.Update(productDTO);
 
             if (!result.IsSuccess)
                 return BadRequest(new ProblemDetails { Title = result.Errors[0] });

@@ -8,7 +8,7 @@ namespace Store_API.Models
         public int Id { get; set; }
         [Range(0, 5)]
         public double Star { get; set; }
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
         public int UserId { get; set; }

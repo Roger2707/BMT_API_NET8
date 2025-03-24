@@ -31,7 +31,7 @@ namespace Store_API.Controllers
 
         [Authorize]
         [HttpPost("upsert-basket")]
-        public async Task<IActionResult> UpsertBasket(int productId, int mode)
+        public async Task<IActionResult> UpsertBasket(Guid productId, int mode)
         {
             var product = await _unitOfWork.Product.GetById(productId);
             if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });

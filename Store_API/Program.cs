@@ -219,11 +219,11 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-app.Use(async (context, next) =>
-{
-    context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
-    await next();
-});
+//app.Use(async (context, next) =>
+//{
+//    context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
+//    await next();
+//});
 
 app.UseCors("AllowSpecificOrigin");
 

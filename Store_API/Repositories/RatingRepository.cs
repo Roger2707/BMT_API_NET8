@@ -11,7 +11,7 @@ namespace Store_API.Repositories
             _db = db;
             _dapperService = dapperService;
         }
-        public async Task<double> GetRating(int productId)
+        public async Task<double> GetRating(Guid productId)
         {
             string query = @"   SELECT IIF(ROUND(AVG(Star), 2) is NULL, 0, ROUND(AVG(Star), 2)) as Rating 
                                 FROM Ratings 
@@ -21,7 +21,7 @@ namespace Store_API.Repositories
             return rating.Rating;
         }
 
-        public async Task SetRating(int userId, int productId, double star)
+        public async Task SetRating(int userId, Guid productId, double star)
         {
             string query = @"
                             DECLARE @IsExisted INT

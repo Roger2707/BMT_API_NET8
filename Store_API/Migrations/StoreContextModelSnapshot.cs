@@ -104,6 +104,13 @@ namespace Store_API.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("AspNetUserRoles", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            RoleId = 2
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
@@ -127,8 +134,8 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("ProductTechnology", b =>
                 {
-                    b.Property<int>("ProductsId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProductsId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TechnologiesId")
                         .HasColumnType("int");
@@ -163,8 +170,8 @@ namespace Store_API.Migrations
                     b.Property<string>("PictureUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
@@ -206,8 +213,8 @@ namespace Store_API.Migrations
                     b.Property<int>("BasketId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -273,8 +280,8 @@ namespace Store_API.Migrations
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
@@ -337,8 +344,8 @@ namespace Store_API.Migrations
                     b.Property<int>("OrderId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
@@ -423,11 +430,9 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.Product", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("BrandId")
                         .HasColumnType("int");
@@ -462,13 +467,11 @@ namespace Store_API.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("Store_API.Models.ProductColor", b =>
+            modelBuilder.Entity("Store_API.Models.ProductDetail", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Color")
                         .HasColumnType("nvarchar(max)");
@@ -479,8 +482,8 @@ namespace Store_API.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("QuantityInStock")
                         .HasColumnType("int");
@@ -489,7 +492,7 @@ namespace Store_API.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("ProductColors");
+                    b.ToTable("ProductDetails");
                 });
 
             modelBuilder.Entity("Store_API.Models.Promotion", b =>
@@ -532,8 +535,8 @@ namespace Store_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("Star")
                         .HasColumnType("float");
@@ -733,6 +736,25 @@ namespace Store_API.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "30e23aac-0bcf-4b7e-914d-6f4cb3d6e0ea",
+                            Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "admin@example.com",
+                            EmailConfirmed = true,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN@EXAMPLE.COM",
+                            NormalizedUserName = "ADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEC4VNVSQsdB6x5DHP5EKm4NRB8CQXghTLL1DhbKklP7CeGZnGF+kANncIG5vA6or7Q==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "66fb1b63-e93e-4f5b-8aed-7d1737949502",
+                            TwoFactorEnabled = false,
+                            UserName = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -940,10 +962,10 @@ namespace Store_API.Migrations
                     b.Navigation("Category");
                 });
 
-            modelBuilder.Entity("Store_API.Models.ProductColor", b =>
+            modelBuilder.Entity("Store_API.Models.ProductDetail", b =>
                 {
                     b.HasOne("Store_API.Models.Product", "Product")
-                        .WithMany("ProductColors")
+                        .WithMany("Details")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1012,7 +1034,7 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.Product", b =>
                 {
-                    b.Navigation("ProductColors");
+                    b.Navigation("Details");
                 });
 
             modelBuilder.Entity("Store_API.Models.User", b =>

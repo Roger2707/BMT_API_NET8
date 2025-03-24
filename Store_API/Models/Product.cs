@@ -4,7 +4,7 @@ namespace Store_API.Models
 {
     public class Product
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
@@ -20,6 +20,6 @@ namespace Store_API.Models
         public Brand Brand { get; set; }
 
         public List<Technology>? Technologies { get; set; }
-        public List<ProductColor> ProductColors { get; set; }
+        public List<ProductDetail> Details { get; set; }
     }
 }

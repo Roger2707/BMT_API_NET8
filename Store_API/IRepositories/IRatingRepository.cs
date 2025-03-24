@@ -2,7 +2,7 @@
 {
     public interface IRatingRepository
     {
-        public Task<double> GetRating(int productId);
-        public Task SetRating(int userId, int productId, double star);
+        public Task<double> GetRating(Guid productId);
+        public Task SetRating(int userId, Guid productId, double star);
     }
 }

@@ -2,10 +2,10 @@
 
 namespace Store_API.Models
 {
-    public class ProductColor
+    public class ProductDetail
     {
-        public int Id { get; set; }
-        public int ProductId { get; set; }
+        public Guid Id { get; set; }
+        public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
         public double Price { get; set; }

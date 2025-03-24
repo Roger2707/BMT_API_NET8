@@ -11,7 +11,7 @@ namespace Store_API.Models
         public string Country { get; set; }
         public string Info { get; set; }
         public string Achivement { get; set; }
-        public int ProductId { get; set; }
+        public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
     }
