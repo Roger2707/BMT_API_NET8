@@ -3,7 +3,6 @@ using Store_API.DTOs;
 using Store_API.DTOs.Products;
 using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Repositories;
 
 namespace Store_API.Services
 {
@@ -13,8 +12,8 @@ namespace Store_API.Services
 
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
-        private readonly IImageRepository _imageService;
-        public ProductService(StoreContext db, IDapperService dapperService, IImageRepository imageService)
+        private readonly IImageService _imageService;
+        public ProductService(StoreContext db, IDapperService dapperService, IImageService imageService)
         {
             _db = db;
             _dapperService = dapperService;
@@ -63,6 +62,7 @@ namespace Store_API.Services
 		                            , product.Name
 		                            , Description
 		                            , ImageUrl
+                                    , PublicId
 		                            , Created
 		                            , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus
 		                            , product.CategoryId

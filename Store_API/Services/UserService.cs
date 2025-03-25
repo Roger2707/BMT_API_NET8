@@ -21,13 +21,13 @@ namespace Store_API.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDapperService _dapperService;
 
-        private readonly IImageRepository _imageService;
+        private readonly IImageService _imageService;
         private readonly EmailSenderService _emailSenderService;
         private readonly ITokenRepository _tokenService;
         private readonly IConfiguration _configuration;
 
         public UserService(UserManager<User> userManager, SignInManager<User> signInManager, EmailSenderService emailSenderService
-            , IUnitOfWork unitOfWork, ITokenRepository tokenService, IImageRepository imageService, IDapperService dapperService, IConfiguration configuration) 
+            , IUnitOfWork unitOfWork, ITokenRepository tokenService, IImageService imageService, IDapperService dapperService, IConfiguration configuration) 
         {
             _userManager = userManager;
             _signInManager = signInManager;

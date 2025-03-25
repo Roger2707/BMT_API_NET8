@@ -1,11 +1,11 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Dapper;
-using Store_API.Repositories;
+using Store_API.IService;
 
 namespace Store_API.Services
 {
-    public class ImageService : IImageRepository
+    public class ImageService : IImageService
     {
         private readonly Cloudinary _cloudinary;
         public ImageService(IConfiguration config)

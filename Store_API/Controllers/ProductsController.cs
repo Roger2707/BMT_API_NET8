@@ -60,10 +60,10 @@ namespace Store_API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromForm] ProductUpsertDTO productDTO)
+        public async Task<IActionResult> Create([FromBody] ProductUpsertDTO productDTO)
         {
-            if (await _unitOfWork.CheckExisted("Products", productDTO.Name)) 
-                return BadRequest(new ProblemDetails { Title = $"Product name {productDTO.Name} is existed !" });
+            if (productDTO.Id == null || productDTO.Id == Guid.Empty)
+                return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);

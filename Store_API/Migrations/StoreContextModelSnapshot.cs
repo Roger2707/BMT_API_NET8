@@ -742,16 +742,16 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7d3a18d1-6be3-4731-8bf5-55fb3d576d0c",
+                            ConcurrencyStamp = "0eb93648-f9d5-4831-aa45-c0f0a042e767",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAENe56XZXzLQmSpIGGVKt5Ztg/UeJtzHE4UXLjUWh7hq3Qx5oTpvvgUFfIOV6XSH/Nw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKXfv6LxpgM1+48vFnmic3bK5zYONfq5oAo+551wqAkNIlcoF8EHIVE2Iec/4DO/Jg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "0dc90fde-65e8-4400-b313-8ed156f6ccaa",
+                            SecurityStamp = "1d3ecb95-1a18-4779-8e79-e330b2f5952f",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

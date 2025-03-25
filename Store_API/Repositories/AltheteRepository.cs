@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
 using Store_API.DTOs.Althetes;
+using Store_API.IService;
 using Store_API.Models;
 
 namespace Store_API.Repositories
@@ -9,9 +10,9 @@ namespace Store_API.Repositories
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
-        private readonly IImageRepository _imageService;
+        private readonly IImageService _imageService;
 
-        public AltheteRepository(StoreContext db, IDapperService dapperService, IImageRepository imageService)
+        public AltheteRepository(StoreContext db, IDapperService dapperService, IImageService imageService)
         {
             _db = db;
             _dapperService = dapperService;

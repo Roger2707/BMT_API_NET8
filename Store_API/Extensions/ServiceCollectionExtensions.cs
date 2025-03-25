@@ -23,7 +23,7 @@ namespace Store_API.Extensions
             // Others
             services.AddHttpClient();
             services.AddScoped<EmailSenderService>();
-            services.AddTransient<IImageRepository, ImageService>();
+            services.AddTransient<IImageService, ImageService>();
             services.AddTransient<ICSVRepository, CSVService>();
             services.AddScoped<ITokenRepository, TokenIdentityService>();
             services.AddSingleton<IRabbitMQService, RabbitMQService>();

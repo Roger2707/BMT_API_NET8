@@ -4,8 +4,8 @@ using Store_API.Data;
 using Store_API.DTOs;
 using Store_API.DTOs.Products;
 using Store_API.Helpers;
+using Store_API.IService;
 using Store_API.Models;
-using Store_API.Services;
 
 namespace Store_API.Repositories
 {
@@ -13,9 +13,9 @@ namespace Store_API.Repositories
     {
         private readonly IDapperService _dapperService;
         private readonly StoreContext _db;
-        private readonly IImageRepository _imageService;
+        private readonly IImageService _imageService;
         private readonly ICSVRepository _csvService;
-        public ProductRepository(IDapperService dapperService, StoreContext db, IImageRepository imageService, ICSVRepository csvService)
+        public ProductRepository(IDapperService dapperService, StoreContext db, IImageService imageService, ICSVRepository csvService)
         {
             _dapperService = dapperService;
             _db = db;
@@ -28,6 +28,7 @@ namespace Store_API.Repositories
         {
             var product = new Product()
             {
+                Id = productCreateDTO.Id,
                 Name = productCreateDTO.Name,
                 Description = productCreateDTO.Description,
                 Created = productCreateDTO.Created,
@@ -43,22 +44,10 @@ namespace Store_API.Repositories
                 }).ToList()
             };
 
-            if (productCreateDTO.ImageUrl != null)
+            if (!string.IsNullOrEmpty(productCreateDTO.ImageUrl) && !string.IsNullOrEmpty(productCreateDTO.PublicId))
             {
-                string folderPath = $"products/{productCreateDTO.Name.Trim().ToLower()}";
-
-                // Upload Multiple Images
-                var uploadTasks = productCreateDTO.ImageUrl
-                    .Select(image =>  _imageService.AddImageAsync(image, folderPath))
-                    .ToList();
-
-                // Multi thread - run all task at the same time and wait for all to complete
-                var imageResults = await Task.WhenAll(uploadTasks); 
-
-                // Check image error != null -> save db
-                var validImages = imageResults.Where(img => img.Error == null).ToList();
-                product.ImageUrl = string.Join(",", validImages.Select(img => img.SecureUrl.ToString()));
-                product.PublicId = string.Join(",", validImages.Select(img => img.PublicId));
+                product.ImageUrl = productCreateDTO.ImageUrl;
+                product.PublicId = productCreateDTO.PublicId;
             }
 
             await _db.Products.AddAsync(product);
@@ -86,34 +75,18 @@ namespace Store_API.Repositories
                 existedProduct.BrandId = productUpdateDTO.BrandId;
 
             // Handle Images List
-            if (productUpdateDTO.ImageUrl != null)
+            if (!string.IsNullOrEmpty(productUpdateDTO.ImageUrl) && !string.IsNullOrEmpty(productUpdateDTO.PublicId))
             {
-                string folderPath = $"products/{productUpdateDTO.Name.Trim().ToLower()}";
-
-                // Upload Multiple Images
-                var deleteTasks = existedProduct.PublicId.Split(new char[] { ',' })
-                    .Select(publicId => _imageService.DeleteImageAsync(publicId))
-                    .ToList();
-
-                var uploadTasks = productUpdateDTO.ImageUrl
-                    .Select(image => _imageService.AddImageAsync(image, folderPath))
-                    .ToList();
-
-                // Multi thread - run all task at the same time and wait for all to complete
-                var imageDeletes = await Task.WhenAll(deleteTasks);
-                var imageResults = await Task.WhenAll(uploadTasks);
-
-                // Check image error != null -> save string to db
-                var validImages = imageResults.Where(img => img.Error == null).ToList();
-                existedProduct.ImageUrl = string.Join(",", validImages.Select(img => img.SecureUrl.ToString()));
-                existedProduct.PublicId = string.Join(",", validImages.Select(img => img.PublicId));
+                existedProduct.ImageUrl = productUpdateDTO.ImageUrl;
+                existedProduct.PublicId = productUpdateDTO.PublicId;
             }
 
             // Handle Product Details
             _db.ProductDetails.RemoveRange(existedProduct.Details);
             await _db.AddRangeAsync(productUpdateDTO.ProductDetails.Select(d => new ProductDetail()
             {
-                ProductId = existedProduct.Id,
+                Id = d.Id,
+                ProductId = d.ProductId,
                 Price = d.Price,
                 Color = d.Color,
                 ExtraName = d.ExtraName,
@@ -121,8 +94,7 @@ namespace Store_API.Repositories
             }));
 
             int result = await _db.SaveChangesAsync();
-
-            return result > 0 ? Result<Guid>.Success(existedProduct.Id) : Result<Guid>.Failure("Update Fail !");
+            return result >= 0 ? Result<Guid>.Success(existedProduct.Id) : Result<Guid>.Failure("Update Fail !");
         }
 
         public async Task<Result<int>> ChangeStatus(int id)
@@ -224,6 +196,7 @@ namespace Store_API.Repositories
 	                            as DiscountPrice
                                 , Description
                                 , ImageUrl
+                                , PublicId
                                 , Created
                                 , detail.QuantityInStock
                                 , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus

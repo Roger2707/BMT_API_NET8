@@ -4,6 +4,7 @@ using StackExchange.Redis;
 using Store_API.Data;
 using Store_API.Helpers;
 using Store_API.IRepositories;
+using Store_API.IService;
 using Store_API.Models;
 using Store_API.Services;
 using Stripe;
@@ -14,11 +15,11 @@ namespace Store_API.Repositories
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapper;
-        private readonly IImageRepository _imageService;
+        private readonly IImageService _imageService;
         private readonly EmailSenderService _emailSenderService;
         private readonly ICSVRepository _csvService;
 
-        public UnitOfWork(StoreContext db, IDapperService dapper, IImageRepository imageService
+        public UnitOfWork(StoreContext db, IDapperService dapper, IImageService imageService
             , EmailSenderService emailSenderService, ICSVRepository csvService)
         {
             _db = db;

@@ -1,8 +1,8 @@
 ﻿using CloudinaryDotNet.Actions;
 
-namespace Store_API.Repositories
+namespace Store_API.IService
 {
-    public interface IImageRepository
+    public interface IImageService
     {
         public Task<ImageUploadResult> AddImageAsync(IFormFile file, string folderPath);
         public Task<List<ImageUploadResult>> AddMultipleImageAsync(IFormFileCollection files, string folderPath);

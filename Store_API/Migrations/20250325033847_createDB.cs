@@ -583,7 +583,7 @@ namespace Store_API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 1, 0, "7d3a18d1-6be3-4731-8bf5-55fb3d576d0c", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@example.com", true, null, null, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAIAAYagAAAAENe56XZXzLQmSpIGGVKt5Ztg/UeJtzHE4UXLjUWh7hq3Qx5oTpvvgUFfIOV6XSH/Nw==", null, false, null, "0dc90fde-65e8-4400-b313-8ed156f6ccaa", false, "admin" });
+                values: new object[] { 1, 0, "0eb93648-f9d5-4831-aa45-c0f0a042e767", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@example.com", true, null, null, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAIAAYagAAAAEKXfv6LxpgM1+48vFnmic3bK5zYONfq5oAo+551wqAkNIlcoF8EHIVE2Iec/4DO/Jg==", null, false, null, "1d3ecb95-1a18-4779-8e79-e330b2f5952f", false, "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
