@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Store_API.Migrations
 {
     /// <inheritdoc />
-    public partial class createDB : Migration
+    public partial class createRDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -583,7 +583,7 @@ namespace Store_API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 1, 0, "0eb93648-f9d5-4831-aa45-c0f0a042e767", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@example.com", true, null, null, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAIAAYagAAAAEKXfv6LxpgM1+48vFnmic3bK5zYONfq5oAo+551wqAkNIlcoF8EHIVE2Iec/4DO/Jg==", null, false, null, "1d3ecb95-1a18-4779-8e79-e330b2f5952f", false, "admin" });
+                values: new object[] { 1, 0, "b7e15c42-e585-4704-96a3-8c9fed20e06b", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@example.com", true, null, null, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAIAAYagAAAAEOtA83yb6DhPGburQQ3sCveDq500Dnk5tuZ3kH+sRrTleab5oggLPFVpE0PKcR4EhA==", null, false, null, "fecb8ade-d140-4de8-87b2-3c06f3843e3f", false, "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
