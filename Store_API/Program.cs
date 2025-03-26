@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -16,26 +14,6 @@ using Store_API.RabbitMQ;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-
-//builder.Services.Configure<ApiBehaviorOptions>(options =>
-//{
-//    // Custom Errors Validations
-//    options.InvalidModelStateResponseFactory = context =>
-//    {
-//        var errorResponse = new
-//        {
-//            StatusCode = 400,
-//            Errors = context.ModelState
-//                            .Where(m => m.Value.Errors.Count > 0)
-//                            .ToDictionary
-//                            (
-//                                    d => char.ToLower(d.Key[0]) + d.Key.Substring(1),
-//                                    d => d.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-//                            )
-//        };
-//        return new BadRequestObjectResult(errorResponse);
-//    };
-//});
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -77,7 +55,7 @@ builder.Services.AddSwaggerGen(c =>
 
 #endregion 
 
-#region Identity
+#region CORS Policy
 
 builder.Services.AddCors(options =>
 {
@@ -87,10 +65,14 @@ builder.Services.AddCors(options =>
             policy.WithOrigins("http://localhost:3000")
                   .AllowAnyMethod()
                   .AllowAnyHeader()
-                  .AllowCredentials(); 
+                  .AllowCredentials();
         }
     );
 });
+
+#endregion
+
+#region Authentication + Authorization
 
 builder.Services
     .AddIdentity<User, Store_API.Models.Role>(opt =>
@@ -98,13 +80,12 @@ builder.Services
         opt.Password.RequiredLength = 7;
         opt.Password.RequireDigit = false;
         opt.Password.RequireUppercase = false;
-        //opt.User.RequireUniqueEmail = true;
+        opt.User.RequireUniqueEmail = true;
     })
     .AddEntityFrameworkStores<StoreContext>()
     .AddDefaultTokenProviders();
 
 builder.Services.Configure<DataProtectionTokenProviderOptions>(options => {
-    // Reset token valid from 2 hours
     options.TokenLifespan = TimeSpan.FromHours(2);
 });
 
@@ -127,14 +108,6 @@ builder.Services
         options.ClientId = builder.Configuration["OAuth:ClientID"];
         options.ClientSecret = builder.Configuration["OAuth:ClientSecret"];
     });
-
-//Cookie Policy needed for External Auth
-builder.Services.Configure<CookiePolicyOptions>(options =>
-{
-    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
-    options.CheckConsentNeeded = context => true;
-    options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
-});
 
 builder.Services.AddAuthorization();
 
@@ -193,7 +166,6 @@ builder.Services.AddSignalR(options =>
 
 #region RabbitMQ
 
-// Đăng ký BackgroundService (Consumer xử lý RabbitMQ)
 builder.Services.AddHostedService<RabbitMQConsumerService>();
 
 #endregion 
@@ -201,9 +173,6 @@ builder.Services.AddHostedService<RabbitMQConsumerService>();
 var app = builder.Build();
 
 #region Middlewares
-
-
-#endregion 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -219,30 +188,32 @@ if (app.Environment.IsDevelopment())
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
-//app.Use(async (context, next) =>
-//{
-//    context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
-//    await next();
-//});
-
 app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+#endregion 
+
 app.MapControllers();
+
+#region Signal hubs
 
 app.MapHub<OrderHub>("/orderHub");
 
+#endregion
+
+
+#region Seed Data
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     var context = services.GetRequiredService<StoreContext>();
-
     context.Database.Migrate();
     DatabaseSeeding.SeedData(context);
-    DatabaseSeeding.SeedData(builder.Configuration.GetConnectionString("DefaultConnection"));
 }
+
+#endregion
 
 app.Run();

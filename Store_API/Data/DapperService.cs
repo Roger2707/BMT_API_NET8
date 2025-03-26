@@ -77,49 +77,46 @@ namespace Store_API.Data
         {
             if (_transaction != null)
             {
-                // Sử dụng giao dịch nếu đã bắt đầu giao dịch trước đó
                 return await _connection.ExecuteAsync(query, p, _transaction);
             }
             else
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    await connection.OpenAsync();  // Mở kết nối bất đồng bộ
+                    await connection.OpenAsync();
                     return await connection.ExecuteAsync(query, p);
                 }
             }
         }
 
-        public async Task<List<dynamic>> QueryAsync(string query, object p)
+        public async Task<List<TResult>> QueryAsync<TResult>(string query, object p)
         {
             if (_transaction != null)
             {
-                // Sử dụng giao dịch nếu đã bắt đầu giao dịch trước đó
-                return (await _connection.QueryAsync<dynamic>(query, p, _transaction)).ToList();
+                return (await _connection.QueryAsync<TResult>(query, p, _transaction)).ToList();
             }
             else
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    await connection.OpenAsync();  // Mở kết nối bất đồng bộ
-                    return (await connection.QueryAsync<dynamic>(query, p)).ToList();
+                    await connection.OpenAsync();
+                    return (await connection.QueryAsync<TResult>(query, p)).ToList();
                 }
             }
         }
 
-        public async Task<dynamic> QueryFirstOrDefaultAsync(string query, object p)
+        public async Task<TResult> QueryFirstOrDefaultAsync<TResult>(string query, object p)
         {
             if (_transaction != null)
             {
-                // Sử dụng giao dịch nếu đã bắt đầu giao dịch trước đó
-                return await _connection.QueryFirstOrDefaultAsync<dynamic>(query, p, _transaction);
+                return await _connection.QueryFirstOrDefaultAsync<TResult>(query, p, _transaction);
             }
             else
             {
                 using (var connection = new SqlConnection(_connectionString))
                 {
-                    await connection.OpenAsync();  // Mở kết nối bất đồng bộ
-                    return await connection.QueryFirstOrDefaultAsync<dynamic>(query, p);
+                    await connection.OpenAsync();
+                    return await connection.QueryFirstOrDefaultAsync<TResult>(query, p);
                 }
             }
         }

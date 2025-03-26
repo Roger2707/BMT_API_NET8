@@ -4,7 +4,7 @@ using Store_API.Models;
 
 namespace Store_API.Repositories
 {
-    public interface IProductRepository
+    public interface IProductRepository 
     {
         Task<Result<Guid>> Create(ProductUpsertDTO productCreateDTO);
         Task<Result<int>> InsertCSV(IFormFile csvFile);

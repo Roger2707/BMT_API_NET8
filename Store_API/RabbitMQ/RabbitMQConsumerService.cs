@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Store_API.DTOs;
+using Store_API.DTOs.Payments;
 using Store_API.Hubs;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;

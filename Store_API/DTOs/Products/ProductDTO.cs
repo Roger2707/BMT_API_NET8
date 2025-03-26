@@ -10,9 +10,9 @@ namespace Store_API.DTOs.Products
         public string? ImageUrl { get; set; }
         public string ProductStatus { get; set; }
         public DateTime Created { get; set; }
-        public int CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
         public string CategoryName { get; set; }
-        public int BrandId { get; set; }
+        public Guid BrandId { get; set; }
         public string BrandName { get; set; }
         public string BrandCountry { get; set; }
         public List<ProductDetailDTO> Details { get; set; } = new();

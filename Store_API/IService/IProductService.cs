@@ -1,5 +1,6 @@
 ﻿using Store_API.DTOs.Products;
 using Store_API.DTOs;
+using Store_API.DTOs.Paginations;
 
 namespace Store_API.IService
 {

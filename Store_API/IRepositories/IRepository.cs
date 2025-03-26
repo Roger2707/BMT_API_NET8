@@ -1,11 +1,19 @@
-﻿namespace Store_API.Repositories
+﻿using System.Linq.Expressions;
+
+namespace Store_API.Repositories
 {
     public interface IRepository<T> where T : class
     {
-        Task<T> GetByIdAsync(int id);
-        Task<IEnumerable<T>> GetAllAsync();
+        Task<T> GetByIdAsync(Guid id);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null);
         Task AddAsync(T entity);
-        void Update(T entity);
-        void Delete(T entity);
+        void UpdateAsync(T entity);
+        void DeleteAsync(T entity);
+        void RemoveRangeAsync(IEnumerable<T> entities);
+
+        // Dapper Functions
+        Task<IEnumerable<TResult>> QueryAsync<TResult>(string query, object? parameters = null);
+        Task<TResult> QueryFirstOrDefaultAsyncAsync<TResult>(string query, object? parameters = null);
+        Task<int> ExecuteAsync(string query, object? parameters = null);
     }
 }

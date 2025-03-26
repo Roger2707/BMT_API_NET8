@@ -17,8 +17,8 @@ namespace Store_API.DTOs.Products
         public int ProductStatus { get; set; } = 1;
         [Required]
         public DateTime Created { get; set; }
-        public int CategoryId { get; set; }
-        public int BrandId { get; set; }
+        public Guid CategoryId { get; set; }
+        public Guid BrandId { get; set; }
         public List<ProductUpsertDetailDTO> ProductDetails { get; set; }
     }
 }

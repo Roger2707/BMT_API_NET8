@@ -67,7 +67,7 @@ namespace Store_API.Services
                             WHERE r.Id != 1 ";
 
 
-            List<dynamic> result = await _dapperService.QueryAsync(query, null);
+            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, null);
 
             if (result.Count == 0) return null;
             List<UserDTO> users = new List<UserDTO>();
@@ -109,7 +109,7 @@ namespace Store_API.Services
                                 WHERE UserName = @UserName
                                 ";
 
-            var user = await _dapperService.QueryFirstOrDefaultAsync(query, new { UserName = userName });
+            var user = await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, new { UserName = userName });
             if (user == null) return null;
 
             var respone = new UserDTO

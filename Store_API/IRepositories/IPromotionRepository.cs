@@ -1,13 +1,12 @@
 ﻿using Store_API.DTOs.Promotions;
+using Store_API.Models;
 
 namespace Store_API.Repositories
 {
-    public interface IPromotionRepository
+    public interface IPromotionRepository : IRepository<Promotion>
     {
-        public Task<List<PromotionDTO>> GetAll(string start, string end);
-        public Task Create(PromotionUpsertDTO promotion);
-        public Task Update(int id, PromotionUpsertDTO promotion);
-        public Task Delete(int id);
-        public Task<double> GetPercentageDiscount(int productId);
+        Task<IEnumerable<PromotionDTO>> GetAllPromotionsAsync();
+        Task<PromotionDTO> GetPromotionAsync(Guid promotionId);
+        Task<DateTime?> GetMaxEndDateOfOnePromotionAsync(Guid categoryId, Guid brandId);
     }
 }

@@ -1,11 +1,9 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.Data.SqlClient;
+﻿using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
 using Store_API.DTOs;
 using Store_API.DTOs.Orders;
 using Store_API.IRepositories;
-using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 
 namespace Store_API.Repositories
@@ -27,7 +25,7 @@ namespace Store_API.Repositories
             string query = @" SELECT Id, UserId, City, District, Ward, PostalCode, StreetAddress, Country FROM UserAddresses WHERE UserId = @UserId ";
             var p = new { UserId = userId };
             List<UserAddressDTO> userAddresses = new List<UserAddressDTO>();
-            var result = await _dapperService.QueryAsync(query, p);
+            var result = await _dapperService.QueryAsync<dynamic>(query, p);
 
             if (result.Count != 0 && result != null)
             {
@@ -55,7 +53,7 @@ namespace Store_API.Repositories
             string query = @" SELECT Id, UserId, City, District, Ward, PostalCode, StreetAddress, Country FROM UserAddresses WHERE Id = @Id ";
             var p = new { Id = userAddressId };  
             var userAddress = new UserAddressDTO();
-            var result = await _dapperService.QueryAsync(query, p);
+            var result = await _dapperService.QueryAsync<dynamic>(query, p);
 
             if (result != null)
             {

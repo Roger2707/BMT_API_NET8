@@ -1,7 +1,7 @@
 ﻿using Store_API.DTOs.Products;
 using Store_API.Helpers;
 
-namespace Store_API.DTOs
+namespace Store_API.DTOs.Paginations
 {
     public class Pagination<T> where T : class
     {
@@ -21,7 +21,7 @@ namespace Store_API.DTOs
                 CurrentPage = currentPage,
                 RowInPage = CF.GetInt(source.Count),
                 TotalRow = total_row,
-                TotalPage = total_row % count_in_page == 0 ? total_row / count_in_page : (total_row / count_in_page) + 1,
+                TotalPage = total_row % count_in_page == 0 ? total_row / count_in_page : total_row / count_in_page + 1,
             };
 
             return dataPagination;

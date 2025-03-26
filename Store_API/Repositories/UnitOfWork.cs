@@ -1,44 +1,37 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Storage;
-using StackExchange.Redis;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Store_API.Data;
 using Store_API.Helpers;
 using Store_API.IRepositories;
 using Store_API.IService;
-using Store_API.Models;
-using Store_API.Services;
-using Stripe;
 
 namespace Store_API.Repositories
 {
     public class UnitOfWork : IUnitOfWork
     {
         private readonly StoreContext _db;
-        private readonly IDapperService _dapper;
+        private readonly IDapperService _dapperService;
         private readonly IImageService _imageService;
-        private readonly EmailSenderService _emailSenderService;
         private readonly ICSVRepository _csvService;
 
-        public UnitOfWork(StoreContext db, IDapperService dapper, IImageService imageService
-            , EmailSenderService emailSenderService, ICSVRepository csvService)
+        public UnitOfWork(StoreContext db, IDapperService dapperService, IImageService imageService
+            , ICSVRepository csvService)
         {
             _db = db;
-            _dapper = dapper;
+            _dapperService = dapperService;
             _imageService = imageService;
-            _emailSenderService = emailSenderService;
             _csvService = csvService;
 
-            // Updated Services
-            Product = new ProductRepository(_dapper, _db, _imageService, _csvService);
-            Category = new CategoryRepository(_db, _dapper);
-            Brand = new BrandRepository(_dapper, _db);
-            Althete = new AltheteRepository(_db, _dapper, _imageService);
-            Comment = new CommentRepository(_db, _dapper);
-            Rating = new RatingRepository(_db, _dapper);
-            Promotion = new PromotionRepository(_db, _dapper);
-            UserAddress = new UserAddressRepository(_db, _dapper);
-            Basket = new BasketRepository(_dapper, _db);
-            Order = new OrderRepository(_dapper, _db);
+            Category = new CategoryRepository(_db, _dapperService);
+            Brand = new BrandRepository(_db, _dapperService);
+            Promotion = new PromotionRepository(_db, _dapperService);
+
+
+            Product = new ProductRepository(_dapperService, _db, _imageService, _csvService);
+            Comment = new CommentRepository(_db, _dapperService);
+            Rating = new RatingRepository(_db, _dapperService);
+            UserAddress = new UserAddressRepository(_db, _dapperService);
+            Basket = new BasketRepository(_dapperService, _db);
+            Order = new OrderRepository(_dapperService, _db);
             Payment = new PaymentRepository(_db);
         }
 
@@ -46,7 +39,6 @@ namespace Store_API.Repositories
         public IProductRepository Product { get; private set; }
         public ICategoryRepository Category { get; private set; }
         public IBrandRepository Brand { get; private set; }
-        public IAltheteRepository Althete { get; private set; }
         public ICommentRepository Comment { get; private set; }
         public IRatingRepository Rating { get; private set; }
         public IPromotionRepository Promotion { get; private set; }
@@ -76,22 +68,22 @@ namespace Store_API.Repositories
         #region Dapper Methods
         public async Task BeginTransactionDapperAsync()
         {
-            await _dapper.BeginTransactionAsync();
+            await _dapperService.BeginTransactionAsync();
         }
 
         public async Task CommitAsync()
         {
-            await _dapper.CommitAsync();
+            await _dapperService.CommitAsync();
         }
 
         public async Task RollbackAsync()
         {
-            await _dapper.RollbackAsync();
+            await _dapperService.RollbackAsync();
         }
 
         public async Task CloseConnectionAsync()
         {
-            await _dapper.CloseConnectionAsync();
+            await _dapperService.CloseConnectionAsync();
         }
 
         #endregion
@@ -102,16 +94,8 @@ namespace Store_API.Repositories
         {
             string query = @" SELECT COUNT(Id) as Record FROM " + tableName + " WHERE Id = @Id ";
             var p = new { id };
-            dynamic result = await _dapper.QueryFirstOrDefaultAsync(query, p);
-            if (CF.GetInt(result.Record) > 0) return true;
-            return false;
-        }
-        public async Task<bool> CheckExisted(string tableName, string name)
-        {
-            string query = @" SELECT COUNT(Id) as Record FROM " + tableName + " WHERE Name = @Name ";
-            var p = new { name = !string.IsNullOrEmpty(name) ? name.ToLower().Trim() : "" };
-            dynamic result = await _dapper.QueryFirstOrDefaultAsync(query, p);
-            if (CF.GetInt(result.Record) > 0) return true;
+            int result = await _dapperService.QueryFirstOrDefaultAsync<int>(query, p);
+            if (CF.GetInt(result) > 0) return true;
             return false;
         }
 

@@ -219,7 +219,7 @@ namespace Store_API.Repositories
                             WHERE product.Id = @Id AND product.ProductStatus = 1 ";
 
             var p = new { id = id };
-            var result = await _dapperService.QueryAsync(query, p);
+            var result = await _dapperService.QueryAsync<dynamic>(query, p);
             if (result == null) return null;
 
             var productDTO = result

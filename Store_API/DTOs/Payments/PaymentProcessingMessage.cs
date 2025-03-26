@@ -1,4 +1,4 @@
-﻿namespace Store_API.DTOs
+﻿namespace Store_API.DTOs.Payments
 {
     public class PaymentProcessingMessage
     {

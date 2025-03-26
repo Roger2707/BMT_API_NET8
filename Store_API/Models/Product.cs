@@ -11,15 +11,15 @@ namespace Store_API.Models
         public string? PublicId { get; set; }
         public int ProductStatus { get; set; } = 1;
         public DateTime Created { get; set; } = DateTime.Now;
-        public int CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
         [ForeignKey("CategoryId")]
         public Category Category { get; set; }
 
-        public int BrandId { get; set; }
+        public Guid BrandId { get; set; }
         [ForeignKey("BrandId")]
         public Brand Brand { get; set; }
 
-        public List<Technology>? Technologies { get; set; }
+        public List<ProductTechnology>? Technologies { get; set; }
         public List<ProductDetail> Details { get; set; }
     }
 }

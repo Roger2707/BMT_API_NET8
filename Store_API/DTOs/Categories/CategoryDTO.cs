@@ -1,6 +1,6 @@
-﻿namespace Store_API.Models
+﻿namespace Store_API.DTOs.Categories
 {
-    public class Category
+    public class CategoryDTO
     {
         public Guid Id { get; set; }
         public string Name { get; set; }

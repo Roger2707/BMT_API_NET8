@@ -11,11 +11,11 @@ namespace Store_API.Data
             if(!context.Categories.Any())
             {
                 await context.AddRangeAsync(
-                    new Category { Name = "Racket" },
-                    new Category { Name = "Shoes" },
-                    new Category { Name = "Clothes" },
-                    new Category { Name = "Items" },
-                    new Category { Name = "Others" }
+                    new Category { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), Name = "Racket" },
+                    new Category { Id = Guid.Parse("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"), Name = "Shoes" },
+                    new Category { Id = Guid.Parse("8a0ef9d4-79bb-418f-9e12-8f5f6df62049"), Name = "Clothes" },
+                    new Category { Id = Guid.Parse("c1dcf6b8-4c24-493c-a828-7b1e4cc26a6b"), Name = "Items" },
+                    new Category { Id = Guid.Parse("af0b3a7a-5898-43cf-8f98-d0c5712ec5f3"), Name = "Others" }
                 );
             }
 
@@ -23,9 +23,9 @@ namespace Store_API.Data
             if (!context.Brands.Any())
             {
                 await context.AddRangeAsync(
-                    new Brand { Name = "Yonex", Country = "Japan" },
-                    new Brand { Name = "Victor", Country = "Taiwan" },
-                    new Brand { Name = "Lining", Country = "China" }
+                    new Brand { Id = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6"), Name = "Yonex", Country = "Japan" },
+                    new Brand { Id = Guid.Parse("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d"), Name = "Victor", Country = "Taiwan" },
+                    new Brand { Id = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"), Name = "Lining", Country = "China" }
                 );
             }
 
@@ -42,21 +42,20 @@ namespace Store_API.Data
                         PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 1
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6")
                     },
                     new Product
                     {
                         Id = Guid.Parse("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                         Name = "Duora Z Strike (Ver.2017)",
                         Description = "Two Faces - Expolosive Attack - Solid Hard Defend",
-                        ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828714/products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828716/products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828717/products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828718/products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828719/products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828720/products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj.jpg",
-                        
+                        ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828714/products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828716/products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828717/products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828718/products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828719/products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828720/products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj.jpg",                       
                         PublicId = @"products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak,products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya,products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1,products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf,products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely,products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 1
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6")
                     }, 
                     new Product
                     {
@@ -67,8 +66,8 @@ namespace Store_API.Data
                         PublicId = "arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re,products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx,products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv,products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly,products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp,products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 1
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6")
                     }, 
                     new Product
                     {
@@ -79,8 +78,8 @@ namespace Store_API.Data
                         PublicId = "ldpbvqnabfaq7o2uggia",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 1
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6")
                     }, 
                     new Product
                     {
@@ -91,8 +90,8 @@ namespace Store_API.Data
                         PublicId = "products/nanoflare 1000z/yj14npg3jorqi1dhbygd,products/nanoflare 1000z/ptbxakwyi6dtxsedhog4,products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts,products/nanoflare 1000z/syrhneosnjsnoyuwwdte,products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs,products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 1
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6")
                     },
                     new Product
                     {
@@ -103,8 +102,8 @@ namespace Store_API.Data
                         PublicId = "bobdvzdutlsnhkgd3csa",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 2
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d")
                     },
                     new Product
                     {
@@ -115,8 +114,8 @@ namespace Store_API.Data
                         PublicId = "erovfedlbzb0xkzqglbj",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 1
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6")
                     },
                     new Product
                     {
@@ -127,8 +126,8 @@ namespace Store_API.Data
                         PublicId = "rweggufmgnga3zjklf2f",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 2
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d")
                     },
                     new Product
                     {
@@ -139,8 +138,8 @@ namespace Store_API.Data
                         PublicId = "cy4dqkjmsqakqxsqonl5",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 2
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d")
                     },
                     new Product
                     {
@@ -151,8 +150,8 @@ namespace Store_API.Data
                         PublicId = "algdodmsmknzhilm9wds",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 3
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb")
                     },
                     new Product
                     {
@@ -163,8 +162,8 @@ namespace Store_API.Data
                         PublicId = "products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 3
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb")
                     },
                     new Product
                     {
@@ -175,8 +174,8 @@ namespace Store_API.Data
                         PublicId = "w9s0ruep5gxnelaunfgq",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 3
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb")
                     },
                     new Product
                     {
@@ -187,8 +186,8 @@ namespace Store_API.Data
                         PublicId = "cetkfwcafc8xliwnim9n",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 1,
-                        BrandId = 3
+                        CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                        BrandId = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb")
                     },
                     new Product
                     {
@@ -199,8 +198,8 @@ namespace Store_API.Data
                         PublicId = "bpjcwixbyweafni7t5sz",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 2,
-                        BrandId = 1
+                        CategoryId = Guid.Parse("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6")
                     },
                     new Product
                     {
@@ -211,8 +210,8 @@ namespace Store_API.Data
                         PublicId = "bpjcwixbyweafni7t5sz",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 2,
-                        BrandId = 1
+                        CategoryId = Guid.Parse("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6")
                     },
                     new Product
                     {
@@ -223,8 +222,8 @@ namespace Store_API.Data
                         PublicId = "products/hxlh389m9vsug2zumawz",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 2,
-                        BrandId = 3
+                        CategoryId = Guid.Parse("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                        BrandId = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb")
                     },
                     new Product
                     {
@@ -235,8 +234,8 @@ namespace Store_API.Data
                         PublicId = "dn25ivc2gpbcytdfqfim",
                         ProductStatus = 1,
                         Created = DateTime.Now,
-                        CategoryId = 2,
-                        BrandId = 3
+                        CategoryId = Guid.Parse("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                        BrandId = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb")
                     }
                 );
             }
@@ -245,17 +244,41 @@ namespace Store_API.Data
             if (!context.Technologies.Any())
             {
                 await context.AddRangeAsync(
-                    new Technology { Name = "ENHANCED ARCSABER FRAME", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800437/technologies/tech1_qoof2s.jpg" },
-                    new Technology { Name = "CONTROL-ASSIST BUMPER", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800437/technologies/tech2_nhiopm.jpg" },
-                    new Technology { Name = "POCKETING BOOSTER", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800436/technologies/tech3_olpj1g.png" },
-                    new Technology { Name = "ISOMETRIC PLUS", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800436/technologies/tech3_olpj1g.png" },
-                    new Technology { Name = "DUAL OPTIMUM SYSTEM", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech5_axkpsh.webp" },
-                    new Technology { Name = "ISOMETRIC ", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801836/tech6_foheeo.webp" },
-                    new Technology { Name = "AERO-BOX FRAME", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech7_qfd4za.webp" },
-                    new Technology { Name = "NEW Built-in T-Joint", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech8_mqshpr.webp" },
-                    new Technology { Name = "ROTATIONAL GENARATOR SYSTEM", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801836/tech9_jfuxth.jpg" },
-                    new Technology { Name = "ENERGY BOOST CAP PLUS", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801837/tech10_myratn.jpg" }
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), Name = "ENHANCED ARCSABER FRAME", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800437/technologies/tech1_qoof2s.jpg" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"), Name = "CONTROL-ASSIST BUMPER", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800437/technologies/tech2_nhiopm.jpg" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"), Name = "POCKETING BOOSTER", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800436/technologies/tech3_olpj1g.png" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6"), Name = "ISOMETRIC PLUS", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800436/technologies/tech3_olpj1g.png" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"), Name = "DUAL OPTIMUM SYSTEM", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech5_axkpsh.webp" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4"), Name = "ISOMETRIC ", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801836/tech6_foheeo.webp" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3"), Name = "AERO-BOX FRAME", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech7_qfd4za.webp" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2"), Name = "NEW Built-in T-Joint", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech8_mqshpr.webp" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1"), Name = "ROTATIONAL GENARATOR SYSTEM", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801836/tech9_jfuxth.jpg" },
+                    new Technology { Id = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0"), Name = "ENERGY BOOST CAP PLUS", Description = "", ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801837/tech10_myratn.jpg" }
                 );
+            }
+
+            if (context.Products.Any() && context.Technologies.Any() && !context.ProductTechnologies.Any())
+            {
+                context.AddRange(
+                    new ProductTechnology { ProductId = Guid.Parse("f47ac10b-58cc-4372-a567-0e02b2c3d479"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9") },
+                    new ProductTechnology { ProductId = Guid.Parse("f47ac10b-58cc-4372-a567-0e02b2c3d479"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8") },
+                    new ProductTechnology { ProductId = Guid.Parse("f47ac10b-58cc-4372-a567-0e02b2c3d479"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7") },
+                    new ProductTechnology { ProductId = Guid.Parse("f47ac10b-58cc-4372-a567-0e02b2c3d479"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6") },
+                    
+                    new ProductTechnology { ProductId = Guid.Parse("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5") },
+                    new ProductTechnology { ProductId = Guid.Parse("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4") },
+                    new ProductTechnology { ProductId = Guid.Parse("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3") },
+                    new ProductTechnology { ProductId = Guid.Parse("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2") },
+                    
+                    new ProductTechnology { ProductId = Guid.Parse("7d9e6679-7425-40de-944b-e07fc1f90ae7"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9") },
+                    new ProductTechnology { ProductId = Guid.Parse("7d9e6679-7425-40de-944b-e07fc1f90ae7"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1") },
+                    new ProductTechnology { ProductId = Guid.Parse("7d9e6679-7425-40de-944b-e07fc1f90ae7"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0") },
+                    
+                    new ProductTechnology { ProductId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9") },
+                    new ProductTechnology { ProductId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8") },
+                    new ProductTechnology { ProductId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7") },
+                    new ProductTechnology { ProductId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"), TechnologyId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5") }
+                    );
             }
 
             // 5. Seed Extra Prop Products
@@ -309,57 +332,17 @@ namespace Store_API.Data
             if (!context.Promotions.Any())
             {
                 await context.AddRangeAsync(
-                    new Promotion { CategoryId = 1, BrandId = 1, Start = DateTime.Now, End = DateTime.MaxValue, PercentageDiscount = 15 }
+                    new Promotion 
+                    {   CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), 
+                        BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                        Start = DateTime.Now, 
+                        End = DateTime.MaxValue, 
+                        PercentageDiscount = 15 
+                    }
                 );
             }
 
             context.SaveChanges();
-        }
-
-        public static void SeedData(string connectionString)
-        {
-            SeedProductTechnologyData(connectionString);
-        }
-
-        private static void SeedProductTechnologyData(string connectionString)
-        {
-            using (var connection = new SqlConnection(connectionString))
-            {
-                connection.Open();
-
-                string checkQuery = "SELECT COUNT(*) FROM ProductTechnology";
-                using (var checkCommand = new SqlCommand(checkQuery, connection))
-                {
-                    var count = (int)checkCommand.ExecuteScalar();
-                    if (count > 0)
-                        return;
-                }
-
-                string seedQuery = @"
-                                    INSERT INTO ProductTechnology (ProductsId, TechnologiesId) 
-                                    VALUES 
-                                    ('f47ac10b-58cc-4372-a567-0e02b2c3d479',1), 
-                                    ('f47ac10b-58cc-4372-a567-0e02b2c3d479',2),
-                                    ('f47ac10b-58cc-4372-a567-0e02b2c3d479',3),
-                                    ('f47ac10b-58cc-4372-a567-0e02b2c3d479',4),
-                                    ('6f9619ff-8b86-d011-b42d-00cf4fc964ff',5),
-                                    ('6f9619ff-8b86-d011-b42d-00cf4fc964ff',6),
-                                    ('6f9619ff-8b86-d011-b42d-00cf4fc964ff',7),
-                                    ('6f9619ff-8b86-d011-b42d-00cf4fc964ff',8),
-                                    ('7d9e6679-7425-40de-944b-e07fc1f90ae7',1),
-                                    ('7d9e6679-7425-40de-944b-e07fc1f90ae7',9),
-                                    ('7d9e6679-7425-40de-944b-e07fc1f90ae7',10),
-                                    ('3fa85f64-5717-4562-b3fc-2c963f66afa6', 1),
-                                    ('3fa85f64-5717-4562-b3fc-2c963f66afa6', 2),
-                                    ('3fa85f64-5717-4562-b3fc-2c963f66afa6', 3),
-                                    ('3fa85f64-5717-4562-b3fc-2c963f66afa6', 5)
-                                    ";
-
-                using (var seedCommand = new SqlCommand(seedQuery, connection))
-                {
-                    seedCommand.ExecuteNonQuery();
-                }
-            }
         }
     }
 }

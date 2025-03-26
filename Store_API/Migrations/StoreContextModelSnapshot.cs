@@ -132,57 +132,6 @@ namespace Store_API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("ProductTechnology", b =>
-                {
-                    b.Property<Guid>("ProductsId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("TechnologiesId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductsId", "TechnologiesId");
-
-                    b.HasIndex("TechnologiesId");
-
-                    b.ToTable("ProductTechnology");
-                });
-
-            modelBuilder.Entity("Store_API.Models.Althete", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Achivement")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Info")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PictureUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("PublicId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("Althetes");
-                });
-
             modelBuilder.Entity("Store_API.Models.Basket", b =>
                 {
                     b.Property<int>("Id")
@@ -233,11 +182,9 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.Brand", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Country")
                         .HasColumnType("nvarchar(max)");
@@ -252,11 +199,9 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
@@ -434,11 +379,11 @@ namespace Store_API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("BrandId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("BrandId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
@@ -495,19 +440,35 @@ namespace Store_API.Migrations
                     b.ToTable("ProductDetails");
                 });
 
+            modelBuilder.Entity("Store_API.Models.ProductTechnology", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TechnologyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("ProductId", "TechnologyId");
+
+                    b.HasIndex("TechnologyId");
+
+                    b.ToTable("ProductTechnologies");
+                });
+
             modelBuilder.Entity("Store_API.Models.Promotion", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("BrandId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("BrandId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("End")
                         .HasColumnType("datetime2");
@@ -635,11 +596,9 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.Technology", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -742,16 +701,16 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b7e15c42-e585-4704-96a3-8c9fed20e06b",
+                            ConcurrencyStamp = "87163862-27b3-47e7-92ae-4f60917327f3",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOtA83yb6DhPGburQQ3sCveDq500Dnk5tuZ3kH+sRrTleab5oggLPFVpE0PKcR4EhA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKAkUwOy0QTmC5vkELwHZvhMhHs03Y8ZgWFk2ljBVtgtVEu1sKTCVFl3lza9pQzDgw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "fecb8ade-d140-4de8-87b2-3c06f3843e3f",
+                            SecurityStamp = "3cd53928-d343-40f8-bf75-26a01ea0a068",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -806,32 +765,6 @@ namespace Store_API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("ProductTechnology", b =>
-                {
-                    b.HasOne("Store_API.Models.Product", null)
-                        .WithMany()
-                        .HasForeignKey("ProductsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Store_API.Models.Technology", null)
-                        .WithMany()
-                        .HasForeignKey("TechnologiesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Store_API.Models.Althete", b =>
-                {
-                    b.HasOne("Store_API.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Store_API.Models.Basket", b =>
@@ -973,6 +906,25 @@ namespace Store_API.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("Store_API.Models.ProductTechnology", b =>
+                {
+                    b.HasOne("Store_API.Models.Product", "Product")
+                        .WithMany("Technologies")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store_API.Models.Technology", "Technology")
+                        .WithMany("Products")
+                        .HasForeignKey("TechnologyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Technology");
+                });
+
             modelBuilder.Entity("Store_API.Models.Promotion", b =>
                 {
                     b.HasOne("Store_API.Models.Brand", "Brand")
@@ -1035,6 +987,13 @@ namespace Store_API.Migrations
             modelBuilder.Entity("Store_API.Models.Product", b =>
                 {
                     b.Navigation("Details");
+
+                    b.Navigation("Technologies");
+                });
+
+            modelBuilder.Entity("Store_API.Models.Technology", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("Store_API.Models.User", b =>

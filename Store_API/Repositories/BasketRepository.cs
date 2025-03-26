@@ -52,8 +52,7 @@ namespace Store_API.Repositories
                             ";
 
             var p = new { UserName = currentUserLogin };
-            List<dynamic> result = await _dapperService.QueryAsync(query, p);
-
+            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, p);
             if (result == null || result.Count <= 0) return null;
 
             return result.MapBasket();
@@ -68,7 +67,7 @@ namespace Store_API.Repositories
                             ";
 
             var p = new { UserName = username };
-            int basketId = CF.GetInt((await _dapperService.QueryFirstOrDefaultAsync(query, p)).Id);
+            int basketId = CF.GetInt((await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, p)).Id);
             return basketId;
         }
 

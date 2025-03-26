@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
 using Store_API.DTOs;
+using Store_API.DTOs.Payments;
 using Store_API.Helpers;
 using Store_API.Hubs;
 using Store_API.IService;

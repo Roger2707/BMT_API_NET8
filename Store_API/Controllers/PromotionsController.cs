@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Promotions;
-using Store_API.Models;
-using Store_API.Repositories;
+using Store_API.IService;
 
 namespace Store_API.Controllers
 {
@@ -11,83 +8,68 @@ namespace Store_API.Controllers
     [ApiController]
     public class PromotionsController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        public PromotionsController(IUnitOfWork unitOfWork)
+        private readonly IPromotionService _promotionService;
+        public PromotionsController(IPromotionService promotionService)
         {
-            _unitOfWork = unitOfWork;
+            _promotionService = promotionService;
         }
 
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAll(string? start, string? end)
+        public async Task<IActionResult> GetAll()
         {
-            var promotions = await _unitOfWork.Promotion.GetAll(start, end);
-            if (promotions == null || promotions.Count <= 0) 
-                return BadRequest(new ProblemDetails { Title = "No Promotions" });
-
+            var promotions = await _promotionService.GetAll();
+            if (promotions == null || promotions.Count <= 0)  return BadRequest(new ProblemDetails { Title = "Promotions are empty now !" });
             return Ok(promotions);
+        }
+
+        [HttpGet("get-promotion-detail", Name = "GetDetailPromotion")]
+        public async Task<IActionResult> GetDetailPromotion(Guid promotionId)
+        {
+            var promotion = await _promotionService.GetPromotion(promotionId);
+            if (promotion == null) return BadRequest(new ProblemDetails { Title = "Promotion is not Existed !" });
+            return Ok(promotion);
         }
 
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] PromotionUpsertDTO promotion)
         {
-            string error = "";
             try
             {
-                await _unitOfWork.BeginTransactionDapperAsync();
-
-                await _unitOfWork.Promotion.Create(promotion);
-
-                await _unitOfWork.CommitAsync();
+                await _promotionService.Create(promotion);
+                return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, promotion);
             }
             catch (Exception ex)
             {
-                error = ex.Message;
-                await _unitOfWork.RollbackAsync();
+                return BadRequest(new ProblemDetails { Title = ex.Message });
             }
-            if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return Ok();
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update(int id, [FromForm] PromotionUpsertDTO promotion)
+        public async Task<IActionResult> Update([FromForm] PromotionUpsertDTO promotion)
         {
-            string error = "";
             try
             {
-                await _unitOfWork.BeginTransactionDapperAsync();
-
-                await _unitOfWork.Promotion.Update(id, promotion);
-
-                await _unitOfWork.CommitAsync();
+                await _promotionService.Update(promotion);
+                return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, promotion);
             }
             catch (Exception ex)
             {
-                error = ex.Message;
-                await _unitOfWork.RollbackAsync();
+                return BadRequest(new ProblemDetails { Title = ex.Message });
             }
-            if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return Ok();
         }
 
         [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            string error = "";
             try
             {
-                await _unitOfWork.BeginTransactionDapperAsync();
-
-                await _unitOfWork.Promotion.Delete(id);
-
-                await _unitOfWork.CommitAsync();
+                await _promotionService.Delete(id);
+                return Ok();
             }
             catch (Exception ex)
             {
-                error = ex.Message;
-                await _unitOfWork.RollbackAsync();
+                return BadRequest(new ProblemDetails { Title = ex.Message });
             }
-            if (error != "") return BadRequest(new ProblemDetails { Title = error });
-            return Ok();
         }
     }
 }

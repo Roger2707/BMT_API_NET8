@@ -17,7 +17,7 @@ namespace Store_API.Repositories
                                 FROM Ratings 
                                 WHERE ProductId = @ProductId ";
             var p = new { ProductId = productId };
-            var rating = await _dapperService.QueryFirstOrDefaultAsync(query, p);
+            var rating = await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, p);
             return rating.Rating;
         }
 

@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Store_API.Data;
-using Store_API.DTOs;
-using Store_API.Models;
-using Store_API.Repositories;
-using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using Store_API.DTOs.Brands;
+using Store_API.IService;
 
 namespace Store_API.Controllers
 {
@@ -12,65 +8,67 @@ namespace Store_API.Controllers
     [ApiController]
     public class BrandsController : ControllerBase
     {
-        private readonly StoreContext _db;
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IBrandService _brandService;
 
-        public BrandsController(StoreContext db, IUnitOfWork unitOfWork)
+        public BrandsController(IBrandService brandService)
         {
-            _db = db;
-            _unitOfWork = unitOfWork;
+            _brandService = brandService;
         }
 
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
-        { 
-            List<Brand> brands = await _unitOfWork.Brand.GetAllBrands();
-            if(brands == null || brands.Count == 0) return NotFound();
+        {
+            var brands = await _brandService.GetAll();
             return Ok(brands);
         }
 
         [HttpGet("get-brand-detail")]
-        public async Task<IActionResult> GetById([FromQuery] int id)
-        { 
-            var brand = await _unitOfWork.Brand.GetBrandById(id);
-            if(brand == null) return NotFound();
+        public async Task<IActionResult> GetById([FromQuery] Guid id)
+        {
+            var brand = await _brandService.GetById(id);
             return Ok(brand);
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromForm] BrandDTO brandDTO)
+        public async Task<IActionResult> Create([FromBody] BrandDTO model)
         {
-            if (await _unitOfWork.Brand.CheckExisted(brandDTO.Name)) 
-                return BadRequest(new ProblemDetails { Title = $"Brand with name {brandDTO.Name} is exited !" });
-            var brand = new Brand() { Name = brandDTO.Name, Country = brandDTO.Country };
-
-            await _unitOfWork.Brand.Create(brand);
-            await _unitOfWork.SaveChangesAsync();
-
-            return CreatedAtRoute("GetBrandById", new { id = brand.Id }, brand);
+            try
+            {
+                await _brandService.Create(model);
+                return CreatedAtRoute("GetById", new { id = model.Id }, model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update([Required] int id, [FromForm] BrandDTO brandDTO)
+        public async Task<IActionResult> Update([FromBody] BrandDTO model)
         {
-            if (!await _unitOfWork.Brand.CheckExisted(id))
-                return NotFound();
-
-            Brand updatedBrand = await _unitOfWork.Brand.Update(id, brandDTO);
-            await _unitOfWork.SaveChangesAsync();
-            return Ok(updatedBrand);
+            try
+            {
+                await _brandService.Update(model);
+                return CreatedAtRoute("GetById", new { id = model.Id }, model);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(Guid id)
         {
-            Brand brand = await _unitOfWork.Brand.GetBrandById(id);
-            if (brand == null) return NotFound();
-
-            await _unitOfWork.Brand.Delete(id);
-            await _unitOfWork.SaveChangesAsync();
-
-            return Ok();
+            try
+            {
+                await _brandService.Delete(id);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }

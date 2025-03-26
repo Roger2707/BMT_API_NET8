@@ -50,7 +50,7 @@ namespace Store_API.Repositories
 
             var p = new { ProductId = productId };
 
-            var result = await _dapperService.QueryAsync(query, p);
+            var result = await _dapperService.QueryAsync<dynamic>(query, p);
             if (result == null || result.Count < 0) return null;
 
             var comments = new List<CommentDTO>();
@@ -95,7 +95,7 @@ namespace Store_API.Repositories
 
                             ";
             var p = new { Id = commentId };
-            var result = await _dapperService.QueryFirstOrDefaultAsync(query, p);
+            var result = await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, p);
             if (result == null) return null;
 
             var comment = new CommentDTO

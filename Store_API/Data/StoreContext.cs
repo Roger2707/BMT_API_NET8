@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
-using System.Reflection.Emit;
 
 namespace Store_API.Data
 {
@@ -16,7 +15,6 @@ namespace Store_API.Data
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
-        public DbSet<Althete> Althetes { get; set; }
         public DbSet<Brand> Brands { get; set; }
         public DbSet<Basket> Baskets { get; set; }
         public DbSet<BasketItem> BasketItems { get; set; }
@@ -31,6 +29,7 @@ namespace Store_API.Data
         public DbSet<Rating> Ratings { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<Technology> Technologies { get; set; }
+        public DbSet<ProductTechnology> ProductTechnologies { get; set; }
         public DbSet<ProductDetail> ProductDetails { get; set; }
 
 
@@ -104,6 +103,20 @@ namespace Store_API.Data
                 .WithOne(d => d.Product)
                 .HasForeignKey(d => d.ProductId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Config Relation Product (n -> n) Technology
+            builder.Entity<ProductTechnology>()
+                .HasKey(pt => new { pt.ProductId, pt.TechnologyId }); // Thiết lập composite key
+
+            builder.Entity<ProductTechnology>()
+                .HasOne(pt => pt.Product)
+                .WithMany(p => p.Technologies)
+                .HasForeignKey(pt => pt.ProductId);
+
+            builder.Entity<ProductTechnology>()
+                .HasOne(pt => pt.Technology)
+                .WithMany(t => t.Products)
+                .HasForeignKey(pt => pt.TechnologyId);
         }
     }
 }

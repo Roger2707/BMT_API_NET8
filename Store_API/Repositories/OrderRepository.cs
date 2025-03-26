@@ -64,7 +64,7 @@ namespace Store_API.Repositories
                            "
             ;
 
-            List<dynamic> result = await _dapperService.QueryAsync(query, new { Id = orderId });
+            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, new { Id = orderId });
             if (result.Count == 0) return null;
 
             var orderGroup = 
@@ -148,7 +148,7 @@ namespace Store_API.Repositories
                            "
             ;
 
-            IEnumerable<dynamic> result = await _dapperService.QueryAsync(query, new { Id = userId });
+            IEnumerable<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, new { Id = userId });
             if (result.Count() == 0) return null;
 
             var orderGroup =

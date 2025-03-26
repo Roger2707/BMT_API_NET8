@@ -1,5 +1,6 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs;
+using Store_API.DTOs.Paginations;
 using Store_API.DTOs.Products;
 using Store_API.Helpers;
 using Store_API.IService;
@@ -48,7 +49,7 @@ namespace Store_API.Services
 
             string where = GetConditionString(productParams);
             query = query.Replace("--where", where);
-            dynamic result = await _dapperService.QueryFirstOrDefaultAsync(query, null);
+            dynamic result = await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, null);
             return CF.GetInt(result?.TotalRow);
         }
 
@@ -110,7 +111,7 @@ namespace Store_API.Services
             int skip = productParams.CurrentPage == 1 ? 0 : count_in_page * (productParams.CurrentPage - 1);
             int take = count_in_page;
 
-            List<dynamic> result = await _dapperService.QueryAsync(query, new { Skip = skip, Take = take });
+            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, new { Skip = skip, Take = take });
 
             if (result.Count == 0) return null;
 
@@ -162,7 +163,7 @@ namespace Store_API.Services
                                 WHERE pt.ProductsId = @ProductId
                                 ";
 
-            List<dynamic> result = await _dapperService.QueryAsync(query, new { ProductId = productId });
+            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, new { ProductId = productId });
             var teches = new List<dynamic>();
 
             if (result.Count > 0)
