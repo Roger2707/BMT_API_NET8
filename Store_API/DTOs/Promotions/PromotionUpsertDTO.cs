@@ -1,6 +1,4 @@
-﻿using Store_API.Models;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Store_API.DTOs.Promotions
 {
@@ -12,8 +10,10 @@ namespace Store_API.DTOs.Promotions
         public Guid CategoryId { get; set; }
         [Required]
         public Guid BrandId { get; set; }
-        public string Start { get; set; }
-        public string End { get; set; }
+        [Required]
+        public DateTime StartDate { get; set; }
+        [Required]
+        public DateTime EndDate { get; set; }
         [Required]
         public double PercentageDiscount { get; set; }
     }

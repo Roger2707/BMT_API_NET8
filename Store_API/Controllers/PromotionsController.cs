@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Promotions;
 using Store_API.IService;
+using Store_API.Models;
 
 namespace Store_API.Controllers
 {
@@ -36,7 +37,8 @@ namespace Store_API.Controllers
             try
             {
                 await _promotionService.Create(promotion);
-                return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, promotion);
+                var newPromotion = await _promotionService.GetPromotion(promotion.Id);
+                return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, newPromotion);
             }
             catch (Exception ex)
             {
@@ -47,10 +49,14 @@ namespace Store_API.Controllers
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromForm] PromotionUpsertDTO promotion)
         {
+            if(promotion.Id == Guid.Empty) 
+                return BadRequest(new ProblemDetails { Title = "Id can not be empty !" });
+
             try
             {
                 await _promotionService.Update(promotion);
-                return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, promotion);
+                var promotionUpdated = await _promotionService.GetPromotion(promotion.Id);
+                return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, promotionUpdated);
             }
             catch (Exception ex)
             {
@@ -61,10 +67,12 @@ namespace Store_API.Controllers
         [HttpDelete("delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            if (id == Guid.Empty)
+                return BadRequest(new ProblemDetails { Title = "Id can not be empty !" });
             try
             {
                 await _promotionService.Delete(id);
-                return Ok();
+                return Ok(1);
             }
             catch (Exception ex)
             {

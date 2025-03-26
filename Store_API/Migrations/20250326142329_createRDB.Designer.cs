@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Store_API.Data;
 
@@ -11,9 +12,11 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    partial class StoreContextModelSnapshot : ModelSnapshot
+    [Migration("20250326142329_createRDB")]
+    partial class createRDB
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -470,13 +473,13 @@ namespace Store_API.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime>("End")
                         .HasColumnType("datetime2");
 
                     b.Property<double>("PercentageDiscount")
                         .HasColumnType("float");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime>("Start")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -701,16 +704,16 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d9285409-6bda-454d-acfd-4e1407cd6e9c",
+                            ConcurrencyStamp = "ff141ff4-d112-4996-a899-426e1b9375f4",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEK+GahMv1y7O58nyL7Cg3bqMmOH1ejsAMFEFQevmxEdQV57kddg1x1J3zejtOp0vmA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDbfMi8AnrILiP7A6xEX8B6k+/ZGQcMi4XB+TRUOwKYYWuB/HkGw7he+//up+rwTug==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c3f91281-b9d4-4fce-a2bd-2e61575c4e7d",
+                            SecurityStamp = "5ca4edd7-47a6-44a3-a04e-ae17dba020b7",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

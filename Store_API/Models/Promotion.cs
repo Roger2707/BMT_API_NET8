@@ -12,8 +12,8 @@ namespace Store_API.Models
         [ForeignKey("BrandId")]
         public Brand Brand { get; set; }
 
-        public DateTime Start { get; set; }
-        public DateTime End { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public double PercentageDiscount { get; set; }
     }
 }

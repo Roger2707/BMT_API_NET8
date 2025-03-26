@@ -40,7 +40,7 @@ namespace Store_API.Services
 
                                 ON product.CategoryId = promotion.CategoryId 
                                     AND product.BrandId = promotion.BrandId 
-                                    AND promotion.[End] <= GETDATE()
+                                    AND promotion.EndDate <= GETDATE()
 
                                 WHERE product.ProductStatus = 1 
 
@@ -98,7 +98,7 @@ namespace Store_API.Services
                             LEFT JOIN Promotions as promotion 
 	                            ON page.CategoryId = promotion.CategoryId 
 		                            AND page.BrandId = promotion.BrandId 
-		                            AND promotion.[End] >= GETDATE()
+		                            AND promotion.EndDate >= GETDATE()
 
 ";
 

@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250326071827_createDB")]
-    partial class createDB
+    [Migration("20250326154329_updateColumnsPromotion")]
+    partial class updateColumnsPromotion
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -473,13 +473,13 @@ namespace Store_API.Migrations
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("End")
+                    b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
                     b.Property<double>("PercentageDiscount")
                         .HasColumnType("float");
 
-                    b.Property<DateTime>("Start")
+                    b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
                     b.HasKey("Id");
@@ -704,16 +704,16 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "87163862-27b3-47e7-92ae-4f60917327f3",
+                            ConcurrencyStamp = "d9285409-6bda-454d-acfd-4e1407cd6e9c",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKAkUwOy0QTmC5vkELwHZvhMhHs03Y8ZgWFk2ljBVtgtVEu1sKTCVFl3lza9pQzDgw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEK+GahMv1y7O58nyL7Cg3bqMmOH1ejsAMFEFQevmxEdQV57kddg1x1J3zejtOp0vmA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "3cd53928-d343-40f8-bf75-26a01ea0a068",
+                            SecurityStamp = "c3f91281-b9d4-4fce-a2bd-2e61575c4e7d",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

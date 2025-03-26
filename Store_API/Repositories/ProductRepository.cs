@@ -214,7 +214,7 @@ namespace Store_API.Repositories
                             LEFT JOIN Promotions as promotion 
                             ON product.CategoryId = promotion.CategoryId 
                                 AND product.BrandId = promotion.BrandId 
-                                AND promotion.[End] >= GETDATE()
+                                AND promotion.EndDate >= GETDATE()
 
                             WHERE product.Id = @Id AND product.ProductStatus = 1 ";
 

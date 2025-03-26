@@ -335,8 +335,8 @@ namespace Store_API.Data
                     new Promotion 
                     {   CategoryId = Guid.Parse("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), 
                         BrandId = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
-                        Start = DateTime.Now, 
-                        End = DateTime.MaxValue, 
+                        StartDate = DateTime.Now, 
+                        EndDate = DateTime.MaxValue, 
                         PercentageDiscount = 15 
                     }
                 );

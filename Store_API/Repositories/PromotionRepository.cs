@@ -16,8 +16,8 @@ namespace Store_API.Repositories
             string query = @"
                             SELECT
 	                            promotion.Id
-	                            , promotion.Start as StartDate
-	                            , promotion.[End] as EndDate
+	                            , promotion.StartDate
+	                            , promotion.EndDate
 	                            , promotion.BrandId
 	                            , brand.Name as BrandName
 	                            , promotion.CategoryId 
@@ -28,6 +28,8 @@ namespace Store_API.Repositories
 
                             INNER JOIN Brands brand ON promotion.BrandId = brand.Id
                             INNER JOIN Categories category ON promotion.CategoryId = category.Id
+
+                            ORDER BY promotion.StartDate ASC
                             ";
             var promotions = await QueryAsync<PromotionDTO>(query);
             return promotions;
@@ -38,8 +40,8 @@ namespace Store_API.Repositories
             string query = @"
                             SELECT
 	                            promotion.Id
-	                            , promotion.Start as StartDate
-	                            , promotion.[End] as EndDate
+	                            , promotion.StartDate
+	                            , promotion.EndDate
 	                            , promotion.BrandId
 	                            , brand.Name as BrandName
 	                            , promotion.CategoryId 
@@ -59,7 +61,7 @@ namespace Store_API.Repositories
 
         public async Task<DateTime?> GetMaxEndDateOfOnePromotionAsync(Guid categoryId, Guid brandId)
         {
-            string query = @" SELECT MAX([End]) as MaxEndDate from Promotions WHERE CategoryId = @CategoryId and BrandId = @BrandId ";
+            string query = @" SELECT MAX(EndDate) as MaxEndDate from Promotions WHERE CategoryId = @CategoryId and BrandId = @BrandId ";
             var p = new { CategoryId = categoryId, BrandId = brandId };
             var maxEndDate = await _dapperService.QueryFirstOrDefaultAsync<DateTime?>(query, p);
             return maxEndDate;
