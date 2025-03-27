@@ -19,8 +19,9 @@ namespace Store_API.Extensions
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IBrandService, BrandService>();
             services.AddScoped<IPromotionService, PromotionService>();
-
             services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<ITechnologyService, TechnologyService>();
+
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPaymentService, PaymentService>();
@@ -28,8 +29,8 @@ namespace Store_API.Extensions
             // Others
             services.AddHttpClient();
             services.AddScoped<EmailSenderService>();
-            services.AddTransient<IImageService, ImageService>();
-            services.AddTransient<ICSVService, CSVService>();
+            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<ICSVService, CSVService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<IRabbitMQService, RabbitMQService>();
         }

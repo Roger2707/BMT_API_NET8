@@ -19,8 +19,8 @@ namespace Store_API.Repositories
 	                                , t.Description
 	                                , t.ImageUrl
                                 FROM Technologies t
-                                INNER JOIN ProductTechnology pt ON t.Id = pt.TechnologiesId
-                                WHERE pt.ProductsId = @ProductId
+                                INNER JOIN ProductTechnologies pt ON t.Id = pt.TechnologyId
+                                WHERE pt.ProductId = @ProductId
                                 ";
 
             var result = await _dapperService.QueryAsync<TechnologyDTO>(query, new { ProductId = productId });
