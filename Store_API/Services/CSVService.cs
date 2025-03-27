@@ -1,13 +1,13 @@
 ﻿using CsvHelper;
 using Dapper;
 using Microsoft.Data.SqlClient;
-using Store_API.Repositories;
+using Store_API.IService;
 using System.Formats.Asn1;
 using System.Globalization;
 
 namespace Store_API.Services
 {
-    public class CSVService : ICSVRepository
+    public class CSVService : ICSVService
     {
         public async Task<List<T>> ReadCSV<T>(IFormFile file)
         {

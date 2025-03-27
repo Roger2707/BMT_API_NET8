@@ -1,14 +1,14 @@
 ﻿using Store_API.DTOs.Products;
-using Store_API.DTOs;
 using Store_API.DTOs.Paginations;
 
 namespace Store_API.IService
 {
     public interface IProductService
     {
-        public Task<int> GetTotalRecord(ProductParams productParams);
-        public Task<List<ProductDTO>> GetSourceProducts(ProductParams productParams);
-        public Task<Result<Pagination<ProductDTO>>> GetPagination(List<ProductDTO> products, ProductParams productParams);
-        public Task<dynamic> GetTechnologies(int productId);
+        Task<Pagination<ProductDTO>> GetPageProductDTOs(ProductParams productParams);
+        Task<ProductDTO> GetProductDetail(Guid productId);
+        Task<Guid> CreateProduct(ProductUpsertDTO model);
+        Task<Guid> UpdateProduct(ProductUpsertDTO model);
+        Task<int> UpdateProductStatus(Guid productId);
     }
 }

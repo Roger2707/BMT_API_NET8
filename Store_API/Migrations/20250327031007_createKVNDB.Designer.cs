@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250326154329_updateColumnsPromotion")]
-    partial class updateColumnsPromotion
+    [Migration("20250327031007_createKVNDB")]
+    partial class createKVNDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -704,16 +704,16 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "d9285409-6bda-454d-acfd-4e1407cd6e9c",
+                            ConcurrencyStamp = "7974c3bb-71fb-456a-8b6f-3fb2cd926d0b",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEK+GahMv1y7O58nyL7Cg3bqMmOH1ejsAMFEFQevmxEdQV57kddg1x1J3zejtOp0vmA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJJwI3x6yJikfXkgQ7kz4hwKkpgX2vEL6DCMKwCOzfhlJpne79i7gQEnvR+CoLI6qQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c3f91281-b9d4-4fce-a2bd-2e61575c4e7d",
+                            SecurityStamp = "02df7b0f-2836-480a-9e76-0b282f4f6572",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

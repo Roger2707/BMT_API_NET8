@@ -1,186 +1,116 @@
-﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using Store_API.Data;
-using Store_API.DTOs;
+﻿using Store_API.Data;
 using Store_API.DTOs.Products;
 using Store_API.Helpers;
-using Store_API.IService;
 using Store_API.Models;
 
 namespace Store_API.Repositories
 {
-    public class ProductRepository : IProductRepository
+    public class ProductRepository : Repository<Product>, IProductRepository
     {
-        private readonly IDapperService _dapperService;
-        private readonly StoreContext _db;
-        private readonly IImageService _imageService;
-        private readonly ICSVRepository _csvService;
-        public ProductRepository(IDapperService dapperService, StoreContext db, IImageService imageService, ICSVRepository csvService)
+        protected readonly int count_in_page = 10;
+        public ProductRepository(StoreContext db, IDapperService dapperService) : base(db, dapperService)
         {
-            _dapperService = dapperService;
-            _db = db;
-            _imageService = imageService;
-            _csvService = csvService;
+
         }
 
-        #region CRUD
-        public async Task<Result<Guid>> Create(ProductUpsertDTO productCreateDTO)
+        #region Retrieve Data
+        public async Task<List<ProductDTO>> GetProducts(ProductParams productParams)
         {
-            var product = new Product()
-            {
-                Id = productCreateDTO.Id,
-                Name = productCreateDTO.Name,
-                Description = productCreateDTO.Description,
-                Created = productCreateDTO.Created,
-                ProductStatus = productCreateDTO.ProductStatus,
-                CategoryId = productCreateDTO.CategoryId,
-                BrandId = productCreateDTO.BrandId,
-                Details = productCreateDTO.ProductDetails.Select(d => new ProductDetail()
+            string query = @" 
+                            WITH ProductPagination AS 
+                            (
+	                            SELECT 
+		                            product.Id
+		                            , product.Name
+		                            , Description
+		                            , ImageUrl
+                                    , PublicId
+		                            , Created
+		                            , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus
+		                            , product.CategoryId
+		                            , category.Name as CategoryName
+		                            , product.BrandId
+		                            , brand.Name as BrandName
+		                            , brand.Country as BrandCountry
+
+	                            FROM Products as product
+
+	                            INNER JOIN Categories as category ON product.CategoryId = category.Id
+	                            INNER JOIN Brands as brand ON product.BrandId = brand.Id 
+
+	                            WHERE product.ProductStatus = 1 
+	                            -- where                         
+                                -- orderBy
+	                            OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
+                            )
+                            SELECT
+	                            page.*
+	                            , detail.Id as DetailId
+	                            , detail.Price
+	                            , detail.Color
+	                            , detail.ExtraName
+	                            , IIF(promotion.PercentageDiscount is NULL
+		                            , detail.Price
+		                            , detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) 
+	                            as DiscountPrice
+	                            , detail.QuantityInStock
+                            FROM ProductPagination as page
+                            INNER JOIN ProductDetails detail ON detail.ProductId = page.Id
+                            LEFT JOIN Promotions as promotion 
+	                            ON page.CategoryId = promotion.CategoryId 
+		                            AND page.BrandId = promotion.BrandId 
+		                            AND promotion.EndDate >= GETDATE()
+
+                            -- orderByDetailPrice
+";
+
+            string where = GetConditionString(productParams);
+            string orderBy = GetOrderByString(productParams.OrderBy);
+
+            if(productParams.OrderBy.Contains("price")) query = query.Replace("-- orderByDetailPrice", orderBy);
+            else query = query.Replace("-- orderBy", orderBy);
+
+            query = query.Replace("-- where", where);
+
+            int skip = productParams.CurrentPage == 1 ? 0 : count_in_page * (productParams.CurrentPage - 1);
+            int take = count_in_page;
+
+            var result = await _dapperService.QueryAsync<ProductDapperRow>(query, new { Skip = skip, Take = take });
+
+            if (result.Count == 0) return null;
+
+            var products = result
+                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.ProductStatus, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry })
+                .Select(s => new ProductDTO
                 {
-                    Price = d.Price,
-                    Color = d.Color,
-                    ExtraName = d.ExtraName,
-                    QuantityInStock = d.QuantityInStock
-                }).ToList()
-            };
-
-            if (!string.IsNullOrEmpty(productCreateDTO.ImageUrl) && !string.IsNullOrEmpty(productCreateDTO.PublicId))
-            {
-                product.ImageUrl = productCreateDTO.ImageUrl;
-                product.PublicId = productCreateDTO.PublicId;
-            }
-
-            await _db.Products.AddAsync(product);
-            int result = await _db.SaveChangesAsync();
-
-            if (result > 0) return Result<Guid>.Success(product.Id);
-            else return Result<Guid>.Failure("Upsert Fail !");
-        }
-
-        public async Task<Result<Guid>> Update(ProductUpsertDTO productUpdateDTO)
-        {
-            Product existedProduct = await _db.Products.Include(p => p.Details).FirstOrDefaultAsync(p => p.Id == productUpdateDTO.Id);
-
-            // Update Different Fields / != NULL
-            if (!string.IsNullOrWhiteSpace(productUpdateDTO.Name) && productUpdateDTO.Name != existedProduct.Name)
-                existedProduct.Name = productUpdateDTO.Name;
-            if (!string.IsNullOrWhiteSpace(productUpdateDTO.Description) && productUpdateDTO.Description != existedProduct.Description)
-                existedProduct.Description = productUpdateDTO.Description;
-
-            if (productUpdateDTO.ProductStatus != existedProduct.ProductStatus)
-                existedProduct.ProductStatus = productUpdateDTO.ProductStatus;
-            if (productUpdateDTO.CategoryId != existedProduct.CategoryId)
-                existedProduct.CategoryId = productUpdateDTO.CategoryId;
-            if (productUpdateDTO.BrandId != existedProduct.BrandId)
-                existedProduct.BrandId = productUpdateDTO.BrandId;
-
-            // Handle Images List
-            if (!string.IsNullOrEmpty(productUpdateDTO.ImageUrl) && !string.IsNullOrEmpty(productUpdateDTO.PublicId))
-            {
-                existedProduct.ImageUrl = productUpdateDTO.ImageUrl;
-                existedProduct.PublicId = productUpdateDTO.PublicId;
-            }
-
-            // Handle Product Details
-            _db.ProductDetails.RemoveRange(existedProduct.Details);
-            await _db.AddRangeAsync(productUpdateDTO.ProductDetails.Select(d => new ProductDetail()
-            {
-                Id = d.Id,
-                ProductId = d.ProductId,
-                Price = d.Price,
-                Color = d.Color,
-                ExtraName = d.ExtraName,
-                QuantityInStock = d.QuantityInStock
-            }));
-
-            int result = await _db.SaveChangesAsync();
-            return result >= 0 ? Result<Guid>.Success(existedProduct.Id) : Result<Guid>.Failure("Update Fail !");
-        }
-
-        public async Task<Result<int>> ChangeStatus(int id)
-        {
-            string query = @"
-                            DECLARE @IsExsted INT
-                            DECLARE @ProductStatus INT
-
-                            SELECT @IsExsted = COUNT(*) FROM Products WHERE Id = @ProductId
-                            IF(@IsExsted = 0 OR @IsExsted is NULL)
-	                            THROW 99000, 'Product is not existed !', 1;
-                            ELSE
-	                            BEGIN
-		                            SELECT @ProductStatus = ProductStatus FROM Products WHERE Id = @ProductId
-		                            IF(@ProductStatus = 1)
-			                            UPDATE Products SET ProductStatus = 2 WHERE Id = @ProductId
-		                            ELSE IF(@ProductStatus = 2)
-			                            UPDATE Products SET ProductStatus = 1 WHERE Id = @ProductId
-		                            ELSE 
-			                            THROW 99001, 'ProductStatus is not right !', 1;
-	                            END";
-            var p = new { ProductId = id };
-
-            int result = await _dapperService.Execute(query, p);
-            return result > 0 ? Result<int>.Success(1) : Result<int>.Failure("Can not change status !");
-        }
-
-        public async Task<Result<int>> InsertCSV(IFormFile csvFile)
-        {
-            if (csvFile == null || csvFile.Length == 0)
-                return Result<int>.Failure("File is empty !");
-
-            var products = await _csvService.ReadCSV<ProductCSV>(csvFile);
-            string query =
-                @"
-                    DECLARE @IsExsted INT
-                    DECLARE @Error VARCHAR(1000)
-
-                    SELECT @IsExsted = COUNT(*) FROM Products WHERE Name = @Name
-                    IF(@IsExsted > 0)
-	                    BEGIN
-		                    SET @Error = 'Product Name ' + CAST(@Name AS VARCHAR) + ' is existed - Import fail !!!';
-		                    THROW 99000, @Error, 1;
-	                    END
-                    ELSE
-	                    BEGIN
-		                    INSERT INTO Products(Name, Price, Description, Created, QuantityInStock, ProductStatus, CategoryId, BrandId)
-		                    VALUES(@Name, @Price, @Description, GETDATE(), @QuantityInStock, @ProductStatus, @CategoryId, @BrandId)
-	                    END
-                ";
-
-            if (products != null && products.Count > 0)
-            {
-                try
-                {
-                    await _dapperService.BeginTransactionAsync();
-                    for (int i = 0; i < products.Count; i++)
+                    Id = s.Key.Id,
+                    Name = s.Key.Name,
+                    Description = s.Key.Description,
+                    ImageUrl = s.Key.ImageUrl,
+                    Created = s.Key.Created,
+                    ProductStatus = s.Key.ProductStatus,
+                    CategoryId = s.Key.CategoryId,
+                    CategoryName = s.Key.CategoryName,
+                    BrandId = s.Key.BrandId,
+                    BrandName = s.Key.BrandName,
+                    BrandCountry = s.Key.BrandCountry,
+                    Details = s.Select(d => new ProductDetailDTO
                     {
-                        var p = new
-                        {
-                            Name = products[i].Name,
-                            Price = products[i].Price,
-                            Description = products[i].Description,
-                            QuantityInStock = products[i].QuantityInStock,
-                            ProductStatus = products[i].ProductStatus,
-                            CategoryId = products[i].CategoryId,
-                            BrandId = products[i].BrandId,
-                        };
-                        await _dapperService.Execute(query, p);
-                    }
-                    await _dapperService.CommitAsync();
-                }
-                catch (SqlException ex)
-                {
-                    await _dapperService.RollbackAsync();
-                    return Result<int>.Failure(ex.Message);
-                }
-            }
-            return Result<int>.Success(1);
+                        Id = d.DetailId,
+                        ProductId = s.Key.Id,
+                        Color = d.Color,
+                        Price = CF.GetDouble(d.Price),
+                        DiscountPrice = CF.GetDouble(d.DiscountPrice),
+                        QuantityInStock = CF.GetInt(d.QuantityInStock),
+                        ExtraName = d.ExtraName
+                    }).ToList()
+                })
+                .ToList();
+
+            return products;
         }
 
-        #endregion
-
-        #region Get Data
-
-        public async Task<Result<ProductDTO>> GetById(Guid? id)
+        public async Task<ProductDTO> GetProductDTODetail(Guid id)
         {
             string query = @" 
                              SELECT 
@@ -219,11 +149,11 @@ namespace Store_API.Repositories
                             WHERE product.Id = @Id AND product.ProductStatus = 1 ";
 
             var p = new { id = id };
-            var result = await _dapperService.QueryAsync<dynamic>(query, p);
+            var result = await _dapperService.QueryAsync<ProductDapperRow>(query, p);
             if (result == null) return null;
 
             var productDTO = result
-                .GroupBy(g => new {g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.ProductStatus, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry})
+                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.ProductStatus, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry })
                 .Select(g => new ProductDTO()
                 {
                     Id = g.Key.Id,
@@ -247,12 +177,114 @@ namespace Store_API.Repositories
                         DiscountPrice = d.DiscountPrice,
                         ExtraName = d.ExtraName
                     }).ToList()
-                }).FirstOrDefault();
+                })
+                .FirstOrDefault();
 
-            return productDTO != null ? Result<ProductDTO>.Success(productDTO) : Result<ProductDTO>.Failure("Can not find product !");
+            return productDTO;
         }
 
         #endregion
 
+        #region Other Functionalities
+
+        public async Task<int> ChangeProductStatus(Guid productId)
+        {
+            string query = @"
+                            DECLARE @IsExsted INT
+                            DECLARE @ProductStatus VARCHAR(100)
+
+                            SELECT @IsExsted = COUNT(*) FROM Products WHERE Id = @ProductId
+                            IF(@IsExsted = 0 OR @IsExsted is NULL)
+	                            THROW 99000, 'Product is not existed !', 1;
+                            ELSE
+	                            BEGIN
+		                            SELECT @ProductStatus = ProductStatus FROM Products WHERE Id = @ProductId
+		                            IF(@ProductStatus = 1)
+			                            UPDATE Products SET ProductStatus = 2 WHERE Id = @ProductId
+		                            ELSE IF(@ProductStatus = 2)
+			                            UPDATE Products SET ProductStatus = 1 WHERE Id = @ProductId
+		                            ELSE 
+			                            THROW 99001, 'ProductStatus is not right !', 1;
+	                            END";
+            var p = new { ProductId = productId };
+
+            int result = await _dapperService.Execute(query, p);
+            return result;
+        }
+
+        public async Task<int> GetNumbersRecord(ProductParams productParams)
+        {
+            string query = @"   
+                                SELECT COUNT(1) as TotalRow 
+
+                                FROM Products as product
+
+                                INNER JOIN Categories as category ON product.CategoryId = category.Id
+                                INNER JOIN Brands as brand ON product.BrandId = brand.Id 
+                                LEFT JOIN Promotions as promotion 
+
+                                ON product.CategoryId = promotion.CategoryId 
+                                    AND product.BrandId = promotion.BrandId 
+                                    AND promotion.EndDate <= GETDATE()
+
+                                WHERE product.ProductStatus = 1 
+
+                                --where
+                            ";
+
+            string where = GetConditionString(productParams);
+            query = query.Replace("--where", where);
+
+            int result = await _dapperService.QueryFirstOrDefaultAsync<int>(query, null);
+            return result;
+        }
+
+        private static string GetConditionString(ProductParams productParams)
+        {
+            string where = "";
+
+            if (!string.IsNullOrEmpty(productParams.SearchBy))
+            {
+                where += " AND product.Name LIKE '%" + productParams.SearchBy + "%' ";
+            }
+
+            if (!string.IsNullOrEmpty(productParams.FilterByCategory))
+            {
+                where += " AND product.CategoryId IN(" + productParams.FilterByCategory + ") ";
+            }
+
+            if (!string.IsNullOrEmpty(productParams.FilterByBrand))
+            {
+                where += " AND product.BrandId IN(" + productParams.FilterByBrand + ") ";
+            }
+
+            return where;
+        }
+
+        private static string GetOrderByString(string paramsOrderBy)
+        {
+            string orderBy = "";
+
+            switch (paramsOrderBy)
+            {
+                case "":
+                case null:
+                    orderBy = " ORDER BY product.Name ";
+                    break;
+                case "NameDesc":
+                    orderBy = " ORDER BY product.Name DESC ";
+                    break;
+                case "priceASC":
+                    orderBy = " ORDER BY detail.Price ASC ";
+                    break;
+                case "priceDESC":
+                    orderBy = " ORDER BY detail.Price DESC ";
+                    break;
+            }
+
+            return orderBy;
+        }
+
+        #endregion
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace Store_API.Repositories
+﻿namespace Store_API.IService
 {
-    public interface ICSVRepository
+    public interface ICSVService
     {
         public Task<List<T>> ReadCSV<T>(IFormFile file);
     }

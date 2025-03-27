@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Store_API.Migrations
 {
     /// <inheritdoc />
-    public partial class createRDB : Migration
+    public partial class createKVNDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -286,8 +286,8 @@ namespace Store_API.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BrandId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Start = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    End = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     PercentageDiscount = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
@@ -555,7 +555,7 @@ namespace Store_API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 1, 0, "ff141ff4-d112-4996-a899-426e1b9375f4", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@example.com", true, null, null, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAIAAYagAAAAEDbfMi8AnrILiP7A6xEX8B6k+/ZGQcMi4XB+TRUOwKYYWuB/HkGw7he+//up+rwTug==", null, false, null, "5ca4edd7-47a6-44a3-a04e-ae17dba020b7", false, "admin" });
+                values: new object[] { 1, 0, "7974c3bb-71fb-456a-8b6f-3fb2cd926d0b", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@example.com", true, null, null, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAIAAYagAAAAEJJwI3x6yJikfXkgQ7kz4hwKkpgX2vEL6DCMKwCOzfhlJpne79i7gQEnvR+CoLI6qQ==", null, false, null, "02df7b0f-2836-480a-9e76-0b282f4f6572", false, "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",

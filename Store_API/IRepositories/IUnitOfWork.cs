@@ -6,6 +6,7 @@ namespace Store_API.Repositories
     public interface IUnitOfWork
     {
         public IProductRepository Product { get; }
+        public IProductDetailRepository ProductDetail { get; }
         public ICategoryRepository Category { get; }
         public IBrandRepository Brand { get; }
         public IBasketRepository Basket { get; }
@@ -15,6 +16,7 @@ namespace Store_API.Repositories
         public IPromotionRepository Promotion { get; }
         public IUserAddressRepository UserAddress { get; }
         public IPaymentRepository Payment { get; }
+        public ITechnologyRepository Technology { get; }
 
 
         #region EF Core Methods

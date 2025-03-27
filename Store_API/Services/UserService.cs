@@ -23,11 +23,11 @@ namespace Store_API.Services
 
         private readonly IImageService _imageService;
         private readonly EmailSenderService _emailSenderService;
-        private readonly ITokenRepository _tokenService;
+        private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
 
         public UserService(UserManager<User> userManager, SignInManager<User> signInManager, EmailSenderService emailSenderService
-            , IUnitOfWork unitOfWork, ITokenRepository tokenService, IImageService imageService, IDapperService dapperService, IConfiguration configuration) 
+            , IUnitOfWork unitOfWork, ITokenService tokenService, IImageService imageService, IDapperService dapperService, IConfiguration configuration) 
         {
             _userManager = userManager;
             _signInManager = signInManager;

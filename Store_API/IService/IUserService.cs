@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Store_API.DTOs;
+﻿using Store_API.DTOs;
 using Store_API.DTOs.Accounts;
-using Store_API.DTOs.Orders;
 using Store_API.DTOs.User;
 using Store_API.Models;
 

@@ -33,7 +33,7 @@ namespace Store_API.Controllers
         [HttpPost("upsert-basket")]
         public async Task<IActionResult> UpsertBasket(Guid productId, int mode)
         {
-            var product = await _unitOfWork.Product.GetById(productId);
+            var product = await _unitOfWork.Product.GetProductDTODetail(productId);
             if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });
 
             int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;

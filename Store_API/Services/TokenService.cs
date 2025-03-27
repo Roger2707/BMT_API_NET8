@@ -1,20 +1,19 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
+using Store_API.IService;
 using Store_API.Models;
-using Store_API.Repositories;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
 namespace Store_API.Services
 {
-    public class TokenIdentityService : ITokenRepository
+    public class TokenService : ITokenService
     {
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _config;
 
-        public TokenIdentityService(UserManager<User> userManager, IConfiguration config)
+        public TokenService(UserManager<User> userManager, IConfiguration config)
         {
             _config = config;
             _userManager = userManager;
@@ -47,22 +46,6 @@ namespace Store_API.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
-        }
-
-        public async Task<JwtSecurityToken> ValidateToken(string token)
-        {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWTSettings:TokenKey"]));
-            var tokenHandler = new JwtSecurityTokenHandler();
-            tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = key,
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ClockSkew = TimeSpan.Zero
-            }, out SecurityToken validatedToken);
-
-            return (JwtSecurityToken)validatedToken;
         }
     }
 }

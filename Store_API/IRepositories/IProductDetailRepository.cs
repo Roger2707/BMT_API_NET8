@@ -1,0 +1,9 @@
+﻿using Store_API.Models;
+using Store_API.Repositories;
+
+namespace Store_API.IRepositories
+{
+    public interface IProductDetailRepository : IRepository<ProductDetail>
+    {
+    }
+}

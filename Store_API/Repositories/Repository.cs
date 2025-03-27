@@ -1,7 +1,6 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
-using Store_API.DTOs.Promotions;
 using System.Linq.Expressions;
 
 namespace Store_API.Repositories
@@ -36,6 +35,11 @@ namespace Store_API.Repositories
             _dbSet.Remove(entity);
         }
 
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+
         public void RemoveRangeAsync(IEnumerable<T> entities)
         {
             _dbSet.RemoveRange(entities);
@@ -52,11 +56,20 @@ namespace Store_API.Repositories
             return await query.ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(Guid id)
+        public async Task<T?> GetByIdAsync(Guid id, params Expression<Func<T, object>>[]? includes)
         {
-            return await _dbSet.FindAsync(id);
-        }
+            IQueryable<T> query = _dbSet;
 
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
+
+            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
+        }
 
         #endregion
 

@@ -4,11 +4,12 @@ namespace Store_API.Repositories
 {
     public interface IRepository<T> where T : class
     {
-        Task<T> GetByIdAsync(Guid id);
+        Task<T> GetByIdAsync(Guid id, params Expression<Func<T, object>>[]? includes);
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null);
         Task AddAsync(T entity);
         void UpdateAsync(T entity);
         void DeleteAsync(T entity);
+        Task AddRangeAsync(IEnumerable<T> entities);
         void RemoveRangeAsync(IEnumerable<T> entities);
 
         // Dapper Functions

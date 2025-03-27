@@ -1,227 +1,149 @@
-﻿using Store_API.Data;
-using Store_API.DTOs;
-using Store_API.DTOs.Paginations;
+﻿using Store_API.DTOs.Paginations;
 using Store_API.DTOs.Products;
-using Store_API.Helpers;
 using Store_API.IService;
+using Store_API.Models;
+using Store_API.Repositories;
 
 namespace Store_API.Services
 {
     public class ProductService : IProductService
     {
-        private readonly int count_in_page = 10;
+        private readonly IUnitOfWork _unitOfWork;
 
-        private readonly StoreContext _db;
-        private readonly IDapperService _dapperService;
-        private readonly IImageService _imageService;
-        public ProductService(StoreContext db, IDapperService dapperService, IImageService imageService)
+        public ProductService(IUnitOfWork unitOfWork)
         {
-            _db = db;
-            _dapperService = dapperService;
-            _imageService = imageService;
+            _unitOfWork = unitOfWork;
         }
 
-        #region CRUD
+        #region Retrieve Data
+
+        public async Task<Pagination<ProductDTO>> GetPageProductDTOs(ProductParams productParams)
+        {
+            int totalRow = await _unitOfWork.Product.GetNumbersRecord(productParams);
+            var products = await _unitOfWork.Product.GetProducts(productParams);
+            var result = Pagination<ProductDTO>.GetPaginationData(products, totalRow, productParams.CurrentPage, 10);
+            return result;
+        }
+
+        public async Task<ProductDTO> GetProductDetail(Guid productId)
+        {
+            var product = await _unitOfWork.Product.GetProductDTODetail(productId);
+            return product;
+        }
 
         #endregion
 
-        #region Search / Sort / Filter
+        #region CRUD Operations
 
-        public async Task<int> GetTotalRecord(ProductParams productParams)
+        public async Task<Guid> CreateProduct(ProductUpsertDTO model)
         {
-            string query = @"   
-                                SELECT COUNT(1) as TotalRow 
-
-                                FROM Products as product
-
-                                INNER JOIN Categories as category ON product.CategoryId = category.Id
-                                INNER JOIN Brands as brand ON product.BrandId = brand.Id 
-                                LEFT JOIN Promotions as promotion 
-
-                                ON product.CategoryId = promotion.CategoryId 
-                                    AND product.BrandId = promotion.BrandId 
-                                    AND promotion.EndDate <= GETDATE()
-
-                                WHERE product.ProductStatus = 1 
-
-                                --where
-                            ";
-
-            string where = GetConditionString(productParams);
-            query = query.Replace("--where", where);
-            dynamic result = await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, null);
-            return CF.GetInt(result?.TotalRow);
-        }
-
-        public async Task<List<ProductDTO>> GetSourceProducts(ProductParams productParams)
-        {
-            string query = @" 
-                            WITH ProductPagination AS 
-                            (
-	                            SELECT 
-		                            product.Id
-		                            , product.Name
-		                            , Description
-		                            , ImageUrl
-                                    , PublicId
-		                            , Created
-		                            , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus
-		                            , product.CategoryId
-		                            , category.Name as CategoryName
-		                            , product.BrandId
-		                            , brand.Name as BrandName
-		                            , brand.Country as BrandCountry
-
-	                            FROM Products as product
-
-	                            INNER JOIN Categories as category ON product.CategoryId = category.Id
-	                            INNER JOIN Brands as brand ON product.BrandId = brand.Id 
-
-	                            WHERE product.ProductStatus = 1 
-	                            --where                         
-                                --orderBy
-	                            OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
-                            )
-                            SELECT
-	                            page.*
-	                            , detail.Id as DetailId
-	                            , detail.Price
-	                            , detail.Color
-	                            , detail.ExtraName
-	                            , IIF(promotion.PercentageDiscount is NULL
-		                            , detail.Price
-		                            , detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) 
-	                            as DiscountPrice
-	                            , detail.QuantityInStock
-                            FROM ProductPagination as page
-                            INNER JOIN ProductDetails detail ON detail.ProductId = page.Id
-                            LEFT JOIN Promotions as promotion 
-	                            ON page.CategoryId = promotion.CategoryId 
-		                            AND page.BrandId = promotion.BrandId 
-		                            AND promotion.EndDate >= GETDATE()
-
-";
-
-            string where = GetConditionString(productParams);
-            string orderBy = GetOrderByString(productParams.OrderBy);
-
-            query = query.Replace("--orderBy", orderBy);
-            query = query.Replace("--where", where);
-
-            int skip = productParams.CurrentPage == 1 ? 0 : count_in_page * (productParams.CurrentPage - 1);
-            int take = count_in_page;
-
-            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, new { Skip = skip, Take = take });
-
-            if (result.Count == 0) return null;
-
-            var products = result
-                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.ProductStatus, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry })
-                .Select(s => new ProductDTO
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var product = new Product()
                 {
-                    Id = s.Key.Id,
-                    Name = s.Key.Name,
-                    Description = s.Key.Description,
-                    ImageUrl = s.Key.ImageUrl,
-                    Created = s.Key.Created,
-                    ProductStatus = s.Key.ProductStatus,
-                    CategoryId = s.Key.CategoryId,
-                    CategoryName = s.Key.CategoryName,
-                    BrandId = s.Key.BrandId,
-                    BrandName = s.Key.BrandName,
-                    BrandCountry = s.Key.BrandCountry,
-                    Details = s.Select(d => new ProductDetailDTO
+                    Id = model.Id,
+                    Name = model.Name,
+                    Description = model.Description,
+                    Created = model.Created,
+                    ProductStatus = model.ProductStatus,
+                    CategoryId = model.CategoryId,
+                    BrandId = model.BrandId,
+
+                    Details = model.ProductDetails.Select(d => new ProductDetail()
                     {
-                        Id = d.DetailId,
-                        ProductId = s.Key.Id,
+                        Price = d.Price,
                         Color = d.Color,
-                        Price = CF.GetDouble(d.Price),
-                        DiscountPrice = CF.GetDouble(d.DiscountPrice),
-                        QuantityInStock = CF.GetInt(d.QuantityInStock),
-                        ExtraName = d.ExtraName
+                        ExtraName = d.ExtraName,
+                        QuantityInStock = d.QuantityInStock
                     }).ToList()
-                }).ToList();
+                };
 
-            return products;
+                if (!string.IsNullOrEmpty(model.ImageUrl) && !string.IsNullOrEmpty(model.PublicId))
+                {
+                    product.ImageUrl = model.ImageUrl;
+                    product.PublicId = model.PublicId;
+                }
+
+                await _unitOfWork.Product.AddAsync(product);
+                int result = await _unitOfWork.SaveChangesAsync();
+                if(result > 0)
+                {
+                    await transaction.CommitAsync();
+                    return model.Id;
+                }
+            }
+            catch(Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+            return Guid.Empty;
         }
 
-        public async Task<Result<Pagination<ProductDTO>>> GetPagination(List<ProductDTO> products, ProductParams productParams)
+        public async Task<Guid> UpdateProduct(ProductUpsertDTO model)
         {
-            int totalRow = await GetTotalRecord(productParams);
-            var productPagination = Pagination<ProductDTO>.GetPaginationData(products, totalRow, productParams.CurrentPage, count_in_page);
-            return productPagination != null ? Result<Pagination<ProductDTO>>.Success(productPagination) : Result<Pagination<ProductDTO>>.Failure("");
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                Product existedProduct = await _unitOfWork.Product.GetByIdAsync(model.Id, p => p.Details);
+
+                if (existedProduct == null)
+                    return Guid.Empty;
+
+                // Update Different Fields / != NULL
+                if (!string.IsNullOrWhiteSpace(model.Name) && model.Name != existedProduct.Name)
+                    existedProduct.Name = model.Name;
+                if (!string.IsNullOrWhiteSpace(model.Description) && model.Description != existedProduct.Description)
+                    existedProduct.Description = model.Description;
+
+                if (model.ProductStatus != existedProduct.ProductStatus)
+                    existedProduct.ProductStatus = model.ProductStatus;
+                if (model.CategoryId != existedProduct.CategoryId)
+                    existedProduct.CategoryId = model.CategoryId;
+                if (model.BrandId != existedProduct.BrandId)
+                    existedProduct.BrandId = model.BrandId;
+
+                // Handle Images List
+                if (!string.IsNullOrEmpty(model.ImageUrl) && !string.IsNullOrEmpty(model.PublicId))
+                {
+                    existedProduct.ImageUrl = model.ImageUrl;
+                    existedProduct.PublicId = model.PublicId;
+                }
+
+                // Handle Product Details
+                // Remove all -> Add again
+                _unitOfWork.ProductDetail.RemoveRangeAsync(existedProduct.Details);
+                await _unitOfWork.ProductDetail.AddRangeAsync(model.ProductDetails.Select(d => new ProductDetail()
+                {
+                    Id = d.Id,
+                    ProductId = d.ProductId,
+                    Price = d.Price,
+                    Color = d.Color,
+                    ExtraName = d.ExtraName,
+                    QuantityInStock = d.QuantityInStock
+                }));
+
+                int result = await _unitOfWork.SaveChangesAsync();
+                if(result > 0)
+                {
+                    await transaction.CommitAsync();
+                    return model.Id;
+                }
+            }
+            catch(Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+            return Guid.Empty;
         }
 
-        public async Task<dynamic> GetTechnologies(int productId)
+        public async Task<int> UpdateProductStatus(Guid productId)
         {
-            string query = @"SELECT 
-	                                t.Name
-	                                , t.Description
-	                                , t.ImageUrl
-                                FROM Technologies t
-                                INNER JOIN ProductTechnology pt ON t.Id = pt.TechnologiesId
-                                WHERE pt.ProductsId = @ProductId
-                                ";
-
-            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, new { ProductId = productId });
-            var teches = new List<dynamic>();
-
-            if (result.Count > 0)
-            {
-                for (int i = 0; i < result.Count; i++)
-                    teches.Add(new { Name = result[i].Name, Description = result[i].Description, ImageUrl = result[i].ImageUrl });
-            }
-            return teches;
-        }
-
-        #endregion
-
-        #region Helpers
-        
-        private string GetConditionString(ProductParams productParams)
-        {
-            string where = "";
-
-            if (!string.IsNullOrEmpty(productParams.SearchBy))
-            {
-                where += " AND product.Name LIKE '%" + productParams.SearchBy + "%' ";
-            }
-
-            if (!string.IsNullOrEmpty(productParams.FilterByCategory))
-            {
-                where += " AND product.CategoryId IN(" + productParams.FilterByCategory + ") ";
-            }
-
-            if (!string.IsNullOrEmpty(productParams.FilterByBrand))
-            {
-                where += " AND product.BrandId IN(" + productParams.FilterByBrand + ") ";
-            }
-
-            return where;
-        }
-
-        private string GetOrderByString(string paramsOrderBy)
-        {
-            string orderBy = "";
-
-            switch (paramsOrderBy)
-            {
-                case "":
-                case null:
-                    orderBy = " ORDER BY product.Name ";
-                    break;
-                case "NameDesc":
-                    orderBy = " ORDER BY product.Name DESC ";
-                    break;
-                case "priceASC":
-                    orderBy = " ORDER BY product.Price ";
-                    break;
-                case "priceDESC":
-                    orderBy = " ORDER BY product.Price DESC ";
-                    break;
-            }
-
-            return orderBy;
+            int result = await _unitOfWork.Product.ChangeProductStatus(productId);
+            return result;
         }
 
         #endregion

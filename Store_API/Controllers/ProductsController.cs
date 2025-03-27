@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
 using Store_API.DTOs.Products;
 using Store_API.IService;
-using Store_API.Repositories;
 using System.ComponentModel.DataAnnotations;
 
 namespace Store_API.Controllers
@@ -12,49 +10,33 @@ namespace Store_API.Controllers
     public class ProductsController : ControllerBase
     {
         private readonly IProductService _productService;
-        private readonly IUnitOfWork _unitOfWork;
 
-        public ProductsController(IProductService productService, IUnitOfWork unitOfWork)
+        public ProductsController(IProductService productService)
         {
             _productService = productService;
-            _unitOfWork = unitOfWork;
         }
 
         [HttpGet("get-products-page")]
-        public async Task<IActionResult> GetProducts([FromQuery] ProductParams productParams)
+        public async Task<IActionResult> GetProductsInPage([FromQuery] ProductParams productParams)
         {
-            List<ProductDTO> products = await _productService.GetSourceProducts(productParams);
-            if(products == null || products.Count == 0) return NotFound();
-            var result = await _productService.GetPagination(products, productParams);
-
-            if(!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] });
-            return Ok(result.Data);
-        }
-
-        [HttpGet("get-product-detail", Name = "get-product-detail")]
-        public async Task<IActionResult> GetProductDetail([FromQuery] Guid id)
-        {
-            var result = await _unitOfWork.Product.GetById(id);
-
-            if (!result.IsSuccess)
-                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
-
-            return Ok(result.Data);
-        }
-
-        [HttpGet("get-technologies")]
-        public async Task<IActionResult> GetTechnologies(int productId)
-        {
-            if (string.IsNullOrEmpty(productId.ToString())) return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
             try
             {
-                var teches = await _productService.GetTechnologies(productId);
-                return Ok(teches);
+                var result = await _productService.GetPageProductDTOs(productParams);
+                return Ok(result);
             }
             catch (Exception ex)
             {
                 return BadRequest(new ProblemDetails { Title = ex.Message });
             }
+        }
+
+        [HttpGet("get-product-detail", Name = "get-product-detail")]
+        public async Task<IActionResult> GetProductDetail([FromQuery] Guid id)
+        {
+            var result = await _productService.GetProductDetail(id);
+            if (result == null)
+                return BadRequest(new ProblemDetails { Title = "Product not found !" });
+            return Ok(result);
         }
 
         [HttpPost("create")]
@@ -66,53 +48,51 @@ namespace Store_API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _unitOfWork.Product.Create(productDTO);
+            try
+            {
+                var result = await _productService.CreateProduct(productDTO);
 
-            if(!result.IsSuccess)
-                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+                if (result == Guid.Empty)
+                    return BadRequest(new ProblemDetails { Title = "Create Failed !" });
 
-            return CreatedAtRoute("get-product-detail", new { id = result.Data }); // productId
+                return Ok(productDTO.Id);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] ProductUpsertDTO productDTO)
         {
-            if (productDTO.Id == Guid.Empty)
-                return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
+            try
+            {
+                if (productDTO.Id == Guid.Empty)
+                    return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
 
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+                if (!ModelState.IsValid)
+                    return BadRequest(ModelState);
 
-            var result = await _unitOfWork.Product.Update(productDTO);
+                var result = await _productService.UpdateProduct(productDTO);
 
-            if (!result.IsSuccess)
-                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
+                if (result == Guid.Empty)
+                    return BadRequest(new ProblemDetails { Title = "Update Failed !" });
 
-            return Ok();
+                return Ok(productDTO.Id);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
         }
 
         [HttpPost("change-status")]
-        public async Task<IActionResult> ChangeStatusProduct([Required] int id)
+        public async Task<IActionResult> ChangeStatusProduct([Required] Guid id)
         {
-            if (!await _unitOfWork.CheckExisted("Products", id))
-                return NotFound();
-
-            var result = await _unitOfWork.Product.ChangeStatus(id);
-
-            if (!result.IsSuccess)
-                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
-
-            return Ok();
-        }
-
-        [HttpPost("import-csv")]
-        public async Task<IActionResult> ImportCSV(IFormFile csvFile)
-        {
-            var result = await _unitOfWork.Product.InsertCSV(csvFile);
-
-            if (!result.IsSuccess)
-                return BadRequest(new ProblemDetails { Title = result.Errors[0] });
-
+            var result = await _productService.UpdateProductStatus(id);
+            if (result == 0)
+                return BadRequest(new ProblemDetails { Title = "Change Status Failed" });
             return Ok();
         }
     }

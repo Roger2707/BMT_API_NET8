@@ -2,7 +2,6 @@
 using Store_API.Data;
 using Store_API.Helpers;
 using Store_API.IRepositories;
-using Store_API.IService;
 
 namespace Store_API.Repositories
 {
@@ -10,23 +9,20 @@ namespace Store_API.Repositories
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
-        private readonly IImageService _imageService;
-        private readonly ICSVRepository _csvService;
 
-        public UnitOfWork(StoreContext db, IDapperService dapperService, IImageService imageService
-            , ICSVRepository csvService)
+        public UnitOfWork(StoreContext db, IDapperService dapperService)
         {
             _db = db;
             _dapperService = dapperService;
-            _imageService = imageService;
-            _csvService = csvService;
 
             Category = new CategoryRepository(_db, _dapperService);
             Brand = new BrandRepository(_db, _dapperService);
             Promotion = new PromotionRepository(_db, _dapperService);
+            Product = new ProductRepository(_db, _dapperService);
+            ProductDetail = new ProductDetailRepository(_db, _dapperService);
+            Technology = new TechnologyRepository(_db, _dapperService);
 
 
-            Product = new ProductRepository(_dapperService, _db, _imageService, _csvService);
             Comment = new CommentRepository(_db, _dapperService);
             Rating = new RatingRepository(_db, _dapperService);
             UserAddress = new UserAddressRepository(_db, _dapperService);
@@ -37,6 +33,7 @@ namespace Store_API.Repositories
 
         #region Models Repository
         public IProductRepository Product { get; private set; }
+        public IProductDetailRepository ProductDetail { get; private set; }
         public ICategoryRepository Category { get; private set; }
         public IBrandRepository Brand { get; private set; }
         public ICommentRepository Comment { get; private set; }
@@ -48,6 +45,7 @@ namespace Store_API.Repositories
         public IBasketRepository Basket { get; private set; }
         public IOrderRepository Order { get; private set; }
         public IPaymentRepository Payment { get; private set; }
+        public ITechnologyRepository Technology { get; private set; }
 
         #endregion
 
