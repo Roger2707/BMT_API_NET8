@@ -20,12 +20,12 @@ namespace Store_API.Repositories
 
         #region CRUD Operations
 
-        public async Task AddAsync(T entity)
+        public virtual async Task AddAsync(T entity)
         {
             await _dbSet.AddAsync(entity);
         }
 
-        public void UpdateAsync(T entity)
+        public virtual void UpdateAsync(T entity)
         {
             _dbSet.Update(entity);
         }

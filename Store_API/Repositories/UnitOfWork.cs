@@ -22,6 +22,8 @@ namespace Store_API.Repositories
             ProductDetail = new ProductDetailRepository(_db, _dapperService);
             Technology = new TechnologyRepository(_db, _dapperService);
             Warehouse = new WarehouseRepository(_db, _dapperService);
+            Stock = new StockRepository(_db, _dapperService);
+            StockTransaction = new StockTransactionRepository(_db, _dapperService);
 
 
             Comment = new CommentRepository(_db, _dapperService);
@@ -48,6 +50,8 @@ namespace Store_API.Repositories
         public IPaymentRepository Payment { get; private set; }
         public ITechnologyRepository Technology { get; private set; }
         public IWarehouseRepository Warehouse { get; private set; }
+        public IStockRepository Stock { get; private set; }
+        public IStockTransactionRepository StockTransaction { get; private set; }
 
         #endregion
 
