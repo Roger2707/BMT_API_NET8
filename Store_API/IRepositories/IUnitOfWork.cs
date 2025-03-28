@@ -17,6 +17,7 @@ namespace Store_API.Repositories
         public IUserAddressRepository UserAddress { get; }
         public IPaymentRepository Payment { get; }
         public ITechnologyRepository Technology { get; }
+        public IWarehouseRepository Warehouse { get; }
 
 
         #region EF Core Methods
