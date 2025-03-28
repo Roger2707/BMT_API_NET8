@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250327031007_createKVNDB")]
-    partial class createKVNDB
+    [Migration("20250328032527_createDB")]
+    partial class createDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -165,7 +165,7 @@ namespace Store_API.Migrations
                     b.Property<int>("BasketId")
                         .HasColumnType("int");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid>("ProductDetailId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Quantity")
@@ -178,7 +178,7 @@ namespace Store_API.Migrations
 
                     b.HasIndex("BasketId");
 
-                    b.HasIndex("ProductId");
+                    b.HasIndex("ProductDetailId");
 
                     b.ToTable("BasketItems");
                 });
@@ -400,9 +400,6 @@ namespace Store_API.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ProductStatus")
-                        .HasColumnType("int");
-
                     b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
 
@@ -433,7 +430,7 @@ namespace Store_API.Migrations
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("QuantityInStock")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -704,16 +701,16 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7974c3bb-71fb-456a-8b6f-3fb2cd926d0b",
+                            ConcurrencyStamp = "98f8e781-9e01-41f5-a626-11922ddd225a",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJJwI3x6yJikfXkgQ7kz4hwKkpgX2vEL6DCMKwCOzfhlJpne79i7gQEnvR+CoLI6qQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPFHXNeoUMhnFg3f0DQk/DKGpEHrOXxzTRh4cUPwubTgrPvcmj2rvrtNLLV4VmQ1bg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "02df7b0f-2836-480a-9e76-0b282f4f6572",
+                            SecurityStamp = "d44ac2f7-779e-44b4-be0e-dd42165be4cb",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -789,15 +786,15 @@ namespace Store_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Store_API.Models.Product", "Product")
+                    b.HasOne("Store_API.Models.ProductDetail", "ProductDetail")
                         .WithMany()
-                        .HasForeignKey("ProductId")
+                        .HasForeignKey("ProductDetailId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Basket");
 
-                    b.Navigation("Product");
+                    b.Navigation("ProductDetail");
                 });
 
             modelBuilder.Entity("Store_API.Models.Comment", b =>

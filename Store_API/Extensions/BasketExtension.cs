@@ -12,11 +12,10 @@ namespace Store_API.Extensions
             // Map Basket to BasketDTO
             foreach (var item in result)
             {
-
                 BasketItemDTO itemDTO = new BasketItemDTO()
                 {
                     BasketItemId = item.BasketItemId,
-                    ProductId = item.ProductId,
+                    ProducDetailtId = item.ProducDetailtId,
                     ProductName = item.ProductName,
                     ProductFirstImage = item.ProductFirstImage,
                     Quantity = 0,

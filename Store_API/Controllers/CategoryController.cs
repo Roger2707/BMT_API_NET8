@@ -22,7 +22,7 @@ namespace Store_API.Controllers
             return Ok(categories);
         }
 
-        [HttpGet("get-category-detail")]
+        [HttpGet("get-category-detail", Name = "GetDetailCategory")]
         public async Task<IActionResult> GetById([FromQuery] Guid id)
         {
             var category = await _categoryService.GetById(id);
@@ -30,12 +30,12 @@ namespace Store_API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] CategoryDTO model)
+        public async Task<IActionResult> Create([FromForm] CategoryDTO model)
         {
             try
             {
                 await _categoryService.Create(model);
-                return CreatedAtRoute("GetById", new { id = model.Id }, model);
+                return CreatedAtRoute("GetDetailCategory", new { id = model.Id }, model);
             }
             catch(Exception ex)
             {
@@ -44,12 +44,12 @@ namespace Store_API.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] CategoryDTO model)
+        public async Task<IActionResult> Update([FromForm] CategoryDTO model)
         {
             try
             {
                 await _categoryService.Update(model);
-                return CreatedAtRoute("GetById", new { id = model.Id }, model);
+                return CreatedAtRoute("GetDetailCategory", new { id = model.Id }, model);
             }
             catch (Exception ex)
             {

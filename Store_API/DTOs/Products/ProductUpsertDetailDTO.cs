@@ -10,7 +10,10 @@ namespace Store_API.DTOs.Products
         public double Price { get; set; }
         [Required, Range(1, 100)]
         public int QuantityInStock { get; set; }
+        [Required]
         public string Color { get; set; }
-        public string ExtraName { get; set; }
+        public string? ExtraName { get; set; }
+        [Required, Range(0, 1)]
+        public int Status { get; set; }
     }
 }

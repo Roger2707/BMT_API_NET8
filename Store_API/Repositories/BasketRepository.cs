@@ -44,7 +44,7 @@ namespace Store_API.Repositories
                             INNER JOIN Brands brand ON brand.Id = product.BrandId
                             INNER JOIN Categories category ON category.Id = product.CategoryId
                             LEFT JOIN Promotions promotion 
-                            ON promotion.CategoryId = category.Id AND promotion.BrandId = brand.Id AND GETDATE() <= promotion.[End]
+                                ON promotion.CategoryId = category.Id AND promotion.BrandId = brand.Id AND GETDATE() <= promotion.EndDate
                             INNER JOIN AspNetUsers u ON u.Id = basket.UserId
 
                             WHERE u.UserName = @UserName

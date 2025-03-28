@@ -35,6 +35,7 @@ namespace Store_API.Services
                     Name = categoryDTO.Name
                 }
             );
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task Update(CategoryDTO categoryDTO)
@@ -43,6 +44,7 @@ namespace Store_API.Services
             if (existedCategory == null) throw new Exception("Category is not existed");
             existedCategory.Name = categoryDTO.Name;
             _unitOfWork.Category.UpdateAsync(existedCategory);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task Delete(Guid categoryId)
@@ -50,6 +52,7 @@ namespace Store_API.Services
             var existedCategory = await _unitOfWork.Category.GetByIdAsync(categoryId);
             if (existedCategory == null) throw new Exception("Category is not existed");
             _unitOfWork.Category.DeleteAsync(existedCategory);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

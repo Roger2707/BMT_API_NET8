@@ -46,7 +46,6 @@ namespace Store_API.Services
                     Name = model.Name,
                     Description = model.Description,
                     Created = model.Created,
-                    ProductStatus = model.ProductStatus,
                     CategoryId = model.CategoryId,
                     BrandId = model.BrandId,
 
@@ -55,7 +54,7 @@ namespace Store_API.Services
                         Price = d.Price,
                         Color = d.Color,
                         ExtraName = d.ExtraName,
-                        QuantityInStock = d.QuantityInStock
+                        Status = d.Status
                     }).ToList()
                 };
 
@@ -97,9 +96,6 @@ namespace Store_API.Services
                     existedProduct.Name = model.Name;
                 if (!string.IsNullOrWhiteSpace(model.Description) && model.Description != existedProduct.Description)
                     existedProduct.Description = model.Description;
-
-                if (model.ProductStatus != existedProduct.ProductStatus)
-                    existedProduct.ProductStatus = model.ProductStatus;
                 if (model.CategoryId != existedProduct.CategoryId)
                     existedProduct.CategoryId = model.CategoryId;
                 if (model.BrandId != existedProduct.BrandId)
@@ -122,7 +118,7 @@ namespace Store_API.Services
                     Price = d.Price,
                     Color = d.Color,
                     ExtraName = d.ExtraName,
-                    QuantityInStock = d.QuantityInStock
+                    Status = d.Status
                 }));
 
                 int result = await _unitOfWork.SaveChangesAsync();

@@ -9,10 +9,9 @@ namespace Store_API.Models
         public int BasketId { get; set; }
         [ForeignKey("BasketId")]
         public Basket Basket { get; set; }
-
-        public Guid ProductId { get; set; }
-        [ForeignKey("ProductId")]
-        public Product Product { get; set; }
+        public Guid ProductDetailId { get; set; }
+        [ForeignKey("ProductDetailId")]
+        public ProductDetail ProductDetail { get; set; }
         public int Quantity { get; set; }
         public bool Status { get; set; } = false;
     }

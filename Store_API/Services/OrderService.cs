@@ -30,7 +30,7 @@ namespace Store_API.Services
                     .Select(i => 
                             new OrderItem
                             {
-                                ProductId = i.ProductId,
+                                ProductId = i.ProducDetailtId,
                                 Quantity = i.Quantity,
                                 SubTotal = i.DiscountPrice * i.Quantity,
                             })

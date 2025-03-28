@@ -8,9 +8,9 @@ namespace Store_API.Models
         public Guid ProductId { get; set; }
         [ForeignKey("ProductId")]
         public Product Product { get; set; }
-        public double Price { get; set; }
-        public int QuantityInStock { get; set; }
         public string Color { get; set; }
         public string? ExtraName { get; set; } = "";
+        public double Price { get; set; }
+        public int Status { get; set; }
     }
 }

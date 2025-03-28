@@ -20,40 +20,40 @@ namespace Store_API.Repositories
                             WITH ProductPagination AS 
                             (
 	                            SELECT 
-		                            product.Id
-		                            , product.Name
-		                            , Description
-		                            , ImageUrl
+                                    product.Id
+                                    , product.Name
+                                    , Description
+                                    , ImageUrl
                                     , PublicId
-		                            , Created
-		                            , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus
-		                            , product.CategoryId
-		                            , category.Name as CategoryName
-		                            , product.BrandId
-		                            , brand.Name as BrandName
-		                            , brand.Country as BrandCountry
+                                    , Created
+                                    , product.CategoryId
+                                    , category.Name as CategoryName
+                                    , product.BrandId
+                                    , brand.Name as BrandName
+                                    , brand.Country as BrandCountry
 
-	                            FROM Products as product
+                                FROM Products as product
 
-	                            INNER JOIN Categories as category ON product.CategoryId = category.Id
-	                            INNER JOIN Brands as brand ON product.BrandId = brand.Id 
+                                INNER JOIN Categories as category ON product.CategoryId = category.Id
+                                INNER JOIN Brands as brand ON product.BrandId = brand.Id 
 
-	                            WHERE product.ProductStatus = 1 
+	                            WHERE 1 = 1 
 	                            -- where                         
                                 -- orderBy
 	                            OFFSET @Skip ROWS FETCH NEXT @Take ROWS ONLY
                             )
                             SELECT
 	                            page.*
-	                            , detail.Id as DetailId
-	                            , detail.Price
-	                            , detail.Color
-	                            , detail.ExtraName
-	                            , IIF(promotion.PercentageDiscount is NULL
-		                            , detail.Price
-		                            , detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) 
-	                            as DiscountPrice
-	                            , detail.QuantityInStock
+                                , detail.Id as DetailId
+                                , detail.Price
+                                , detail.Color
+                                , detail.ExtraName
+	                            , detail.Status
+                                , IIF(promotion.PercentageDiscount is NULL
+                                    , detail.Price
+                                    , detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) 
+                                as DiscountPrice
+
                             FROM ProductPagination as page
                             INNER JOIN ProductDetails detail ON detail.ProductId = page.Id
                             LEFT JOIN Promotions as promotion 
@@ -61,13 +61,18 @@ namespace Store_API.Repositories
 		                            AND page.BrandId = promotion.BrandId 
 		                            AND promotion.EndDate >= GETDATE()
 
-                            -- orderByDetailPrice
+                            -- sortDetailPrice
+                            WHERE detail.Status = 1
 ";
 
             string where = GetConditionString(productParams);
             string orderBy = GetOrderByString(productParams.OrderBy);
 
-            if(productParams.OrderBy.Contains("price")) query = query.Replace("-- orderByDetailPrice", orderBy);
+            if(!string.IsNullOrEmpty(productParams.OrderBy) && productParams.OrderBy.Contains("price"))
+            {
+                query = query.Replace("-- orderBy", "ORDER BY product.Name");
+                query = query.Replace("-- sortDetailPrice", orderBy);
+            }
             else query = query.Replace("-- orderBy", orderBy);
 
             query = query.Replace("-- where", where);
@@ -80,7 +85,7 @@ namespace Store_API.Repositories
             if (result.Count == 0) return null;
 
             var products = result
-                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.ProductStatus, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry })
+                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry })
                 .Select(s => new ProductDTO
                 {
                     Id = s.Key.Id,
@@ -88,7 +93,6 @@ namespace Store_API.Repositories
                     Description = s.Key.Description,
                     ImageUrl = s.Key.ImageUrl,
                     Created = s.Key.Created,
-                    ProductStatus = s.Key.ProductStatus,
                     CategoryId = s.Key.CategoryId,
                     CategoryName = s.Key.CategoryName,
                     BrandId = s.Key.BrandId,
@@ -101,7 +105,7 @@ namespace Store_API.Repositories
                         Color = d.Color,
                         Price = CF.GetDouble(d.Price),
                         DiscountPrice = CF.GetDouble(d.DiscountPrice),
-                        QuantityInStock = CF.GetInt(d.QuantityInStock),
+                        Status = CF.GetInt(d.Status) == 1 ? "In stock" : "Out Stock",
                         ExtraName = d.ExtraName
                     }).ToList()
                 })
@@ -128,8 +132,7 @@ namespace Store_API.Repositories
                                 , ImageUrl
                                 , PublicId
                                 , Created
-                                , detail.QuantityInStock
-                                , IIF(ProductStatus = 1, 'In Stock', 'Out Stock') as ProductStatus
+                                , detail.Status
                                 , product.CategoryId
                                 , category.Name as CategoryName
                                 , product.BrandId
@@ -146,14 +149,14 @@ namespace Store_API.Repositories
                                 AND product.BrandId = promotion.BrandId 
                                 AND promotion.EndDate >= GETDATE()
 
-                            WHERE product.Id = @Id AND product.ProductStatus = 1 ";
+                            WHERE product.Id = @Id AND detail.Status = 1 ";
 
             var p = new { id = id };
             var result = await _dapperService.QueryAsync<ProductDapperRow>(query, p);
             if (result == null) return null;
 
             var productDTO = result
-                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.ProductStatus, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry })
+                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry })
                 .Select(g => new ProductDTO()
                 {
                     Id = g.Key.Id,
@@ -161,7 +164,6 @@ namespace Store_API.Repositories
                     Description = g.Key.Description,
                     ImageUrl = g.Key.ImageUrl,
                     Created = g.Key.Created,
-                    ProductStatus = g.Key.ProductStatus,
                     CategoryId = g.Key.CategoryId,
                     CategoryName = g.Key.CategoryName,
                     BrandId = g.Key.BrandId,
@@ -172,7 +174,7 @@ namespace Store_API.Repositories
                         Id = d.DetailId,
                         ProductId = g.Key.Id,
                         Color = d.Color,
-                        QuantityInStock = d.QuantityInStock,
+                        Status = CF.GetInt(d.Status) == 1 ? "In stock" : "Out Stock",
                         Price = d.Price,
                         DiscountPrice = d.DiscountPrice,
                         ExtraName = d.ExtraName
@@ -215,25 +217,33 @@ namespace Store_API.Repositories
         public async Task<int> GetNumbersRecord(ProductParams productParams)
         {
             string query = @"   
-                                SELECT COUNT(1) as TotalRow 
+                            WITH ProductIdsGroup AS 
 
-                                FROM Products as product
+                            (
+                            SELECT product.Id
 
-                                INNER JOIN Categories as category ON product.CategoryId = category.Id
-                                INNER JOIN Brands as brand ON product.BrandId = brand.Id 
-                                LEFT JOIN Promotions as promotion 
+                            FROM Products as product
 
-                                ON product.CategoryId = promotion.CategoryId 
-                                    AND product.BrandId = promotion.BrandId 
-                                    AND promotion.EndDate <= GETDATE()
+                            INNER JOIN ProductDetails detail ON product.Id = detail.ProductId
+                            INNER JOIN Categories as category ON product.CategoryId = category.Id
+                            INNER JOIN Brands as brand ON product.BrandId = brand.Id 
+                            LEFT JOIN Promotions as promotion 
 
-                                WHERE product.ProductStatus = 1 
+                            ON product.CategoryId = promotion.CategoryId 
+                                AND product.BrandId = promotion.BrandId 
+                                AND promotion.EndDate <= GETDATE()
 
-                                --where
+                            WHERE detail.Status = 1
+                            -- where
+
+                            GROUP BY product.Id
+                            )
+
+                            SELECT COUNT(1) as TotalRecords FROM ProductIdsGroup
                             ";
 
             string where = GetConditionString(productParams);
-            query = query.Replace("--where", where);
+            query = query.Replace("-- where", where);
 
             int result = await _dapperService.QueryFirstOrDefaultAsync<int>(query, null);
             return result;

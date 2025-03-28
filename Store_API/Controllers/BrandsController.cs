@@ -22,7 +22,7 @@ namespace Store_API.Controllers
             return Ok(brands);
         }
 
-        [HttpGet("get-brand-detail")]
+        [HttpGet("get-brand-detail", Name = "GetDetailBrand")]
         public async Task<IActionResult> GetById([FromQuery] Guid id)
         {
             var brand = await _brandService.GetById(id);
@@ -30,12 +30,12 @@ namespace Store_API.Controllers
         }
 
         [HttpPost("create")]
-        public async Task<IActionResult> Create([FromBody] BrandDTO model)
+        public async Task<IActionResult> Create([FromForm] BrandDTO model)
         {
             try
             {
                 await _brandService.Create(model);
-                return CreatedAtRoute("GetById", new { id = model.Id }, model);
+                return CreatedAtRoute("GetDetailBrand", new { id = model.Id }, model);
             }
             catch (Exception ex)
             {
@@ -44,12 +44,12 @@ namespace Store_API.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] BrandDTO model)
+        public async Task<IActionResult> Update([FromForm] BrandDTO model)
         {
             try
             {
                 await _brandService.Update(model);
-                return CreatedAtRoute("GetById", new { id = model.Id }, model);
+                return CreatedAtRoute("GetDetailBrand", new { id = model.Id }, model);
             }
             catch (Exception ex)
             {

@@ -36,6 +36,7 @@ namespace Store_API.Services
                     Country = brandDTO.Country
                 }
             );
+            await _unitOfWork.SaveChangesAsync();
         }
         public async Task Update(BrandDTO brandDTO)
         {
@@ -46,6 +47,7 @@ namespace Store_API.Services
             existedBrand.Country = brandDTO.Country;
 
             _unitOfWork.Brand.UpdateAsync(existedBrand);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task Delete(Guid brandId)
@@ -53,6 +55,7 @@ namespace Store_API.Services
             var existedBrand = await _unitOfWork.Brand.GetByIdAsync(brandId);
             if (existedBrand == null) throw new Exception("Brand is not existed");
             _unitOfWork.Brand.DeleteAsync(existedBrand);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

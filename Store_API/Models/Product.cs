@@ -9,7 +9,6 @@ namespace Store_API.Models
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
         public string? PublicId { get; set; }
-        public int ProductStatus { get; set; } = 1;
         public DateTime Created { get; set; } = DateTime.Now;
         public Guid CategoryId { get; set; }
         [ForeignKey("CategoryId")]

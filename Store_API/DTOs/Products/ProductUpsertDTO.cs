@@ -13,9 +13,6 @@ namespace Store_API.DTOs.Products
         public string Description { get; set; }
         public string? ImageUrl { get; set; }
         public string? PublicId { get; set; }
-        [Required]
-        public int ProductStatus { get; set; } = 1;
-        [Required]
         public DateTime Created { get; set; }
         public Guid CategoryId { get; set; }
         public Guid BrandId { get; set; }
