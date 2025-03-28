@@ -1,4 +1,5 @@
-﻿using Store_API.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Store_API.Data;
 using Store_API.DTOs.Products;
 using Store_API.Helpers;
 using Store_API.Models;
@@ -188,31 +189,6 @@ namespace Store_API.Repositories
         #endregion
 
         #region Other Functionalities
-
-        public async Task<int> ChangeProductStatus(Guid productId)
-        {
-            string query = @"
-                            DECLARE @IsExsted INT
-                            DECLARE @ProductStatus VARCHAR(100)
-
-                            SELECT @IsExsted = COUNT(*) FROM Products WHERE Id = @ProductId
-                            IF(@IsExsted = 0 OR @IsExsted is NULL)
-	                            THROW 99000, 'Product is not existed !', 1;
-                            ELSE
-	                            BEGIN
-		                            SELECT @ProductStatus = ProductStatus FROM Products WHERE Id = @ProductId
-		                            IF(@ProductStatus = 1)
-			                            UPDATE Products SET ProductStatus = 2 WHERE Id = @ProductId
-		                            ELSE IF(@ProductStatus = 2)
-			                            UPDATE Products SET ProductStatus = 1 WHERE Id = @ProductId
-		                            ELSE 
-			                            THROW 99001, 'ProductStatus is not right !', 1;
-	                            END";
-            var p = new { ProductId = productId };
-
-            int result = await _dapperService.Execute(query, p);
-            return result;
-        }
 
         public async Task<int> GetNumbersRecord(ProductParams productParams)
         {

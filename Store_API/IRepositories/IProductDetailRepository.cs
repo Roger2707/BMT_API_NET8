@@ -5,5 +5,6 @@ namespace Store_API.IRepositories
 {
     public interface IProductDetailRepository : IRepository<ProductDetail>
     {
+        Task<int> ChangeProductStatus(Guid productId);
     }
 }

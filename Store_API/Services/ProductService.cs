@@ -138,7 +138,7 @@ namespace Store_API.Services
 
         public async Task<int> UpdateProductStatus(Guid productId)
         {
-            int result = await _unitOfWork.Product.ChangeProductStatus(productId);
+            int result = await _unitOfWork.ProductDetail.ChangeProductStatus(productId);
             return result;
         }
 

@@ -7,7 +7,6 @@ namespace Store_API.Repositories
     {
         Task<List<ProductDTO>> GetProducts(ProductParams productParams);
         Task<ProductDTO> GetProductDTODetail(Guid id);
-        Task<int> ChangeProductStatus(Guid productId);
         Task<int> GetNumbersRecord(ProductParams productParams);
     }
 }
