@@ -73,7 +73,6 @@ namespace Store_API.Repositories
 
         #endregion
 
-
         #region CRUD Operations
         public override async Task AddAsync(Stock entity)
         {
