@@ -8,7 +8,7 @@ using Store_API.DTOs.Orders;
 using Store_API.DTOs.User;
 using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Models;
+using Store_API.Models.Users;
 
 namespace Store_API.Controllers
 {

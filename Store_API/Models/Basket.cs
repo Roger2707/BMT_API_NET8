@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Store_API.Models.Users;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Store_API.Models
 {

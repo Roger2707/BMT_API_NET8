@@ -1,7 +1,7 @@
 ﻿using Store_API.DTOs;
 using Store_API.DTOs.Accounts;
 using Store_API.DTOs.User;
-using Store_API.Models;
+using Store_API.Models.Users;
 
 namespace Store_API.IService
 {

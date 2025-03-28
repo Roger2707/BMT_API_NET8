@@ -5,11 +5,11 @@ using Store_API.DTOs;
 using Store_API.DTOs.Accounts;
 using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Models;
 using Store_API.Repositories;
 using System.Security.Claims;
 using Store_API.DTOs.User;
 using Google.Apis.Auth;
+using Store_API.Models.Users;
 
 namespace Store_API.Services
 {

@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.IService;
-using Store_API.Models;
+using Store_API.Models.Users;
 using Store_API.Repositories;
 
 namespace Store_API.Controllers

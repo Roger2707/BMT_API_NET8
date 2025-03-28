@@ -1,5 +1,5 @@
-﻿using Microsoft.Data.SqlClient;
-using Store_API.Models;
+﻿using Store_API.Models;
+using Store_API.Models.Inventory;
 
 namespace Store_API.Data
 {
@@ -240,6 +240,7 @@ namespace Store_API.Data
                 );
             }
 
+            // 5. Seed Product - Technologies
             if (context.Products.Any() && context.Technologies.Any() && !context.ProductTechnologies.Any())
             {
                 context.AddRange(
@@ -264,7 +265,7 @@ namespace Store_API.Data
                     );
             }
 
-            // 5. Seed Extra Prop Products
+            // 6. Seed ProductDetail
             if (context.Products.Any() && !context.ProductDetails.Any())
             {
                 await context.AddRangeAsync(
@@ -311,7 +312,7 @@ namespace Store_API.Data
                 );
             }
 
-            // 6. Seed Promotions
+            // 7. Seed Promotions
             if (!context.Promotions.Any())
             {
                 await context.AddRangeAsync(
@@ -321,6 +322,179 @@ namespace Store_API.Data
                         StartDate = DateTime.Now, 
                         EndDate = DateTime.MaxValue, 
                         PercentageDiscount = 15 
+                    }
+                );
+            }
+
+            // 8. Seed Warehouse
+            if(!context.Warehouses.Any())
+            {
+                await context.AddRangeAsync(
+                    new Warehouse
+                    {
+                        Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Name = "HCM Warehouse",
+                        Location = "Ho Chi Minh City",
+                        Created = DateTime.Now,
+                    },
+                    new Warehouse
+                    {
+                        Id = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        Name = "Thu Duc Warehouse",
+                        Location = "Thu Duc City",
+                        Created = DateTime.Now,
+                    },
+                    new Warehouse
+                    {
+                        Id = Guid.Parse("11111111-1111-1111-1111-111111111113"),
+                        Name = "HHT Warehouse",
+                        Location = "Vung Tau City",
+                        Created = DateTime.Now,
+                    }
+                );
+            }
+
+            // 9. Seed Stocks
+            if (context.Warehouses.Any() && context.ProductDetails.Any() && !context.Stocks.Any())
+            {
+                await context.AddRangeAsync(
+                    new Stock
+                    {
+                        Id = Guid.Parse("99999999-1111-1111-1111-111111111111"),
+                        ProductDetailId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 10,
+                        Updated = DateTime.Now,                
+                    },
+                    new Stock
+                    {
+                        Id = Guid.Parse("99999999-1111-1111-8888-111111111111"),
+                        ProductDetailId = Guid.Parse("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        Quantity = 15,
+                        Updated = DateTime.Now,
+                    },
+                    new Stock
+                    {
+                        Id = Guid.Parse("99999999-1111-7777-1111-111111111111"),
+                        ProductDetailId = Guid.Parse("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111113"),
+                        Quantity = 18,
+                        Updated = DateTime.Now,
+                    },
+                    new Stock
+                    {
+                        Id = Guid.Parse("99999999-6666-1111-1111-111111111111"),
+                        ProductDetailId = Guid.Parse("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 20,
+                        Updated = DateTime.Now,
+                    },
+                    new Stock
+                    {
+                        Id = Guid.Parse("99999999-1111-5555-8888-111111111111"),
+                        ProductDetailId = Guid.Parse("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 5,
+                        Updated = DateTime.Now,
+                    }
+                );
+            }
+
+            // 10. Seed StockTransaction
+            if (context.Warehouses.Any() && context.ProductDetails.Any() && !context.StockTransactions.Any())
+            {
+                await context.AddRangeAsync(
+
+                    // Ax99 Red Transaction Stock
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("99999999-1111-3333-2222-111111111111"),
+                        ProductDetailId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 8,
+                        TransactionType = 1, // Import                       
+                        Created = DateTime.Now,
+                    },
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("99999999-1111-3333-4545-111111111111"),
+                        ProductDetailId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 3,
+                        TransactionType = 1, // Import                       
+                        Created = DateTime.Now,
+                    },
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("99999999-2222-3333-4545-111111111111"),
+                        ProductDetailId = Guid.Parse("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 1,
+                        TransactionType = 0, // Export                       
+                        Created = DateTime.Now,
+                    },
+
+                    // Ax99 White
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("88888888-1111-3333-2222-111111111111"),
+                        ProductDetailId = Guid.Parse("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        Quantity = 15,
+                        TransactionType = 1, // Import                       
+                        Created = DateTime.Now,
+                    },
+                    
+                    // Z-Strike
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("99999333-befa-3333-4545-111111111111"),
+                        ProductDetailId = Guid.Parse("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111113"),
+                        Quantity = 18,
+                        TransactionType = 1, // Import                       
+                        Created = DateTime.Now,
+                    },
+                    
+                    // 100ZZ
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("99999875-abef-3333-8217-111111111111"),
+                        ProductDetailId = Guid.Parse("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 20,
+                        TransactionType = 1, // Import                       
+                        Created = DateTime.Now,
+                    },
+
+                    // 1000Z
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("99999875-abcd-aaaa-8217-111111111111"),
+                        ProductDetailId = Guid.Parse("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 4,
+                        TransactionType = 1, // Import                       
+                        Created = DateTime.Now,
+                    },
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("99999875-abcd-aaaa-8217-222111111111"),
+                        ProductDetailId = Guid.Parse("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        Quantity = 2,
+                        TransactionType = 1, // Import                       
+                        Created = DateTime.Now,
+                    },
+                    new StockTransaction
+                    {
+                        Id = Guid.Parse("99999875-abcd-aaaa-8217-111111111988"),
+                        ProductDetailId = Guid.Parse("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                        Quantity = 1,
+                        TransactionType = 0, // Export                       
+                        Created = DateTime.Now,
                     }
                 );
             }

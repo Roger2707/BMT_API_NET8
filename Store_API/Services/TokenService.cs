@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Store_API.IService;
-using Store_API.Models;
+using Store_API.Models.Users;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection.Metadata.Ecma335;
+﻿using Store_API.Models.Users;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Store_API.Models
 {

@@ -5,11 +5,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using Store_API.Data;
-using Store_API.Models;
 using System.Text;
 using Store_API.Hubs;
 using Store_API.Extensions;
 using Store_API.RabbitMQ;
+using Store_API.Models.Users;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -75,7 +75,7 @@ builder.Services.AddCors(options =>
 #region Authentication + Authorization
 
 builder.Services
-    .AddIdentity<User, Store_API.Models.Role>(opt =>
+    .AddIdentity<User, Store_API.Models.Users.Role>(opt =>
     {
         opt.Password.RequiredLength = 7;
         opt.Password.RequireDigit = false;

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Orders;
 using Store_API.IService;
-using Store_API.Models;
+using Store_API.Models.Users;
 
 namespace Store_API.Controllers
 {

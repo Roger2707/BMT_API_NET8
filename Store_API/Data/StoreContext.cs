@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Store_API.Models;
+using Store_API.Models.Inventory;
 using Store_API.Models.OrderAggregate;
+using Store_API.Models.Users;
 
 namespace Store_API.Data
 {
@@ -31,6 +33,10 @@ namespace Store_API.Data
         public DbSet<Technology> Technologies { get; set; }
         public DbSet<ProductTechnology> ProductTechnologies { get; set; }
         public DbSet<ProductDetail> ProductDetails { get; set; }
+
+        public DbSet<Stock> Stocks { get; set; }
+        public DbSet<StockTransaction> StockTransactions { get; set; }
+        public DbSet<Warehouse> Warehouses { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

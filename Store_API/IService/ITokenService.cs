@@ -1,4 +1,4 @@
-﻿using Store_API.Models;
+﻿using Store_API.Models.Users;
 
 namespace Store_API.IService
 {
