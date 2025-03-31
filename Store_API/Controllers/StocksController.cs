@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Store_API.DTOs.Stocks;
 using Store_API.IService;
 
 namespace Store_API.Controllers
@@ -59,5 +60,31 @@ namespace Store_API.Controllers
         }
 
         #endregion
+
+        #region Import / Export Stocks Handlers
+
+        [HttpPost("upsert-stock")]
+        public async Task<IActionResult> UpsertStock([FromBody] StockUpsertDTO stockUpsertDTO)
+        {
+            try
+            {
+                bool result = true;
+                if(stockUpsertDTO.TransactionType == 1)
+                {
+                    result = await _stockService.ImportStock(stockUpsertDTO);
+                }
+                else if(stockUpsertDTO.TransactionType == 0)
+                {
+                    result = await _stockService.ExportStock(stockUpsertDTO);
+                }
+                return Ok(result);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message});
+            }
+        }
+
+        #endregion 
     }
 }

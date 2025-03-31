@@ -31,6 +31,12 @@ namespace Store_API.Services
             return product;
         }
 
+        public async Task<ProductWithDetailDTO> GetProductWithDetail(Guid productId)
+        {
+            var result = await _unitOfWork.Product.GetProductWithDetail(productId);
+            return result;
+        }
+
         #endregion
 
         #region CRUD Operations

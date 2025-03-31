@@ -23,9 +23,9 @@ namespace Store_API.Controllers
         }
 
         [HttpGet("get-warehouse-detail", Name = "GetDetailWarehouse")]
-        public async Task<IActionResult> GetById([FromQuery] Guid id)
+        public async Task<IActionResult> GetById([FromQuery] Guid warehouseId)
         {
-            var warehouse = await _warehouseService.GetWarehouseDetail(id);
+            var warehouse = await _warehouseService.GetWarehouseDetail(warehouseId);
             return Ok(warehouse);
         }
 

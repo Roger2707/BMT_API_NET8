@@ -1,5 +1,6 @@
 ﻿using Store_API.DTOs.Stocks;
 using Store_API.IService;
+using Store_API.Models.Inventory;
 using Store_API.Repositories;
 
 namespace Store_API.Services
@@ -47,6 +48,94 @@ namespace Store_API.Services
         {
             var stockTransactions = await _unitOfWork.StockTransaction.GetStockTransactions(productId);
             return stockTransactions;
+        }
+
+        #endregion
+
+        #region Import / Export Stock
+
+        public async Task<bool> ImportStock(StockUpsertDTO stockUpsertDTO)
+        {
+            var transaction = await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                // Add New Stock Transaction
+                var stockTransaction = new StockTransaction
+                {
+                    Id = Guid.NewGuid(),
+                    ProductDetailId = stockUpsertDTO.ProductDetailId,
+                    WarehouseId = stockUpsertDTO.WarehouseId,
+                    Quantity = stockUpsertDTO.Quantity,
+                    TransactionType = 1,
+                    Created = DateTime.UtcNow,
+                };
+                await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
+
+                // Handle Stock
+                var existedStock = await _unitOfWork.Stock.GetStock(stockUpsertDTO.ProductDetailId);
+
+                if (existedStock != null)
+                    existedStock.Quantity += stockUpsertDTO.Quantity;
+                else
+                {
+                    var stock = new Stock
+                    {
+                        Id = stockUpsertDTO.StockId,
+                        ProductDetailId = stockUpsertDTO.ProductDetailId,
+                        WarehouseId = stockUpsertDTO.WarehouseId,
+                        Quantity = stockUpsertDTO.Quantity,
+                        Updated = DateTime.UtcNow,
+                    };
+                    await _unitOfWork.Stock.AddAsync(stock);
+                }
+
+                await _unitOfWork.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+
+        public async Task<bool> ExportStock(StockUpsertDTO stockUpsertDTO)
+        {
+            var transaction = await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                // Handle Stock
+                var existedStock = await _unitOfWork.Stock.GetStock(stockUpsertDTO.ProductDetailId);
+
+                if (existedStock == null || existedStock.Quantity < stockUpsertDTO.Quantity)
+                    throw new Exception("Stock is not enough !");
+
+                existedStock.Quantity -= stockUpsertDTO.Quantity;
+
+                // Add new Stock Transaction
+                var stockTransaction = new StockTransaction
+                {
+                    Id = Guid.NewGuid(),
+                    ProductDetailId = stockUpsertDTO.ProductDetailId,
+                    WarehouseId = stockUpsertDTO.WarehouseId,
+                    Quantity = stockUpsertDTO.Quantity,
+                    TransactionType = 0,
+                    Created = DateTime.UtcNow,
+                };
+                await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
+
+                await _unitOfWork.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
         }
 
         #endregion

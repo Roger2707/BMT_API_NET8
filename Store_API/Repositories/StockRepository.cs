@@ -74,18 +74,6 @@ namespace Store_API.Repositories
         #endregion
 
         #region CRUD Operations
-        public override async Task AddAsync(Stock entity)
-        {
-            var stock = await _db.Stocks.FirstOrDefaultAsync(s => s.Id == entity.Id);
-            if(stock != null)
-            {
-                stock.Quantity += entity.Quantity;
-            }
-            else
-            {
-                await base.AddAsync(entity);
-            }
-        }
 
         public override async void UpdateAsync(Stock entity)
         {

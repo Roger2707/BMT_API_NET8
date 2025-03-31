@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Store_API.Data;
+﻿using Store_API.Data;
 using Store_API.DTOs.Products;
 using Store_API.Helpers;
 using Store_API.Models;
@@ -184,6 +183,28 @@ namespace Store_API.Repositories
                 .FirstOrDefault();
 
             return productDTO;
+        }
+
+        public async Task<ProductWithDetailDTO> GetProductWithDetail(Guid productDetailId)
+        {
+            string query = @"
+                                SELECT 
+	                                detail.Id as ProductDetailId
+	                                , product.ImageUrl
+	                                , detail.Color
+	                                , category.Name as CategoryName
+	                                , brand.Name as BrandName
+	                                , detail.Price
+	                                , product.Name as ProductName
+                                FROM ProductDetails detail
+                                INNER JOIN Products product ON detail.ProductId = product.Id
+                                INNER JOIN Categories category ON category.Id = product.CategoryId
+                                INNER JOIN Brands brand ON brand.Id = product.BrandId
+
+                                WHERE detail.Id = @ProductDetailId
+                                ";
+            var result = await _dapperService.QueryFirstOrDefaultAsync<ProductWithDetailDTO>(query, new { ProductDetailId = productDetailId });
+            return result;
         }
 
         #endregion

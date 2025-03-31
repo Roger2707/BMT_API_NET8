@@ -95,5 +95,13 @@ namespace Store_API.Controllers
                 return BadRequest(new ProblemDetails { Title = "Change Status Failed" });
             return Ok();
         }
+
+        [HttpGet("get-product-with-detail")]
+        public async Task<IActionResult> GetProductWithDetail(Guid productDetailId)
+        {
+            var result = await _productService.GetProductWithDetail(productDetailId);
+            if (result == null) return BadRequest(new ProblemDetails { Title = "Product is not existed !" });
+            return Ok(result);
+        }
     }
 }
