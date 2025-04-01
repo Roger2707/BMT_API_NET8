@@ -70,5 +70,23 @@ namespace Store_API.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("get-product-quantity-in-warehouse")]
+        public async Task<IActionResult> GetWarehouseProductQuantity(Guid productDetailId)
+        {
+            try
+            {
+                if(productDetailId != Guid.Empty)
+                {
+                    var result = await _warehouseService.GetProductQuantityInWarehouse(productDetailId);
+                    return Ok(result);
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

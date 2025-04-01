@@ -395,7 +395,15 @@ namespace Store_API.Data
                         Id = Guid.Parse("99999999-1111-5555-8888-111111111111"),
                         ProductDetailId = Guid.Parse("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
                         WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
-                        Quantity = 5,
+                        Quantity = 3,
+                        Updated = DateTime.Now,
+                    },
+                    new Stock
+                    {
+                        Id = Guid.Parse("99999999-1111-5555-8888-111111111158"),
+                        ProductDetailId = Guid.Parse("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        Quantity = 2,
                         Updated = DateTime.Now,
                     }
                 );

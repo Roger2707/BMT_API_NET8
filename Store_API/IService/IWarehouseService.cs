@@ -9,5 +9,8 @@ namespace Store_API.IService
         Task<Guid> Create(WarehouseUpsertDTO warehouseDTO);
         Task<Guid> Update(WarehouseUpsertDTO warehouseDTO);
         Task Delete(Guid id);
+
+
+        Task<List<WarehouseProductQuantity>> GetProductQuantityInWarehouse(Guid productDetalId);
     }
 }

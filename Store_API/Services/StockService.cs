@@ -16,16 +16,15 @@ namespace Store_API.Services
 
         #region Retrieve Stocks
 
-        public async Task<IEnumerable<StockDTO>> GetStocks()
-        {
-            var stocks = await _unitOfWork.Stock.GetStocks();
-            return stocks.ToList();
-        }
-
         public async Task<StockDTO> GetStock(Guid productDetailId)
         {
             var stock = await _unitOfWork.Stock.GetStock(productDetailId);
             return stock;
+        }
+
+        public Task<StockDTO> GetStock(Guid productDetailId, Guid wareHouseId)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
@@ -36,18 +35,6 @@ namespace Store_API.Services
         {
             int quantity = await _unitOfWork.StockTransaction.GetCurrentQuantityInStock(productDetailId);
             return quantity;
-        }
-
-        public async Task<IEnumerable<StockTransactionDTO>> GetStockTransactions()
-        {
-            var stockTransactions = await _unitOfWork.StockTransaction.GetAllStockTransactions();
-            return stockTransactions;
-        }
-
-        public async Task<StockTransactionDTO> GetStockTransaction(Guid stockTransactionId)
-        {
-            var stockTransaction = await _unitOfWork.StockTransaction.GetStockTransaction(stockTransactionId);
-            return stockTransaction;
         }
 
         public async Task<IEnumerable<StockTransactionDTO>> GetProductDetailStockTransactions(Guid productId)
@@ -79,7 +66,7 @@ namespace Store_API.Services
                 await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
 
                 // Handle Stock
-                var existedStock = await _unitOfWork.Stock.GetStock(stockUpsertDTO.ProductDetailId);
+                var existedStock = await _unitOfWork.Stock.GetStock(stockUpsertDTO.ProductDetailId, stockUpsertDTO.WarehouseId);
 
                 if (existedStock != null)
                     existedStock.Quantity += stockUpsertDTO.Quantity;
@@ -114,7 +101,7 @@ namespace Store_API.Services
             try
             {
                 // Handle Stock
-                var existedStock = await _unitOfWork.Stock.GetStock(stockUpsertDTO.ProductDetailId);
+                var existedStock = await _unitOfWork.Stock.GetStock(stockUpsertDTO.ProductDetailId, stockUpsertDTO.WarehouseId);
 
                 if (existedStock == null || existedStock.Quantity < stockUpsertDTO.Quantity)
                     throw new Exception("Stock is not enough !");

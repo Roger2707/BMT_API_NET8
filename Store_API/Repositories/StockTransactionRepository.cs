@@ -12,32 +12,6 @@ namespace Store_API.Repositories
         {
 
         }
-        public async Task<IEnumerable<StockTransactionDTO>> GetAllStockTransactions()
-        {
-            string query = @"
-                            SELECT
-                                s.Id
-
-                                , s.ProductDetailId
-                                , product.Name as ProductName
-                                , detail.Price
-                                , detail.Color
-
-                                , s.WarehouseId
-                                , wh.Name as WarehouseName
-
-	                            , IIF(s.TransactionType = 1, 'Import', 'Export') as TransactionType
-                                , s.Quantity
-                                , s.Created
-
-                            FROM StockTransactions s
-                            INNER JOIN ProductDetails detail ON s.ProductDetailId = detail.Id
-                            INNER JOIN Products product ON product.Id = detail.ProductId
-                            INNER JOIN Warehouses wh ON wh.Id = s.WarehouseId
-";
-            var stockTransactions = await _dapperService.QueryAsync<StockTransactionDTO>(query, null);
-            return stockTransactions;
-        }
 
         public async Task<IEnumerable<StockTransactionDTO>> GetStockTransactions(Guid productDetailId)
         {
@@ -68,37 +42,6 @@ namespace Store_API.Repositories
 
             var stockTransactions = await _dapperService.QueryAsync<StockTransactionDTO>(query, new { ProductDetailId = productDetailId });
             return stockTransactions;
-        }
-
-        public async Task<StockTransactionDTO> GetStockTransaction(Guid stockId)
-        {
-            string query = @"
-                            SELECT
-                                s.Id
-
-                                , s.ProductDetailId
-                                , product.Name as ProductName
-                                , detail.Price
-                                , detail.Color
-
-                                , s.WarehouseId
-                                , wh.Name as WarehouseName
-
-	                            , IIF(s.TransactionType = 1, 'Import', 'Export') as TransactionType
-                                , s.Quantity
-                                , s.Created
-
-                            FROM StockTransactions s
-                            INNER JOIN ProductDetails detail ON s.ProductDetailId = detail.Id
-                            INNER JOIN Products product ON product.Id = detail.ProductId
-                            INNER JOIN Warehouses wh ON wh.Id = s.WarehouseId
-
-                            WHERE s.Id = @Id
-                            ";
-
-            var stockDTO = await _dapperService.QueryFirstOrDefaultAsync<StockTransactionDTO>(query, new { Id = stockId });
-            if (stockDTO == null) return null;
-            return stockDTO;
         }
 
         public async Task<int> GetCurrentQuantityInStock(Guid productDetailId)

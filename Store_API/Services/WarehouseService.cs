@@ -1,4 +1,5 @@
-﻿using Store_API.DTOs.Warehouse;
+﻿using Dapper;
+using Store_API.DTOs.Warehouse;
 using Store_API.IService;
 using Store_API.Models.Inventory;
 using Store_API.Repositories;
@@ -38,6 +39,12 @@ namespace Store_API.Services
                 Location = warehouseExisted.Location,
                 Created = DateTime.UtcNow,
             };
+        }
+
+        public async Task<List<WarehouseProductQuantity>> GetProductQuantityInWarehouse(Guid productDetalId)
+        {
+            var result = await _unitOfwork.Warehouse.GetProductQuantityInWarehouse(productDetalId);
+            return result.AsList();
         }
 
         #endregion

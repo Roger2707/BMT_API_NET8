@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Store_API.Data;
+﻿using Store_API.Data;
 using Store_API.DTOs.Stocks;
 using Store_API.IRepositories;
 using Store_API.Models.Inventory;
@@ -14,33 +13,6 @@ namespace Store_API.Repositories
         }
 
         #region Retrieve Data
-
-        public async Task<IEnumerable<StockDTO>> GetStocks()
-        {
-            string query = @"
-                            SELECT
-	                            s.Id
-
-	                            , s.ProductDetailId
-	                            , product.Name as ProductName
-	                            , detail.Price
-	                            , detail.Color
-
-	                            , s.WarehouseId
-	                            , wh.Name as WarehouseName
-	                            , s.Quantity
-	                            , s.Updated
-
-                            FROM Stocks s
-                            INNER JOIN ProductDetails detail ON s.ProductDetailId = detail.Id
-                            INNER JOIN Products product ON product.Id = detail.ProductId
-                            INNER JOIN Warehouses wh ON wh.Id = s.WarehouseId
-                            ";
-
-            var stocksDTO = await _dapperService.QueryAsync<StockDTO>(query, null);
-            if (stocksDTO == null || stocksDTO.Count == 0) return null;
-            return stocksDTO;
-        }
 
         public async Task<StockDTO> GetStock(Guid productDetailId)
         {
@@ -62,26 +34,61 @@ namespace Store_API.Repositories
                             INNER JOIN ProductDetails detail ON s.ProductDetailId = detail.Id
                             INNER JOIN Products product ON product.Id = detail.ProductId
                             INNER JOIN Warehouses wh ON wh.Id = s.WarehouseId
-
-                            WHERE detail.Id = @Id
+ 
+                            WHERE s.ProductDetailId = @ProductDetailId
                             ";
 
-            var stockDTO = await _dapperService.QueryFirstOrDefaultAsync<StockDTO>(query, new { Id = productDetailId });
-            if (stockDTO == null) return null;
+            var result = await _dapperService.QueryAsync<StockDapperRow>(query, new { ProductDetailId  = productDetailId});
+            if (result == null || result.Count == 0) return null;
+
+            var stockDTO = result
+                .GroupBy(g => new {g.ProductDetailId, g.ProductName, g.Color, g.Price})
+                .Select(s => new StockDTO
+                {
+                    ProductDetailId = s.Key.ProductDetailId,
+                    ProductName = s.Key.ProductName,
+                    Color = s.Key.Color,
+                    Price = s.Key.Price,
+                    StockDetail = s.Select(d => new StockDetailDTO
+                    {
+                        StockId = d.ProductDetailId,
+                        WarehouseId = d.WarehouseId,
+                        WarehouseName = d.WarehouseName,
+                        Quantity = d.Quantity,
+                        Updated = d.Updated
+                    }).ToList()
+                }).FirstOrDefault();
+
             return stockDTO;
         }
 
-        #endregion
-
-        #region CRUD Operations
-
-        public override async void UpdateAsync(Stock entity)
+        public async Task<StockWareHouseDTO> GetStock(Guid productDetailId, Guid wareHouseId)
         {
-            var stock = await _db.Stocks.FirstOrDefaultAsync(s => s.Id == entity.Id);
-            if (stock == null) return;
+            string query = @"
+                            SELECT
+	                            s.Id
 
-            stock.Quantity = entity.Quantity;
-            _db.Update(stock);
+	                            , s.ProductDetailId
+	                            , product.Name as ProductName
+	                            , detail.Price
+	                            , detail.Color
+
+	                            , s.WarehouseId
+	                            , wh.Name as WarehouseName
+	                            , s.Quantity
+	                            , s.Updated
+
+                            FROM Stocks s
+                            INNER JOIN ProductDetails detail ON s.ProductDetailId = detail.Id
+                            INNER JOIN Products product ON product.Id = detail.ProductId
+                            INNER JOIN Warehouses wh ON wh.Id = s.WarehouseId
+ 
+                            WHERE s.ProductDetailId = @ProductDetailId AND s.WarehouseId = @WareHouseId
+                            ";
+
+            var result = await _dapperService.QueryFirstOrDefaultAsync<StockWareHouseDTO>(query, new { ProductDetailId = productDetailId, WarehouseId = wareHouseId });
+            if (result == null) return null;
+            return result;
         }
 
         #endregion
