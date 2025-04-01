@@ -1,5 +1,6 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs.Stocks;
+using Store_API.Helpers;
 using Store_API.IRepositories;
 using Store_API.Models.Inventory;
 
@@ -98,6 +99,18 @@ namespace Store_API.Repositories
             var stockDTO = await _dapperService.QueryFirstOrDefaultAsync<StockTransactionDTO>(query, new { Id = stockId });
             if (stockDTO == null) return null;
             return stockDTO;
+        }
+
+        public async Task<int> GetCurrentQuantityInStock(Guid productDetailId)
+        {
+            string query = @"
+                            SELECT 
+	                            ISNULL(SUM(IIF(TransactionType = 0, Quantity*-1, Quantity)), 0)
+                            FROM StockTransactions
+                            WHERE ProductDetailId = @ProductDetailId";
+
+            var result = await _dapperService.QueryFirstOrDefaultAsync<int>(query, new {ProductDetailId  = productDetailId});
+            return CF.GetInt(result);
         }
     }
 }

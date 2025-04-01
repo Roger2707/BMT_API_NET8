@@ -7,8 +7,6 @@ namespace Store_API.DTOs.Stocks
         [Required]
         public Guid ProductDetailId { get; set; }
         [Required]
-        public Guid StockId { get; set; }
-        [Required]
         public Guid StockTransactionId { get; set; }
         [Required]
         public Guid WarehouseId{ get; set; }

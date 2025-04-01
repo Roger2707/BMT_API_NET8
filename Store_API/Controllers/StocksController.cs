@@ -63,6 +63,13 @@ namespace Store_API.Controllers
 
         #region Import / Export Stocks Handlers
 
+        [HttpGet("get-quantity")]
+        public async Task<IActionResult> GetQuantityInStock(Guid productDetailId)
+        {
+            int quantity = await _stockService.GetCurrentQuantityInStock(productDetailId);
+            return Ok(quantity);
+        }
+
         [HttpPost("upsert-stock")]
         public async Task<IActionResult> UpsertStock([FromBody] StockUpsertDTO stockUpsertDTO)
         {

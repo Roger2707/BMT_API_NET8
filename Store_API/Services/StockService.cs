@@ -32,6 +32,12 @@ namespace Store_API.Services
 
         #region Retrieve Stock Transactions
 
+        public async Task<int> GetCurrentQuantityInStock(Guid productDetailId)
+        {
+            int quantity = await _unitOfWork.StockTransaction.GetCurrentQuantityInStock(productDetailId);
+            return quantity;
+        }
+
         public async Task<IEnumerable<StockTransactionDTO>> GetStockTransactions()
         {
             var stockTransactions = await _unitOfWork.StockTransaction.GetAllStockTransactions();
@@ -81,7 +87,7 @@ namespace Store_API.Services
                 {
                     var stock = new Stock
                     {
-                        Id = stockUpsertDTO.StockId,
+                        Id = Guid.NewGuid(),
                         ProductDetailId = stockUpsertDTO.ProductDetailId,
                         WarehouseId = stockUpsertDTO.WarehouseId,
                         Quantity = stockUpsertDTO.Quantity,

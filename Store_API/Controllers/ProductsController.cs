@@ -100,7 +100,6 @@ namespace Store_API.Controllers
         public async Task<IActionResult> GetProductWithDetail(Guid productDetailId)
         {
             var result = await _productService.GetProductDetail(productDetailId);
-            if (result == null) return BadRequest(new ProblemDetails { Title = "Product is not existed !" });
             return Ok(result);
         }
 

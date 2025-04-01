@@ -12,7 +12,7 @@ namespace Store_API.IService
         #endregion
 
         #region Retrieve Stock Transactions
-
+        Task<int> GetCurrentQuantityInStock(Guid productDetailId);
         Task<IEnumerable<StockTransactionDTO>> GetStockTransactions();
         Task<IEnumerable<StockTransactionDTO>> GetProductDetailStockTransactions(Guid productId);
         Task<StockTransactionDTO> GetStockTransaction(Guid stockTransactionId);
