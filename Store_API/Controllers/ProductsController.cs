@@ -30,8 +30,8 @@ namespace Store_API.Controllers
             }
         }
 
-        [HttpGet("get-product-detail", Name = "get-product-detail")]
-        public async Task<IActionResult> GetProductDetail([FromQuery] Guid id)
+        [HttpGet("get-product-dto", Name = "get-product-detail-dto")]
+        public async Task<IActionResult> GetProductDTO([FromQuery] Guid id)
         {
             var result = await _productService.GetProductDetail(id);
             if (result == null)
@@ -96,12 +96,27 @@ namespace Store_API.Controllers
             return Ok();
         }
 
-        [HttpGet("get-product-with-detail")]
+        [HttpGet("get-product-detail")]
         public async Task<IActionResult> GetProductWithDetail(Guid productDetailId)
         {
-            var result = await _productService.GetProductWithDetail(productDetailId);
+            var result = await _productService.GetProductDetail(productDetailId);
             if (result == null) return BadRequest(new ProblemDetails { Title = "Product is not existed !" });
             return Ok(result);
+        }
+
+        [HttpGet("get-product-details")]
+        public async Task<IActionResult> GetProductDetails([FromQuery] ProductSearch productSearch)
+        {
+            try
+            {
+                var result = await _productService.GetProductDetails(productSearch);
+                if (result == null) return BadRequest(new ProblemDetails { Title = "Products not found !" });
+                return Ok(result);
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
         }
     }
 }

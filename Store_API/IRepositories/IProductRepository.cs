@@ -6,8 +6,9 @@ namespace Store_API.Repositories
     public interface IProductRepository : IRepository<Product>
     {
         Task<List<ProductDTO>> GetProducts(ProductParams productParams);
-        Task<ProductDTO> GetProductDTODetail(Guid id);
-        Task<ProductWithDetailDTO> GetProductWithDetail(Guid productDetailId);
+        Task<ProductDTO> GetProductDTO(Guid id);
+        Task<ProductWithDetailDTO> GetProductDetail(Guid productDetailId);
+        Task<IEnumerable<ProductWithDetailDTO>> GetProductDetails(ProductSearch search);
         Task<int> GetNumbersRecord(ProductParams productParams);
     }
 }

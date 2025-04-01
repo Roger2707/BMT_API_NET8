@@ -23,7 +23,7 @@ namespace Store_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetProductRate(Guid productId)
         {
-            var product = await _unitOfWork.Product.GetProductDTODetail(productId);
+            var product = await _unitOfWork.Product.GetProductDTO(productId);
             if (product == null) return NotFound();
             var rating = await _unitOfWork.Rating.GetRating(productId);
             return Ok(rating);
@@ -33,7 +33,7 @@ namespace Store_API.Controllers
         [Authorize]
         public async Task<IActionResult> SetRating(Guid productId, double star)
         {
-            var product = await _unitOfWork.Product.GetProductDTODetail(productId);
+            var product = await _unitOfWork.Product.GetProductDTO(productId);
             if (product == null) return NotFound();
 
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
