@@ -38,18 +38,9 @@
         public int Quantity { get; set; }
     }
 
-    public class StockWarehouseDTO
+    public class StockQuantity
     {
         public Guid StockId { get; set; }
-
-        public Guid ProductDetailId { get; set; }
-        public string ProductName { get; set; }
-        public string Color { get; set; }
-        public double Price { get; set; }
-        public Guid WarehouseId { get; set; }
-        public string WarehouseName { get; set; }
-
         public int Quantity { get; set; }
-        public DateTime Updated { get; set; }
     }
 }

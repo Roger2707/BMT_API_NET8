@@ -7,6 +7,5 @@ namespace Store_API.IRepositories
     public interface IStockTransactionRepository : IRepository<StockTransaction>
     {
         Task<IEnumerable<StockTransactionDTO>> GetStockTransactions(Guid productDetailId);
-        Task<int> GetCurrentQuantityInStock(Guid productDetailId);
     }
 }

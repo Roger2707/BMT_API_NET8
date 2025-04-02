@@ -37,23 +37,10 @@ namespace Store_API.Repositories
                             INNER JOIN Warehouses wh ON wh.Id = s.WarehouseId
 
                             WHERE detail.Id = @productDetailId
-
                             ";
 
             var stockTransactions = await _dapperService.QueryAsync<StockTransactionDTO>(query, new { ProductDetailId = productDetailId });
             return stockTransactions;
-        }
-
-        public async Task<int> GetCurrentQuantityInStock(Guid productDetailId)
-        {
-            string query = @"
-                            SELECT 
-	                            ISNULL(SUM(IIF(TransactionType = 0, Quantity*-1, Quantity)), 0)
-                            FROM StockTransactions
-                            WHERE ProductDetailId = @ProductDetailId";
-
-            var result = await _dapperService.QueryFirstOrDefaultAsync<int>(query, new {ProductDetailId  = productDetailId});
-            return CF.GetInt(result);
         }
     }
 }

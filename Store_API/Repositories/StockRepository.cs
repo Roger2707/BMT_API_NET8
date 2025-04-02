@@ -1,5 +1,6 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs.Stocks;
+using Store_API.Helpers;
 using Store_API.IRepositories;
 using Store_API.Models.Inventory;
 
@@ -10,6 +11,16 @@ namespace Store_API.Repositories
         public StockRepository(StoreContext db, IDapperService dapperService) : base(db, dapperService)
         {
 
+        }
+
+        public async Task<StockQuantity> CheckExistedStock(Guid productDetailId, Guid warehouseId)
+        {
+            string query = @"SELECT Id as StockId, Quantity FROM Stocks 
+                            WHERE ProductDetailId = @ProductDetailId AND WarehouseId = @WarehouseId";
+
+            var p = new { ProductDetailId = productDetailId, WarehouseId = warehouseId };
+            var result = await _dapperService.QueryFirstOrDefaultAsync<StockQuantity>(query, p);
+            return result;
         }
 
         #region Retrieve Data
@@ -66,35 +77,6 @@ namespace Store_API.Repositories
                 }).FirstOrDefault();
 
             return stockDTO;
-        }
-
-        public async Task<StockWarehouseDTO> GetStock(Guid productDetailId, Guid wareHouseId)
-        {
-            string query = @"
-                            SELECT
-	                            s.Id as StockId
-
-	                            , s.ProductDetailId
-	                            , product.Name as ProductName
-	                            , detail.Price
-	                            , detail.Color
-
-	                            , s.WarehouseId
-	                            , wh.Name as WarehouseName
-	                            , s.Quantity
-	                            , s.Updated
-
-                            FROM Stocks s
-                            INNER JOIN ProductDetails detail ON s.ProductDetailId = detail.Id
-                            INNER JOIN Products product ON product.Id = detail.ProductId
-                            INNER JOIN Warehouses wh ON wh.Id = s.WarehouseId
- 
-                            WHERE s.ProductDetailId = @ProductDetailId AND s.WarehouseId = @WareHouseId
-                            ";
-
-            var result = await _dapperService.QueryFirstOrDefaultAsync<StockWarehouseDTO>(query, new { ProductDetailId = productDetailId, WarehouseId = wareHouseId });
-            if (result == null) return null;
-            return result;
         }
 
         #endregion

@@ -7,6 +7,6 @@ namespace Store_API.IRepositories
     public interface IStockRepository : IRepository<Stock>
     {
         Task<StockDTO> GetStock(Guid productDetailId);
-        Task<StockWarehouseDTO> GetStock(Guid productDetailId, Guid wareHouseId);
+        Task<StockQuantity> CheckExistedStock(Guid productDetailId, Guid warehouseId);
     }
 }

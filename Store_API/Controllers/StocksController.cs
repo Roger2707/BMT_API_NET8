@@ -17,7 +17,7 @@ namespace Store_API.Controllers
 
         #region Retrieve Stock Data
 
-        [HttpGet("get-stock-product-detail", Name = "GetDetailStock")]
+        [HttpGet("get-stock-product-detail")]
         public async Task<IActionResult> GetDetailStock([FromQuery] Guid productId)
         {
             var stock = await _stockService.GetStock(productId);
@@ -29,10 +29,10 @@ namespace Store_API.Controllers
 
         #region Retrieve Stock Transaction Data
 
-        [HttpGet("get-product-detail-stock-transactions", Name = "GetProductDetailStockTransaction")]
-        public async Task<IActionResult> GetProductDetailStockTransaction([FromQuery] Guid productId)
+        [HttpGet("get-stock-transactions")]
+        public async Task<IActionResult> GetStockTransaction([FromQuery] Guid productId)
         {
-            var stockTransactions = await _stockService.GetProductDetailStockTransactions(productId);
+            var stockTransactions = await _stockService.GetStockTransactions(productId);
             if (stockTransactions == null) return BadRequest(new ProblemDetails { Title = "This Product is not have any stock transaction !" });
             return Ok(stockTransactions);
         }
@@ -41,25 +41,10 @@ namespace Store_API.Controllers
 
         #region Import / Export Stocks Handlers
 
-        [HttpGet("get-quantity")]
-        public async Task<IActionResult> GetQuantityInStock(Guid productDetailId)
-        {
-            int quantity = await _stockService.GetCurrentQuantityInStock(productDetailId);
-            return Ok(quantity);
-        }
 
         [HttpPost("upsert-stock")]
         public async Task<IActionResult> UpsertStock([FromBody] StockUpsertDTO stockUpsertDTO)
         {
-            var errors = new Dictionary<string, List<string>>();
-
-            if(stockUpsertDTO.WarehouseId == Guid.Empty)
-            {
-                var warehouseErrors = new List<string>();
-                warehouseErrors.Add("Warehouse must not be empty !");
-                errors.Add("WarehouseId", warehouseErrors);
-                return BadRequest(new {Errors =  errors });
-            }
             try
             {
                 bool result = true;
