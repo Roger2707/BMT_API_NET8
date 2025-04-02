@@ -33,7 +33,7 @@ namespace Store_API.Controllers
         [HttpGet("get-product-dto", Name = "get-product-detail-dto")]
         public async Task<IActionResult> GetProductDTO([FromQuery] Guid id)
         {
-            var result = await _productService.GetProductDetail(id);
+            var result = await _productService.GetProductDTO(id);
             if (result == null)
                 return BadRequest(new ProblemDetails { Title = "Product not found !" });
             return Ok(result);
@@ -94,13 +94,6 @@ namespace Store_API.Controllers
             if (result == 0)
                 return BadRequest(new ProblemDetails { Title = "Change Status Failed" });
             return Ok();
-        }
-
-        [HttpGet("get-product-detail")]
-        public async Task<IActionResult> GetProductWithDetail(Guid productDetailId)
-        {
-            var result = await _productService.GetProductDetail(productDetailId);
-            return Ok(result);
         }
 
         [HttpGet("get-product-details")]

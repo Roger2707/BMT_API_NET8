@@ -7,7 +7,6 @@ namespace Store_API.IService
     {
         Task<Pagination<ProductDTO>> GetPageProductDTOs(ProductParams productParams);
         Task<ProductDTO> GetProductDTO(Guid productId);
-        Task<ProductWithDetailDTO> GetProductDetail(Guid productId);
         Task<IEnumerable<ProductWithDetailDTO>> GetProductDetails(ProductSearch search);
         Task<Guid> CreateProduct(ProductUpsertDTO model);
         Task<Guid> UpdateProduct(ProductUpsertDTO model);

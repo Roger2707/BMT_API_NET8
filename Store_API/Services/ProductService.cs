@@ -31,12 +31,6 @@ namespace Store_API.Services
             return product;
         }
 
-        public async Task<ProductWithDetailDTO> GetProductDetail(Guid productId)
-        {
-            var result = await _unitOfWork.Product.GetProductDetail(productId);
-            return result;
-        }
-
         public async Task<IEnumerable<ProductWithDetailDTO>> GetProductDetails(ProductSearch search)
         {
             var result = await _unitOfWork.Product.GetProductDetails(search);
