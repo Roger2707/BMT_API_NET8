@@ -4,11 +4,9 @@ namespace Store_API.DTOs.Stocks
 {
     public class StockUpsertDTO
     {
+        public Guid StockId { get; set; }
         [Required]
         public Guid ProductDetailId { get; set; }
-        [Required]
-        public Guid StockTransactionId { get; set; }
-        [Required]
         public Guid WarehouseId{ get; set; }
         [Required]
         public int TransactionType { get; set; }

@@ -51,6 +51,15 @@ namespace Store_API.Controllers
         [HttpPost("upsert-stock")]
         public async Task<IActionResult> UpsertStock([FromBody] StockUpsertDTO stockUpsertDTO)
         {
+            var errors = new Dictionary<string, List<string>>();
+
+            if(stockUpsertDTO.WarehouseId == Guid.Empty)
+            {
+                var warehouseErrors = new List<string>();
+                warehouseErrors.Add("Warehouse must not be empty !");
+                errors.Add("WarehouseId", warehouseErrors);
+                return BadRequest(new {Errors =  errors });
+            }
             try
             {
                 bool result = true;

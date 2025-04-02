@@ -22,9 +22,10 @@ namespace Store_API.Services
             return stock;
         }
 
-        public Task<StockDTO> GetStock(Guid productDetailId, Guid wareHouseId)
+        public async Task<StockWarehouseDTO> GetStock(Guid productDetailId, Guid warehouseId)
         {
-            throw new NotImplementedException();
+            var stock = await _unitOfWork.Stock.GetStock(productDetailId, warehouseId);
+            return stock;
         }
 
         #endregion
@@ -50,7 +51,6 @@ namespace Store_API.Services
         public async Task<bool> ImportStock(StockUpsertDTO stockUpsertDTO)
         {
             var transaction = await _unitOfWork.BeginTransactionAsync();
-
             try
             {
                 // Add New Stock Transaction
@@ -66,8 +66,7 @@ namespace Store_API.Services
                 await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
 
                 // Handle Stock
-                var existedStock = await _unitOfWork.Stock.GetStock(stockUpsertDTO.ProductDetailId, stockUpsertDTO.WarehouseId);
-
+                var existedStock = await _unitOfWork.Stock.GetByIdAsync(stockUpsertDTO.StockId);
                 if (existedStock != null)
                     existedStock.Quantity += stockUpsertDTO.Quantity;
                 else
@@ -97,7 +96,6 @@ namespace Store_API.Services
         public async Task<bool> ExportStock(StockUpsertDTO stockUpsertDTO)
         {
             var transaction = await _unitOfWork.BeginTransactionAsync();
-
             try
             {
                 // Handle Stock
@@ -106,7 +104,10 @@ namespace Store_API.Services
                 if (existedStock == null || existedStock.Quantity < stockUpsertDTO.Quantity)
                     throw new Exception("Stock is not enough !");
 
-                existedStock.Quantity -= stockUpsertDTO.Quantity;
+                //existedStock.Quantity -= stockUpsertDTO.Quantity;
+
+                var updatedStock = await _unitOfWork.Stock.GetByIdAsync(existedStock.StockId);
+                updatedStock.Quantity -= stockUpsertDTO.Quantity;
 
                 // Add new Stock Transaction
                 var stockTransaction = new StockTransaction

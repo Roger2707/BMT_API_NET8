@@ -7,7 +7,7 @@ namespace Store_API.IService
 
         #region Retrieve Stock
         Task<StockDTO> GetStock(Guid productDetailId);
-        Task<StockDTO> GetStock(Guid productDetailId, Guid wareHouseId);
+        Task<StockWarehouseDTO> GetStock(Guid productDetailId, Guid warehouseId);
 
         #endregion
 
