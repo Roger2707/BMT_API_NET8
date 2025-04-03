@@ -1,4 +1,5 @@
-﻿using Store_API.Data;
+﻿using Store_API.Cache_Layer;
+using Store_API.Data;
 using Store_API.IService;
 using Store_API.Repositories;
 using Store_API.Services;
@@ -35,6 +36,7 @@ namespace Store_API.Extensions
             services.AddScoped<ICSVService, CSVService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<IRabbitMQService, RabbitMQService>();
+            services.AddSingleton<IRedisService, RedisService>();
         }
     }
 }

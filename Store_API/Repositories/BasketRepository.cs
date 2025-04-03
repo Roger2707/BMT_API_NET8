@@ -1,23 +1,97 @@
 ﻿using Microsoft.Data.SqlClient;
+using StackExchange.Redis;
 using Store_API.Data;
-using Store_API.DTOs;
 using Store_API.DTOs.Baskets;
 using Store_API.Extensions;
-using Store_API.Helpers;
-using Store_API.Models;
+using System.Text.Json;
 
 namespace Store_API.Repositories
 {
     public class BasketRepository : IBasketRepository
     {
         private readonly IDapperService _dapperService;
-        private readonly StoreContext _db;
-        public BasketRepository(IDapperService dapperService, StoreContext db)
+        private readonly IDatabase _redis;
+        public BasketRepository(IDapperService dapperService, IConnectionMultiplexer redis)
         {
             _dapperService = dapperService;
-            _db = db;
+            _redis = redis.GetDatabase();
         }
-        public async Task<BasketDTO> GetBasket(string currentUserLogin)
+
+        #region Basic CRUD
+
+        public async Task<bool> CheckBasketExistedDB(int userId, Guid basketId)
+        {
+            string query = @" SELECT COUNT(1) FROM Baskets WHERE Id = @BasketId AND UserId = @UserId ";
+            var p = new { UserId = userId, BasketId = basketId };
+            int result = await _dapperService.QueryFirstOrDefaultAsync<int>(query, p);
+            return result > 0;
+        }
+
+        public async Task DeleteBasket(int userId, Guid basketId)
+        {
+            string query = @" DELETE Baskets WHERE Id = @BasketId AND UserId = @UserId ";
+            var p = new { BasketId = basketId, UserId = userId };
+            await _dapperService.Execute(query, p);
+        }
+
+        public async Task DeleteBasketItem(Guid basketId)
+        {
+            string query = @" DELETE BasketItems WHERE BasketId = @BasketId ";
+            var p = new { BasketId = basketId };
+            await _dapperService.Execute(query, p);
+        }
+
+        public async Task InsertBasket(BasketDTO basketDTO)
+        {
+            string query = @" INSERT INTO Baskets (Id, UserId) VALUES (@Id, @UserId) ";
+            var p = new { Id = basketDTO.Id, UserId = basketDTO.UserId };
+            await _dapperService.Execute(query, p);
+        }
+
+        public async Task InsertBasketItems(BasketDTO basketDTO)
+        {
+            if (basketDTO.Items == null || !basketDTO.Items.Any()) return;
+
+            string query = @"   INSERT INTO BasketItems(Id, BasketId, ProductDetailId, Quantity, Status) 
+                                VALUES(@Id, @BasketId, @ProductDetailId, @Quantity, @Status) ";
+
+            var parameters = basketDTO.Items.Select(item => new
+            {
+                Id = item.BasketItemId,
+                BasketId = basketDTO.Id,
+                ProductDetailId = item.ProductDetailId,
+                Quantity = item.Quantity,
+                Status = item.Status
+            }).ToList();
+
+            await _dapperService.Execute(query, parameters);
+        }
+
+        #endregion
+
+        #region Retrieve 
+
+        public async Task<BasketDTO> GetBasketDTORedis(int userId, string username)
+        {
+            string basketKey = $"basket:{username}";
+            var redisBasket = await _redis.StringGetAsync(basketKey);
+
+            if (string.IsNullOrEmpty(redisBasket))
+            {
+                var basketDB = await GetBasketDTODB(username);
+
+                if (basketDB == null)
+                    return new BasketDTO { Items = new List<BasketItemDTO>(), UserId = userId, Id = Guid.NewGuid(), GrandTotal = 0 };
+
+                var basketJson = JsonSerializer.Serialize(basketDB);
+                await _redis.StringSetAsync(basketKey, basketJson, TimeSpan.FromMinutes(30));
+                return basketDB;
+            }
+            var basketDTO = JsonSerializer.Deserialize<BasketDTO>(redisBasket);
+            return basketDTO;
+        }
+
+        public async Task<BasketDTO> GetBasketDTODB(string username)
         {
             string query = @"
                             SELECT 
@@ -51,95 +125,35 @@ namespace Store_API.Repositories
 
                             ";
 
-            var p = new { UserName = currentUserLogin };
-            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, p);
+            var p = new { UserName = username };
+            var result = await _dapperService.QueryAsync<BasketDapperRow>(query, p);
             if (result == null || result.Count <= 0) return null;
 
             return result.MapBasket();
         }
 
-        public async Task<int> GetBasketIdByUsername(string username)
-        {
-            string query = @" SELECT b.Id 
-                              FROM Baskets b
-                              INNER JOIN AspNetUsers u ON u.Id = b.UserId
-                              WHERE u.UserName = @UserName
-                            ";
+        #endregion
 
-            var p = new { UserName = username };
-            int basketId = CF.GetInt((await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, p)).Id);
-            return basketId;
-        }
-
-        public async Task HandleBasketMode(int userId, Guid productId, bool mode)
-        {
-            string sqlFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Sql", "upsertbasket.sql");
-            string query = System.IO.File.ReadAllText(sqlFilePath);
-            var p = new { UserId = userId, ProductId = productId, Mode = mode };
-            try
-            {
-                await _dapperService.BeginTransactionAsync();
-                await _dapperService.Execute(query, p);
-                await _dapperService.CommitAsync();
-            }
-            catch (Exception ex)
-            {
-                await _dapperService.RollbackAsync();
-                throw;
-            }
-        }
-
-        public async Task RemoveRange(List<BasketItemDTO> items)
-        {
-            var basketItems = new List<BasketItem>();
-
-            foreach (var item in items)
-            {
-                var basketItem = await _db.BasketItems.FindAsync(item.BasketItemId);
-                basketItems.Add(basketItem);
-            }
-            _db.BasketItems.RemoveRange(basketItems);
-            await _db.SaveChangesAsync();
-        }
-
-        public async Task<Result<int>> ToggleStatusItems(string username, int itemId)
-        {
-            var basket = await GetBasket(username);
-            string query = @"
-                            DECLARE @CurrentStatus BIT
-                            SELECT @CurrentStatus = Status FROM BasketItems WHERE BasketId = @BasketId AND Id = @BasketItemsId
-                            IF(@CurrentStatus = 0)
-                                UPDATE BasketItems SET Status = 1 WHERE BasketId = @BasketId AND Id = @BasketItemsId
-                            ELSE
-                                UPDATE BasketItems SET Status = 0 WHERE BasketId = @BasketId AND Id = @BasketItemsId
-                            ";
-            var p = new { BasketId = basket.Id, BasketItemsId = itemId };
-            try
-            {
-                await _dapperService.BeginTransactionAsync();
-                await _dapperService.Execute(query, p);
-                await _dapperService.CommitAsync();
-
-                return Result<int>.Success(itemId);
-            }
-            catch (Exception ex)
-            {
-                await _dapperService.RollbackAsync();
-                return Result<int>.Failure("Change status failed !");
-            }
-        }
+        //
+        #region Basket Payment ( will update later )
 
         public async Task<int> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username)
         {
-            int basketId = await GetBasketIdByUsername(username);
-            if (basketId < 1) throw new Exception("Basket is not found !");
+            string query = @"                               
 
-            string query = @"   Update Baskets 
-                                SET PaymentIntentId = @PaymentIntentId, ClientSecret = @ClientSecret
-                                WHERE Id = @Id  
+                                -- Update later - get basket Id - combine in one function 
+
+                              SELECT b.Id 
+                              FROM Baskets b
+                              INNER JOIN AspNetUsers u ON u.Id = b.UserId
+                              WHERE u.UserName = @UserName
+
+                              Update Baskets 
+                              SET PaymentIntentId = @PaymentIntentId, ClientSecret = @ClientSecret
+                              WHERE Id = @Id  
                             ";
 
-            var p = new { PaymentIntentId = paymentIntentId, ClientSecret = clientSecret, Id = basketId };
+            var p = new { PaymentIntentId = paymentIntentId, ClientSecret = clientSecret };
 
             try
             {
@@ -149,11 +163,13 @@ namespace Store_API.Repositories
 
                 return 1;
             }
-            catch(SqlException ex)
+            catch (SqlException ex)
             {
                 await _dapperService.RollbackAsync();
                 throw;
             }
         }
+
+        #endregion
     }
 }

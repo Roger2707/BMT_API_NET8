@@ -54,6 +54,7 @@ namespace Store_API.Data
             {
                 Id = 1,
                 UserName = "admin",
+                FullName = "Admin",
                 NormalizedUserName = "ADMIN",
                 Email = "admin@example.com",
                 NormalizedEmail = "ADMIN@EXAMPLE.COM",

@@ -1,13 +1,23 @@
-﻿using Store_API.DTOs;
-using Store_API.DTOs.Baskets;
+﻿using Store_API.DTOs.Baskets;
 
 namespace Store_API.IService
 {
     public interface IBasketService
     {
-        Task<BasketDTO> GetBasket(string userName);
-        Task<Result<BasketDTO>> HandleBasketMode(int userId, Guid productId, bool mode, string currentUserName);
-        Task<Result<int>> ToggleStatusItems(string username, int itemId);
-        Task<Result<int>> RemoveRange(string username, List<BasketItemDTO> items);
+        #region Retrieve and Sync
+
+        Task<BasketDTO> GetBasketDTORedis(int userId, string username);
+        Task<BasketDTO> GetBasketDTODB(string username);
+        Task SyncBasketDB(string username);
+
+        #endregion
+
+        #region CRUD Operations
+
+        Task UpsertBasket(BasketUpsertDTO basketUpsertDTO);
+        Task ToggleBasketItemStatus(string username, Guid basketItemId);
+        Task RemoveRangeItems(string username);
+
+        #endregion
     }
 }

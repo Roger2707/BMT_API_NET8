@@ -32,7 +32,7 @@ namespace Store_API.Controllers
                 if(userAddressId == 0) return BadRequest(new ProblemDetails { Title = "User Address is not found" });
 
                 // 2. Get Basket - Current User 
-                var basketDTO = await _basketService.GetBasket(User.Identity.Name);
+                var basketDTO = new DTOs.Baskets.BasketDTO();
                 if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
 
                 var user = await _userManager.FindByNameAsync(User.Identity.Name);

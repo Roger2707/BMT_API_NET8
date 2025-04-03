@@ -29,7 +29,6 @@ namespace Store_API.Repositories
             Comment = new CommentRepository(_db, _dapperService);
             Rating = new RatingRepository(_db, _dapperService);
             UserAddress = new UserAddressRepository(_db, _dapperService);
-            Basket = new BasketRepository(_dapperService, _db);
             Order = new OrderRepository(_dapperService, _db);
             Payment = new PaymentRepository(_db);
         }

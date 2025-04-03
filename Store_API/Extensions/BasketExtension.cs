@@ -1,21 +1,18 @@
 ﻿using Store_API.DTOs.Baskets;
-using Store_API.Helpers;
 
 namespace Store_API.Extensions
 {
     public static class BasketExtension
     {
-        public static BasketDTO MapBasket(this List<dynamic> result)
+        public static BasketDTO MapBasket(this List<BasketDapperRow> result)
         {
             List<BasketItemDTO> items = new List<BasketItemDTO>();
-
-            // Map Basket to BasketDTO
             foreach (var item in result)
             {
-                BasketItemDTO itemDTO = new BasketItemDTO()
+                var itemDTO = new BasketItemDTO()
                 {
                     BasketItemId = item.BasketItemId,
-                    ProducDetailtId = item.ProducDetailtId,
+                    ProductDetailId = item.ProducDetailId,
                     ProductName = item.ProductName,
                     ProductFirstImage = item.ProductFirstImage,
                     Quantity = 0,

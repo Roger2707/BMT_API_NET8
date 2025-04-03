@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250402133800_createRoDB")]
-    partial class createRoDB
+    [Migration("20250403013024_addNewSQLDB")]
+    partial class addNewSQLDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -778,16 +778,17 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c91a39b3-2518-47a0-b6b1-5cc3e6bcee21",
+                            ConcurrencyStamp = "4d60a05a-4f8b-4d2e-bf6b-b6e0191cff39",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin@example.com",
                             EmailConfirmed = true,
+                            FullName = "Admin",
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHTSSQncZPqLEYEgktaYGTZxtk87JDOSk6KrhXRu7GVbNusDkeP1ORizTpoemEjb3Q==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEA3FDoEEbFQeRzzWW4A5s8dc23eokonuYVoNEoA/Wy1zzH9LoAr5KXJ8JlZixn1WAA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "399eb0aa-863e-4d05-a851-be89bc3ef4eb",
+                            SecurityStamp = "34f33483-11f2-4c61-aa85-2340e33bd28d",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });

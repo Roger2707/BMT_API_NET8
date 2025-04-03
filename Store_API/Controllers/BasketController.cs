@@ -25,8 +25,7 @@ namespace Store_API.Controllers
         [Authorize]
         public async Task<IActionResult> GetBasket()
         {
-            var basket = await _basketService.GetBasket(User.Identity.Name);
-            return Ok(basket);
+            return Ok();
         }
 
         [Authorize]
@@ -39,18 +38,23 @@ namespace Store_API.Controllers
             int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
             bool modeParam = mode == 1 ? true : false;
             
-            var result = await _basketService.HandleBasketMode(userId, productId, modeParam, User.Identity.Name);
-            if(!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] }); 
-            return Ok(result);
+
+            return Ok();
         }
 
         [Authorize]
         [HttpPost("toggle-status-item")]
-        public async Task<IActionResult> ToggleItemsStatus(int itemId)
+        public async Task<IActionResult> ToggleItemsStatus(Guid itemId)
         {
-            var result = await _basketService.ToggleStatusItems(User.Identity.Name, itemId);
-            if (!result.IsSuccess) return BadRequest(new ProblemDetails { Title = result.Errors[0] });
-            return Ok(result);
+            try
+            {
+                await _basketService.ToggleBasketItemStatus(User.Identity.Name, itemId);
+                return Ok(itemId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }       
         }
     }
 }

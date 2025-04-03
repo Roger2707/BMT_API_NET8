@@ -1,7 +1,6 @@
 ﻿using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.IService;
-using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 
@@ -30,7 +29,7 @@ namespace Store_API.Services
                     .Select(i => 
                             new OrderItem
                             {
-                                ProductId = i.ProducDetailtId,
+                                ProductId = i.ProductDetailId,
                                 Quantity = i.Quantity,
                                 SubTotal = i.DiscountPrice * i.Quantity,
                             })
@@ -56,7 +55,7 @@ namespace Store_API.Services
 
                 // 4. Remove Items in Basket - Sync Redis
                 var items = basket.Items.Where(x => x.Status == true).ToList();
-                await _basketService.RemoveRange(userName, items);
+                await _basketService.RemoveRangeItems(userName);
 
                 // 5. Create PaymentIntent on Stripe (Add Payment in db)
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
