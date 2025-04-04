@@ -1,40 +1,57 @@
 ﻿using Store_API.Cache_Layer;
 using Store_API.DTOs.Baskets;
+using Store_API.DTOs.Products;
 using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace Store_API.Services
 {
     public class BasketService : IBasketService
     {
-        private readonly IBasketRepository _basketRepository;
         private readonly IRedisService _redisService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IProductService _productService;
+        private readonly ILogger<BasketService> _logger;
 
-        public BasketService(IBasketRepository basketRepository, IRedisService redisService, IUnitOfWork unitOfWork)
+        public BasketService(
+            IRedisService redisService, 
+            IUnitOfWork unitOfWork, 
+            IProductService productService,
+            ILogger<BasketService> logger)
         {
-            _basketRepository = basketRepository;
             _redisService = redisService;
             _unitOfWork = unitOfWork;
+            _productService = productService;
+            _logger = logger;
         }
 
         #region Retrieve & Sync Data
 
         public async Task<BasketDTO> GetBasketDTORedis(int userId, string username)
         {
-            var basketCache = await _basketRepository.GetBasketDTORedis(userId, username);
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username cannot be empty", nameof(username));
+
+            var basketCache = await _unitOfWork.Basket.GetBasketDTORedis(userId, username);
             return basketCache;
         }
 
         public async Task<BasketDTO> GetBasketDTODB(string username)
         {
-            var basketDb = await _basketRepository.GetBasketDTODB(username);
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username cannot be empty", nameof(username));
+
+            var basketDb = await _unitOfWork.Basket.GetBasketDTODB(username);
             return basketDb;
         }
 
         public async Task SyncBasketDB(string username)
         {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username cannot be empty", nameof(username));
+
             string basketKey = $"basket:{username}";
             var redisBasket = await _redisService.GetAsync<BasketDTO>(basketKey);
             if (redisBasket == null) return;
@@ -43,20 +60,50 @@ namespace Store_API.Services
             {
                 await _unitOfWork.BeginTransactionDapperAsync();
 
-                if (await _basketRepository.CheckBasketExistedDB(redisBasket.UserId, redisBasket.Id))
+                if (await _unitOfWork.Basket.CheckBasketExistedDB(redisBasket.UserId, redisBasket.Id))
                 {
-                    await _basketRepository.DeleteBasketItem(redisBasket.Id);
-                    await _basketRepository.DeleteBasket(redisBasket.UserId, redisBasket.Id);
+                    await _unitOfWork.Basket.DeleteBasketItem(redisBasket.Id);
+                    await _unitOfWork.Basket.DeleteBasket(redisBasket.UserId, redisBasket.Id);
                 }
-                await _basketRepository.InsertBasket(redisBasket);
-                await _basketRepository.InsertBasketItems(redisBasket);
+
+                // Only sync if basket has items
+                if (redisBasket.Items.Any())
+                {
+                    await _unitOfWork.Basket.InsertBasket(redisBasket);
+                    await _unitOfWork.Basket.InsertBasketItems(redisBasket);
+                }
 
                 await _unitOfWork.CommitAsync();
+                _logger.LogInformation($"Successfully synced basket for user {username}");
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
+                _logger.LogError(ex, $"Failed to sync basket for user {username}");
                 throw new Exception("An error occurred while syncing the basket.", ex);
+            }
+        }
+
+        public async Task CleanupExpiredBaskets()
+        {
+            try
+            {
+                var keys = await _redisService.GetKeysAsync("basket:*");
+                foreach (var key in keys)
+                {
+                    var ttl = await _redisService.GetKeyTimeToLiveAsync(key);
+                    if (ttl?.TotalMinutes < 5) // If less than 5 minutes remaining
+                    {
+                        var username = key.Split(':')[1];
+                        await SyncBasketDB(username);
+                        _logger.LogInformation($"Synced basket for user {username} during cleanup");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error during basket cleanup");
+                throw;
             }
         }
 
@@ -66,72 +113,123 @@ namespace Store_API.Services
 
         public async Task UpsertBasket(BasketUpsertDTO basketUpsertDTO)
         {
+            if (basketUpsertDTO == null)
+                throw new ArgumentNullException(nameof(basketUpsertDTO));
+
+            if (string.IsNullOrWhiteSpace(basketUpsertDTO.Username))
+                throw new ArgumentException("Username cannot be empty", nameof(basketUpsertDTO.Username));
+
+            if (basketUpsertDTO.Quantity <= 0)
+                throw new ArgumentException("Quantity must be greater than 0", nameof(basketUpsertDTO.Quantity));
+
             string basketKey = $"basket:{basketUpsertDTO.Username}";
             var redisBasket = await _redisService.GetAsync<BasketDTO>(basketKey);
 
-            if (redisBasket == null)
+            try
             {
-                var basketFromDB = await GetBasketDTODB(basketUpsertDTO.Username);
-                if (basketFromDB == null)
+                redisBasket = await GetOrCreateBasket(redisBasket, basketUpsertDTO);
+                await UpdateBasketItems(redisBasket, basketUpsertDTO);
+                await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(30));
+                
+                // Start background sync task
+                _ = Task.Run(async () => 
                 {
-                    redisBasket = new BasketDTO
+                    try
                     {
-                        Id = Guid.NewGuid(),
-                        UserId = basketUpsertDTO.UserId,
-                        Items = new List<BasketItemDTO>()
-                    };
-                }
-                else
-                {
-                    redisBasket = basketFromDB;
-                }
+                        await Task.Delay(TimeSpan.FromMinutes(25));
+                        await SyncBasketDB(basketUpsertDTO.Username);
+                        _logger.LogInformation($"Background sync completed for user {basketUpsertDTO.Username}");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, $"Background sync failed for user {basketUpsertDTO.Username}");
+                    }
+                });
             }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to upsert basket for user {basketUpsertDTO.Username}");
+                throw new Exception($"Failed to upsert basket for user {basketUpsertDTO.Username}", ex);
+            }
+        }
 
-            //////////
-            var basketItemDTO = redisBasket.Items.FirstOrDefault(item => item.ProductDetailId == basketUpsertDTO.ProductDetailId);
-            if (basketItemDTO == null)
-            {                           
-                basketItemDTO = new BasketItemDTO
+        private async Task<BasketDTO> GetOrCreateBasket(BasketDTO redisBasket, BasketUpsertDTO basketUpsertDTO)
+        {
+            if (redisBasket != null) return redisBasket;
+
+            var basketFromDB = await GetBasketDTODB(basketUpsertDTO.Username);
+            if (basketFromDB != null) return basketFromDB;
+
+            return new BasketDTO
+            {
+                Id = Guid.NewGuid(),
+                UserId = basketUpsertDTO.UserId,
+                Items = new List<BasketItemDTO>()
+            };
+        }
+
+        private async Task UpdateBasketItems(BasketDTO basket, BasketUpsertDTO basketUpsertDTO)
+        {
+            var existingItem = basket.Items.FirstOrDefault(item => item.ProductDetailId == basketUpsertDTO.ProductDetailId);
+
+            if (existingItem == null)
+            {
+                var productDetail = await _productService.GetProductSingleDetail(basketUpsertDTO.ProductDetailId);
+                
+                if (productDetail == null)
+                    throw new Exception($"Product detail with ID {basketUpsertDTO.ProductDetailId} not found");
+
+                basket.Items.Add(new BasketItemDTO
                 {
                     BasketItemId = Guid.NewGuid(),
                     ProductDetailId = basketUpsertDTO.ProductDetailId,
                     Quantity = basketUpsertDTO.Quantity,
-                    Status = basketItemDTO.Status,
-                };
+                    Status = true,
+                    ProductName = productDetail.ProductName,
+                    ProductFirstImage = productDetail.ProductFirstImage,
+                    OriginPrice = productDetail.OriginPrice,
+                    DiscountPercent = productDetail.DiscountPercent,
+                    DiscountPrice = productDetail.DiscountPrice
+                });
+                return;
             }
-            else
+
+            switch (basketUpsertDTO.Mode)
             {
-                if (basketUpsertDTO.Mode == BasketMode.Add)
-                {
-                    basketItemDTO.Quantity += basketUpsertDTO.Quantity;
-                }
-                else if (basketUpsertDTO.Mode == BasketMode.Remove)
-                {
-                    basketItemDTO.Quantity -= basketUpsertDTO.Quantity;
-
-                    // If result quantity < 0
-                    if (basketItemDTO.Quantity <= 0)
-                        redisBasket.Items.Remove(basketItemDTO);
-                }
+                case BasketMode.Add:
+                    existingItem.Quantity += basketUpsertDTO.Quantity;
+                    break;
+                case BasketMode.Remove:
+                    existingItem.Quantity -= basketUpsertDTO.Quantity;
+                    if (existingItem.Quantity <= 0)
+                    {
+                        basket.Items.Remove(existingItem);
+                    }
+                    break;
+                default:
+                    throw new ArgumentException($"Invalid basket mode: {basketUpsertDTO.Mode}");
             }
-
-            await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(30));
         }
 
         public async Task ToggleBasketItemStatus(string username, Guid basketItemId)
         {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username cannot be empty", nameof(username));
+
+            if (basketItemId == Guid.Empty)
+                throw new ArgumentException("Basket item ID cannot be empty", nameof(basketItemId));
+
             string basketKey = $"basket:{username}";
             var redisBasket = await _redisService.GetAsync<BasketDTO>(basketKey);
 
             if (redisBasket == null)
-                throw new Exception("Items is not found !");
+                throw new Exception($"Basket not found for user {username}");
 
             var basketItemDTO = redisBasket.Items.FirstOrDefault(item => item.BasketItemId == basketItemId);
 
             if (basketItemDTO == null)
-                throw new Exception("Basket item not found!");
+                throw new Exception($"Basket item with ID {basketItemId} not found");
 
-            // Update Status = !Current Status
             basketItemDTO.Status = !basketItemDTO.Status;
 
             await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(30));
@@ -139,11 +237,14 @@ namespace Store_API.Services
 
         public async Task RemoveRangeItems(string username)
         {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username cannot be empty", nameof(username));
+
             string basketKey = $"basket:{username}";
             var redisBasket = await _redisService.GetAsync<BasketDTO>(basketKey);
 
             if (redisBasket == null)
-                throw new Exception("Items is not found !");
+                throw new Exception($"Basket not found for user {username}");
 
             redisBasket.Items.Clear();
             await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(30));

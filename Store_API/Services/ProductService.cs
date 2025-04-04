@@ -30,9 +30,17 @@ namespace Store_API.Services
             return product;
         }
 
-        public async Task<IEnumerable<ProductWithDetailDTO>> GetProductDetails(ProductSearch search)
+        public async Task<IEnumerable<ProductSingleDetailDTO>> GetProductSingleDetails(ProductSearch search)
         {
             var result = await _unitOfWork.Product.GetProductDetails(search);
+            return result;
+        }
+
+        public async Task<ProductSingleDetailDTO> GetProductSingleDetail(Guid productDetailId)
+        {
+            var result = await _unitOfWork.Product.GetProductSingleDetail(productDetailId);
+            if (result == null)
+                throw new Exception($"Product detail with ID {productDetailId} not found");
             return result;
         }
 

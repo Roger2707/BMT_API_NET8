@@ -185,29 +185,35 @@ namespace Store_API.Repositories
             return productDTO;
         }
 
-        public async Task<IEnumerable<ProductWithDetailDTO>> GetProductDetails(ProductSearch search)
+        public async Task<IEnumerable<ProductSingleDetailDTO>> GetProductDetails(ProductSearch search)
         {
             var minPrice = CF.GetDouble(search.MinPrice);
             var maxPrice = CF.GetDouble(search.MaxPrice);
             if (minPrice > 0 && maxPrice > 0 && minPrice > maxPrice) throw new Exception("Min Price must be smaller than Max Price !");
 
             string query = @"
-                                SELECT 
-	                                detail.Id as ProductDetailId
-	                                , product.ImageUrl
-	                                , detail.Color
-	                                , category.Name as CategoryName
-	                                , brand.Name as BrandName
-	                                , detail.Price
-	                                , product.Name as ProductName
-                                FROM ProductDetails detail
-                                INNER JOIN Products product ON detail.ProductId = product.Id
-                                INNER JOIN Categories category ON category.Id = product.CategoryId
-                                INNER JOIN Brands brand ON brand.Id = product.BrandId
-
-                                WHERE 1 = 1 -- condition
-
-                                ";
+                SELECT 
+                    detail.Id as ProductDetailId,
+                    product.Name as ProductName,
+                    IIF(product.ImageUrl IS NOT NULL, 
+                        (SELECT TOP 1 value FROM STRING_SPLIT(product.ImageUrl, ',')), 
+                        '') AS ProductFirstImage,
+                    detail.Price as OriginPrice,
+                    ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent,
+                    IIF(promotion.PercentageDiscount is not NULL, 
+                        detail.Price - (detail.Price * (promotion.PercentageDiscount / 100)), 
+                        detail.Price) as DiscountPrice,
+                    brand.Name as BrandName,
+                    category.Name as CategoryName
+                FROM ProductDetails detail
+                INNER JOIN Products product ON detail.ProductId = product.Id
+                INNER JOIN Categories category ON category.Id = product.CategoryId
+                INNER JOIN Brands brand ON brand.Id = product.BrandId
+                LEFT JOIN Promotions promotion 
+                    ON promotion.CategoryId = category.Id 
+                    AND promotion.BrandId = brand.Id 
+                    AND promotion.EndDate >= GETDATE()
+                WHERE 1 = 1 -- condition";
 
             if(search != null)
             {
@@ -217,11 +223,40 @@ namespace Store_API.Repositories
                 if(maxPrice > 0) where += " AND detail.Price <= @MaxPrice ";
                 if(search.CategoryId != Guid.Empty && search.CategoryId != null) where += " AND product.CategoryId = @CategoryId ";
                 if(search.BrandId != Guid.Empty && search.BrandId != null) where += " AND product.BrandId = @BrandId ";
-
                 query = query.Replace("-- condition", where);
             }
 
-            var result = await _dapperService.QueryAsync<ProductWithDetailDTO>(query, search);
+            var result = await _dapperService.QueryAsync<ProductSingleDetailDTO>(query, search);
+            return result;
+        }
+
+        public async Task<ProductSingleDetailDTO> GetProductSingleDetail(Guid productDetailId)
+        {
+            string query = @"
+                SELECT 
+                    detail.Id as ProductDetailId,
+                    product.Name as ProductName,
+                    IIF(product.ImageUrl IS NOT NULL, 
+                        (SELECT TOP 1 value FROM STRING_SPLIT(product.ImageUrl, ',')), 
+                        '') AS ProductFirstImage,
+                    detail.Price as OriginPrice,
+                    ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent,
+                    IIF(promotion.PercentageDiscount is not NULL, 
+                        detail.Price - (detail.Price * (promotion.PercentageDiscount / 100)), 
+                        detail.Price) as DiscountPrice,
+                    brand.Name as BrandName,
+                    category.Name as CategoryName
+                FROM ProductDetails detail
+                INNER JOIN Products product ON detail.ProductId = product.Id
+                INNER JOIN Categories category ON category.Id = product.CategoryId
+                INNER JOIN Brands brand ON brand.Id = product.BrandId
+                LEFT JOIN Promotions promotion 
+                    ON promotion.CategoryId = category.Id 
+                    AND promotion.BrandId = brand.Id 
+                    AND promotion.EndDate >= GETDATE()
+                WHERE detail.Id = @ProductDetailId";
+
+            var result = await _dapperService.QueryFirstOrDefaultAsync<ProductSingleDetailDTO>(query, new { ProductDetailId = productDetailId });
             return result;
         }
 

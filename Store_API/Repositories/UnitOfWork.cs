@@ -2,6 +2,7 @@
 using Store_API.Data;
 using Store_API.Helpers;
 using Store_API.IRepositories;
+using StackExchange.Redis;
 
 namespace Store_API.Repositories
 {
@@ -9,11 +10,13 @@ namespace Store_API.Repositories
     {
         private readonly StoreContext _db;
         private readonly IDapperService _dapperService;
+        private readonly IConnectionMultiplexer _redis;
 
-        public UnitOfWork(StoreContext db, IDapperService dapperService)
+        public UnitOfWork(StoreContext db, IDapperService dapperService, IConnectionMultiplexer redis)
         {
             _db = db;
             _dapperService = dapperService;
+            _redis = redis;
 
             Category = new CategoryRepository(_db, _dapperService);
             Brand = new BrandRepository(_db, _dapperService);
@@ -24,7 +27,7 @@ namespace Store_API.Repositories
             Warehouse = new WarehouseRepository(_db, _dapperService);
             Stock = new StockRepository(_db, _dapperService);
             StockTransaction = new StockTransactionRepository(_db, _dapperService);
-
+            Basket = new BasketRepository(_dapperService, _redis);
 
             Comment = new CommentRepository(_db, _dapperService);
             Rating = new RatingRepository(_db, _dapperService);
@@ -42,8 +45,6 @@ namespace Store_API.Repositories
         public IRatingRepository Rating { get; private set; }
         public IPromotionRepository Promotion { get; private set; }
         public IUserAddressRepository UserAddress { get; private set; }
-
-
         public IBasketRepository Basket { get; private set; }
         public IOrderRepository Order { get; private set; }
         public IPaymentRepository Payment { get; private set; }

@@ -73,63 +73,95 @@ namespace Store_API.Repositories
 
         public async Task<BasketDTO> GetBasketDTORedis(int userId, string username)
         {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username cannot be empty", nameof(username));
+
             string basketKey = $"basket:{username}";
-            var redisBasket = await _redis.StringGetAsync(basketKey);
-
-            if (string.IsNullOrEmpty(redisBasket))
+            try
             {
-                var basketDB = await GetBasketDTODB(username);
+                var redisBasket = await _redis.StringGetAsync(basketKey);
 
-                if (basketDB == null)
-                    return new BasketDTO { Items = new List<BasketItemDTO>(), UserId = userId, Id = Guid.NewGuid(), GrandTotal = 0 };
+                if (string.IsNullOrEmpty(redisBasket))
+                {
+                    var basketDB = await GetBasketDTODB(username);
 
-                var basketJson = JsonSerializer.Serialize(basketDB);
-                await _redis.StringSetAsync(basketKey, basketJson, TimeSpan.FromMinutes(30));
-                return basketDB;
+                    if (basketDB == null)
+                        return new BasketDTO 
+                        { 
+                            Id = Guid.NewGuid(),
+                            UserId = userId, 
+                            Items = new List<BasketItemDTO>(), 
+                            GrandTotal = 0 
+                        };
+
+                    var basketJson = JsonSerializer.Serialize(basketDB);
+                    await _redis.StringSetAsync(basketKey, basketJson, TimeSpan.FromMinutes(30));
+                    return basketDB;
+                }
+
+                var basketDTO = JsonSerializer.Deserialize<BasketDTO>(redisBasket);
+                if (basketDTO == null)
+                    throw new Exception("Failed to deserialize basket from Redis");
+
+                return basketDTO;
             }
-            var basketDTO = JsonSerializer.Deserialize<BasketDTO>(redisBasket);
-            return basketDTO;
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to get basket from Redis for user {username}", ex);
+            }
         }
 
         public async Task<BasketDTO> GetBasketDTODB(string username)
         {
+            if (string.IsNullOrWhiteSpace(username))
+                throw new ArgumentException("Username cannot be empty", nameof(username));
+
             string query = @"
-                            SELECT 
+                SELECT 
+                    basket.Id
+                    , basket.UserId
+                    , items.Id as BasketItemId
+                    , items.ProductDetailId
+                    , product.Name as ProductName
+                    , IIF(product.ImageUrl IS NOT NULL, 
+                        (SELECT TOP 1 value 
+                         FROM STRING_SPLIT(product.ImageUrl, ',')), 
+                        '') AS ProductFirstImage
+                    , items.Quantity
+                    , detail.Price as OriginPrice
+                    , ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent
+                    , IIF(promotion.PercentageDiscount is not NULL, 
+                        detail.Price - (detail.Price * (promotion.PercentageDiscount / 100)), 
+                        detail.Price) as DiscountPrice
+                    , items.Status
 
-                            basket.Id
-                            , basket.UserId
-                            , items.Id as BasketItemId
-                            , items.ProductId
-                            , product.Name as ProductName
-                            , IIF(product.ImageUrl IS NOT NULL, 
-                                (SELECT TOP 1 value 
-                                 FROM STRING_SPLIT(product.ImageUrl, ',')), 
-                                '') AS ProductFirstImage
-                            --, items.Quantity
-                            --, product.Price as OriginPrice
-                            --, ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent
-                            --, IIF(promotion.PercentageDiscount is not NULL, product.Price - (product.Price * (promotion.PercentageDiscount / 100)), product.Price) as DiscountPrice
-                            , items.Status
+                FROM Baskets basket
 
-                            FROM Baskets basket
+                INNER JOIN BasketItems items ON items.BasketId = basket.Id
+                INNER JOIN ProductDetails detail ON detail.Id = items.ProductDetailId
+                INNER JOIN Products product ON product.Id = detail.ProductId
+                INNER JOIN Brands brand ON brand.Id = product.BrandId
+                INNER JOIN Categories category ON category.Id = product.CategoryId
+                LEFT JOIN Promotions promotion 
+                    ON promotion.CategoryId = category.Id 
+                    AND promotion.BrandId = brand.Id 
+                    AND GETDATE() <= promotion.EndDate
+                INNER JOIN AspNetUsers u ON u.Id = basket.UserId
 
-                            INNER JOIN BasketItems items ON items.BasketId = basket.Id
-                            INNER JOIN Products product ON product.Id = items.ProductId
-                            INNER JOIN Brands brand ON brand.Id = product.BrandId
-                            INNER JOIN Categories category ON category.Id = product.CategoryId
-                            LEFT JOIN Promotions promotion 
-                                ON promotion.CategoryId = category.Id AND promotion.BrandId = brand.Id AND GETDATE() <= promotion.EndDate
-                            INNER JOIN AspNetUsers u ON u.Id = basket.UserId
+                WHERE u.UserName = @UserName";
 
-                            WHERE u.UserName = @UserName
+            try
+            {
+                var p = new { UserName = username };
+                var result = await _dapperService.QueryAsync<BasketDapperRow>(query, p);
+                if (result == null || result.Count <= 0) return null;
 
-                            ";
-
-            var p = new { UserName = username };
-            var result = await _dapperService.QueryAsync<BasketDapperRow>(query, p);
-            if (result == null || result.Count <= 0) return null;
-
-            return result.MapBasket();
+                return result.MapBasket();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to get basket from database for user {username}", ex);
+            }
         }
 
         #endregion

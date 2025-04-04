@@ -9,6 +9,7 @@ namespace Store_API.IService
         Task<BasketDTO> GetBasketDTORedis(int userId, string username);
         Task<BasketDTO> GetBasketDTODB(string username);
         Task SyncBasketDB(string username);
+        Task CleanupExpiredBaskets();
 
         #endregion
 

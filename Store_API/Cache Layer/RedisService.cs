@@ -1,5 +1,4 @@
-﻿
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using System.Text.Json;
 
 namespace Store_API.Cache_Layer
@@ -25,6 +24,19 @@ namespace Store_API.Cache_Layer
             var db = _redis.GetDatabase();
             var json = JsonSerializer.Serialize(value);
             await db.StringSetAsync(key, json, expiration);
+        }
+
+        public async Task<IEnumerable<string>> GetKeysAsync(string pattern)
+        {
+            var server = _redis.GetServer(_redis.GetEndPoints().First());
+            var keys = server.Keys(pattern: pattern);
+            return await Task.FromResult(keys.Select(k => k.ToString()));
+        }
+
+        public async Task<TimeSpan?> GetKeyTimeToLiveAsync(string key)
+        {
+            var db = _redis.GetDatabase();
+            return await db.KeyTimeToLiveAsync(key);
         }
     }
 }

@@ -96,16 +96,33 @@ namespace Store_API.Controllers
             return Ok();
         }
 
-        [HttpGet("get-product-details")]
+        [HttpGet("get-product-single-details")]
         public async Task<IActionResult> GetProductDetails([FromQuery] ProductSearch productSearch)
         {
             try
             {
-                var result = await _productService.GetProductDetails(productSearch);
+                var result = await _productService.GetProductSingleDetails(productSearch);
                 if (result == null) return BadRequest(new ProblemDetails { Title = "Products not found !" });
                 return Ok(result);
             }
             catch(Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
+        }
+
+        [HttpGet("get-product-single-detail")]
+        public async Task<IActionResult> GetProductSingleDetail([FromQuery] Guid productDetailId)
+        {
+            try
+            {
+                if (productDetailId == Guid.Empty)
+                    return BadRequest(new ProblemDetails { Title = "Product Detail Id is required" });
+
+                var result = await _productService.GetProductSingleDetail(productDetailId);
+                return Ok(result);
+            }
+            catch (Exception ex)
             {
                 return BadRequest(new ProblemDetails { Title = ex.Message });
             }
