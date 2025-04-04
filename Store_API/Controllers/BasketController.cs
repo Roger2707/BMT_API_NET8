@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Store_API.DTOs.Baskets;
 using Store_API.IService;
 using Store_API.Models.Users;
-using Store_API.Repositories;
 
 namespace Store_API.Controllers
 {
@@ -11,35 +11,47 @@ namespace Store_API.Controllers
     [ApiController]
     public class BasketController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly UserManager<User> _userManager;
         private readonly IBasketService _basketService;
-        public BasketController(IUnitOfWork unitOfWork, UserManager<User> userManager, IBasketService basketService)
+        private readonly IProductService _productService;
+        private readonly UserManager<User> _userManager;
+        public BasketController(IBasketService basketService, IProductService productService, UserManager<User> userManager)
         {
-            _unitOfWork = unitOfWork;
-            _userManager = userManager;
             _basketService = basketService;
+            _productService = productService;
+            _userManager = userManager;
         }
 
         [HttpGet("get-basket")]
         [Authorize]
         public async Task<IActionResult> GetBasket()
         {
-            return Ok();
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            int userId = user.Id;
+            var redisBasket = await _basketService.GetBasketDTORedis(userId, User.Identity.Name);
+            return Ok(redisBasket);
         }
 
         [Authorize]
         [HttpPost("upsert-basket")]
-        public async Task<IActionResult> UpsertBasket(Guid productId, int mode)
+        public async Task<IActionResult> UpsertBasket([FromBody] BasketUpsertDTO basketUpsertDTO)
         {
-            var product = await _unitOfWork.Product.GetProductDTO(productId);
-            if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {productId} not found !" });
-
-            int userId = (await _userManager.FindByNameAsync(User.Identity.Name)).Id;
-            bool modeParam = mode == 1 ? true : false;
+            var product = await _productService.GetProductSingleDetail(basketUpsertDTO.ProductDetailId);
+            if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {basketUpsertDTO.ProductDetailId} not found !" });
             
+            var user = await _userManager.FindByNameAsync(User.Identity.Name);
+            int userId = user.Id;
 
-            return Ok();
+            try
+            {
+                await _basketService.UpsertBasket(basketUpsertDTO);
+                var redisBasket = await _basketService.GetBasketDTORedis(userId, User.Identity.Name);
+                var newItemUpdated = redisBasket.Items.FirstOrDefault(i => i.ProductDetailId == basketUpsertDTO.ProductDetailId);
+                return Ok(newItemUpdated);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
         }
 
         [Authorize]
