@@ -33,13 +33,21 @@ namespace Store_API.Controllers
 
         [Authorize]
         [HttpPost("upsert-basket")]
-        public async Task<IActionResult> UpsertBasket([FromBody] BasketUpsertDTO basketUpsertDTO)
+        public async Task<IActionResult> UpsertBasket([FromBody] BasketUpsertParam basketParams)
         {
-            var product = await _productService.GetProductSingleDetail(basketUpsertDTO.ProductDetailId);
-            if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {basketUpsertDTO.ProductDetailId} not found !" });
-            
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
             int userId = user.Id;
+
+            var basketUpsertDTO = new BasketUpsertDTO
+            {
+                UserId = userId,
+                Username = User.Identity.Name,
+                ProductDetailId = basketParams.ProductDetailId,
+                Quantity = basketParams.Quantity,
+                Mode = basketParams.Mode
+            };
+            var product = await _productService.GetProductSingleDetail(basketUpsertDTO.ProductDetailId);
+            if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {basketUpsertDTO.ProductDetailId} not found !" });
 
             try
             {

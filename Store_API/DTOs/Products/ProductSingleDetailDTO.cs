@@ -5,6 +5,7 @@ namespace Store_API.DTOs.Products
         public Guid ProductDetailId { get; set; }
         public string ProductName { get; set; }
         public string ProductFirstImage { get; set; }
+        public string Color { get; set; }
         public double OriginPrice { get; set; }
         public double DiscountPercent { get; set; }
         public double DiscountPrice { get; set; }
