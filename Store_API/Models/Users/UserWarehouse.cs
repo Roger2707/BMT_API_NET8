@@ -9,9 +9,6 @@ namespace Store_API.Models.Users
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public User User { get; set; }
-        public int RoleId { get; set; }
-        [ForeignKey("RoleId")]
-        public Role Role { get; set; }
         public Guid WarehouseId { get; set; }
         [ForeignKey("WarehouseId")]
         public Warehouse Warehouse { get; set; }

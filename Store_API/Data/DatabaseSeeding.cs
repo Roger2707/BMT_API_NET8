@@ -516,21 +516,18 @@ namespace Store_API.Data
                     {
                         Id = Guid.NewGuid(),
                         UserId = 2,
-                        RoleId = 2,
                         WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
                     },
                     new UserWarehouse
                     {
                         Id = Guid.NewGuid(),
                         UserId = 3,
-                        RoleId = 2,
                         WarehouseId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                     },
                     new UserWarehouse
                     {
                         Id = Guid.NewGuid(),
                         UserId = 4,
-                        RoleId = 2,
                         WarehouseId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
                     }
                 );
