@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250403013024_addNewSQLDB")]
-    partial class addNewSQLDB
+    [Migration("20250408074151_createDBAgain")]
+    partial class createDBAgain
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,6 +112,21 @@ namespace Store_API.Migrations
                         new
                         {
                             UserId = 1,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            UserId = 3,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            UserId = 4,
                             RoleId = 2
                         });
                 });
@@ -137,11 +152,9 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.Basket", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -156,14 +169,12 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.BasketItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BasketId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("BasketId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductDetailId")
                         .HasColumnType("uniqueidentifier");
@@ -385,42 +396,6 @@ namespace Store_API.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("OrderItems");
-                });
-
-            modelBuilder.Entity("Store_API.Models.OrderAggregate.UserAddress", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Country")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("District")
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("PostalCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StreetAddress")
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Ward")
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserAddresses");
                 });
 
             modelBuilder.Entity("Store_API.Models.Payment", b =>
@@ -677,8 +652,8 @@ namespace Store_API.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Manager",
-                            NormalizedName = "MANAGER"
+                            Name = "SuperAdmin",
+                            NormalizedName = "SUPERADMIN"
                         },
                         new
                         {
@@ -778,20 +753,136 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4d60a05a-4f8b-4d2e-bf6b-b6e0191cff39",
+                            ConcurrencyStamp = "a17d37cd-c106-482c-b4b0-cb321bba8dae",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "admin@example.com",
+                            Email = "spadmin@example.com",
                             EmailConfirmed = true,
-                            FullName = "Admin",
+                            FullName = "SuperAdmin",
                             LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN@EXAMPLE.COM",
-                            NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEA3FDoEEbFQeRzzWW4A5s8dc23eokonuYVoNEoA/Wy1zzH9LoAr5KXJ8JlZixn1WAA==",
+                            NormalizedEmail = "SPADMIN@EXAMPLE.COM",
+                            NormalizedUserName = "SUPERADMIN",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFFRB5oFMkUhzXpy5uC+Ttuzs/5x2jWTAyZcXwpLgDs7J33Jbgtnw9dxpRNY2GyVHQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "34f33483-11f2-4c61-aa85-2340e33bd28d",
+                            SecurityStamp = "ac131037-e5f3-429f-b6a6-9368afe229d2",
                             TwoFactorEnabled = false,
-                            UserName = "admin"
+                            UserName = "spadmin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "18f3140c-c72b-4d3d-bd53-71c24b1a3c30",
+                            Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "admin1@example.com",
+                            EmailConfirmed = true,
+                            FullName = "Admin1",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN1@EXAMPLE.COM",
+                            NormalizedUserName = "ADMIN1",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDPueLQf18pRaOxD4UMxGicRL36KfjjeMZf9r070esFdanArDEwkAK28w/s6Ibq10g==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "137581ee-0ba5-48ef-9021-fff2271df6f2",
+                            TwoFactorEnabled = false,
+                            UserName = "admin1"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "409bf59f-72fc-4d7f-8eb8-def1ef67b63d",
+                            Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "admin2@example.com",
+                            EmailConfirmed = true,
+                            FullName = "Admin2",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN2@EXAMPLE.COM",
+                            NormalizedUserName = "ADMIN2",
+                            PasswordHash = "AQAAAAIAAYagAAAAENZFhAZuaGGbjhbYompXNqLPYIv1si0da0KGQPNeMh12jiPrfYHguSTo30+QFGIO4A==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "d42f6223-9ad4-46f8-a7f3-d5b2d44fae78",
+                            TwoFactorEnabled = false,
+                            UserName = "admin2"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AccessFailedCount = 0,
+                            ConcurrencyStamp = "caa0f236-6450-46df-98d1-51c2a17516ce",
+                            Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Email = "admi3n@example.com",
+                            EmailConfirmed = true,
+                            FullName = "Admin3",
+                            LockoutEnabled = false,
+                            NormalizedEmail = "ADMIN3@EXAMPLE.COM",
+                            NormalizedUserName = "ADMIN3",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKq3lA6jB+0GutRgUbuctnp06lz5thexRgRPdTMR7rULkDuYKCGlxy6UF117ZVX1LA==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "798fc1ea-610a-4738-991c-3baaf8a37750",
+                            TwoFactorEnabled = false,
+                            UserName = "admin3"
                         });
+                });
+
+            modelBuilder.Entity("Store_API.Models.Users.UserAddress", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("District")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("PostalCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("StreetAddress")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Ward")
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UserAddresses");
+                });
+
+            modelBuilder.Entity("Store_API.Models.Users.UserWarehouse", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("WarehouseId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("WarehouseId");
+
+                    b.ToTable("UserWarehouses");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -934,7 +1025,7 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.OrderAggregate.Order", b =>
                 {
-                    b.HasOne("Store_API.Models.OrderAggregate.UserAddress", "UserAddress")
+                    b.HasOne("Store_API.Models.Users.UserAddress", "UserAddress")
                         .WithMany()
                         .HasForeignKey("UserAddressId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -968,17 +1059,6 @@ namespace Store_API.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("Store_API.Models.OrderAggregate.UserAddress", b =>
-                {
-                    b.HasOne("Store_API.Models.Users.User", "User")
-                        .WithMany("UserAddresses")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Store_API.Models.Payment", b =>
@@ -1088,6 +1168,44 @@ namespace Store_API.Migrations
                         .IsRequired();
 
                     b.Navigation("Comment");
+                });
+
+            modelBuilder.Entity("Store_API.Models.Users.UserAddress", b =>
+                {
+                    b.HasOne("Store_API.Models.Users.User", "User")
+                        .WithMany("UserAddresses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Store_API.Models.Users.UserWarehouse", b =>
+                {
+                    b.HasOne("Store_API.Models.Users.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store_API.Models.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store_API.Models.Inventory.Warehouse", "Warehouse")
+                        .WithMany()
+                        .HasForeignKey("WarehouseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+
+                    b.Navigation("Warehouse");
                 });
 
             modelBuilder.Entity("Store_API.Models.Basket", b =>

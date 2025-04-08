@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Store_API.Migrations
 {
     /// <inheritdoc />
-    public partial class addNewSQLDB : Migration
+    public partial class createDBAgain : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -222,8 +222,7 @@ namespace Store_API.Migrations
                 name: "Baskets",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -316,6 +315,38 @@ namespace Store_API.Migrations
                         name: "FK_Promotions_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserWarehouses",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    WarehouseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserWarehouses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserWarehouses_AspNetRoles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserWarehouses_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserWarehouses_Warehouses_WarehouseId",
+                        column: x => x.WarehouseId,
+                        principalTable: "Warehouses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -531,9 +562,8 @@ namespace Store_API.Migrations
                 name: "BasketItems",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    BasketId = table.Column<int>(type: "int", nullable: false),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BasketId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<bool>(type: "bit", nullable: false)
@@ -615,7 +645,7 @@ namespace Store_API.Migrations
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
                 values: new object[,]
                 {
-                    { 1, null, "Manager", "MANAGER" },
+                    { 1, null, "SuperAdmin", "SUPERADMIN" },
                     { 2, null, "Admin", "ADMIN" },
                     { 3, null, "Customer", "CUSTOMER" }
                 });
@@ -623,12 +653,24 @@ namespace Store_API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { 1, 0, "4d60a05a-4f8b-4d2e-bf6b-b6e0191cff39", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin@example.com", true, "Admin", null, false, null, "ADMIN@EXAMPLE.COM", "ADMIN", "AQAAAAIAAYagAAAAEA3FDoEEbFQeRzzWW4A5s8dc23eokonuYVoNEoA/Wy1zzH9LoAr5KXJ8JlZixn1WAA==", null, false, null, "34f33483-11f2-4c61-aa85-2340e33bd28d", false, "admin" });
+                values: new object[,]
+                {
+                    { 1, 0, "a17d37cd-c106-482c-b4b0-cb321bba8dae", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SUPERADMIN", "AQAAAAIAAYagAAAAEFFRB5oFMkUhzXpy5uC+Ttuzs/5x2jWTAyZcXwpLgDs7J33Jbgtnw9dxpRNY2GyVHQ==", null, false, null, "ac131037-e5f3-429f-b6a6-9368afe229d2", false, "spadmin" },
+                    { 2, 0, "18f3140c-c72b-4d3d-bd53-71c24b1a3c30", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEDPueLQf18pRaOxD4UMxGicRL36KfjjeMZf9r070esFdanArDEwkAK28w/s6Ibq10g==", null, false, null, "137581ee-0ba5-48ef-9021-fff2271df6f2", false, "admin1" },
+                    { 3, 0, "409bf59f-72fc-4d7f-8eb8-def1ef67b63d", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAENZFhAZuaGGbjhbYompXNqLPYIv1si0da0KGQPNeMh12jiPrfYHguSTo30+QFGIO4A==", null, false, null, "d42f6223-9ad4-46f8-a7f3-d5b2d44fae78", false, "admin2" },
+                    { 4, 0, "caa0f236-6450-46df-98d1-51c2a17516ce", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEKq3lA6jB+0GutRgUbuctnp06lz5thexRgRPdTMR7rULkDuYKCGlxy6UF117ZVX1LA==", null, false, null, "798fc1ea-610a-4738-991c-3baaf8a37750", false, "admin3" }
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { 2, 1 });
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 2, 2 },
+                    { 2, 3 },
+                    { 2, 4 }
+                });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -789,6 +831,21 @@ namespace Store_API.Migrations
                 name: "IX_UserAddresses_UserId",
                 table: "UserAddresses",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWarehouses_RoleId",
+                table: "UserWarehouses",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWarehouses_UserId",
+                table: "UserWarehouses",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserWarehouses_WarehouseId",
+                table: "UserWarehouses",
+                column: "WarehouseId");
         }
 
         /// <inheritdoc />
@@ -837,7 +894,7 @@ namespace Store_API.Migrations
                 name: "StockTransactions");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "UserWarehouses");
 
             migrationBuilder.DropTable(
                 name: "Baskets");
@@ -853,6 +910,9 @@ namespace Store_API.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductDetails");
+
+            migrationBuilder.DropTable(
+                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Warehouses");

@@ -1,5 +1,6 @@
 ﻿using Store_API.Models;
 using Store_API.Models.Inventory;
+using Store_API.Models.Users;
 
 namespace Store_API.Data
 {
@@ -339,14 +340,14 @@ namespace Store_API.Data
                     },
                     new Warehouse
                     {
-                        Id = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                         Name = "Thu Duc Warehouse",
                         Location = "Thu Duc City",
                         Created = DateTime.Now,
                     },
                     new Warehouse
                     {
-                        Id = Guid.Parse("11111111-1111-1111-1111-111111111113"),
+                        Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
                         Name = "HHT Warehouse",
                         Location = "Vung Tau City",
                         Created = DateTime.Now,
@@ -370,7 +371,7 @@ namespace Store_API.Data
                     {
                         Id = Guid.Parse("99999999-1111-1111-8888-111111111111"),
                         ProductDetailId = Guid.Parse("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
-                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        WarehouseId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                         Quantity = 15,
                         Updated = DateTime.Now,
                     },
@@ -378,7 +379,7 @@ namespace Store_API.Data
                     {
                         Id = Guid.Parse("99999999-1111-7777-1111-111111111111"),
                         ProductDetailId = Guid.Parse("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
-                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111113"),
+                        WarehouseId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
                         Quantity = 18,
                         Updated = DateTime.Now,
                     },
@@ -402,7 +403,7 @@ namespace Store_API.Data
                     {
                         Id = Guid.Parse("99999999-1111-5555-8888-111111111158"),
                         ProductDetailId = Guid.Parse("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
-                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        WarehouseId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                         Quantity = 2,
                         Updated = DateTime.Now,
                     }
@@ -448,7 +449,7 @@ namespace Store_API.Data
                     {
                         Id = Guid.Parse("88888888-1111-3333-2222-111111111111"),
                         ProductDetailId = Guid.Parse("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
-                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        WarehouseId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                         Quantity = 15,
                         TransactionType = 1, // Import                       
                         Created = DateTime.Now,
@@ -459,7 +460,7 @@ namespace Store_API.Data
                     {
                         Id = Guid.Parse("99999333-befa-3333-4545-111111111111"),
                         ProductDetailId = Guid.Parse("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
-                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111113"),
+                        WarehouseId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
                         Quantity = 18,
                         TransactionType = 1, // Import                       
                         Created = DateTime.Now,
@@ -490,7 +491,7 @@ namespace Store_API.Data
                     {
                         Id = Guid.Parse("99999875-abcd-aaaa-8217-222111111111"),
                         ProductDetailId = Guid.Parse("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
-                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111112"),
+                        WarehouseId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
                         Quantity = 2,
                         TransactionType = 1, // Import                       
                         Created = DateTime.Now,
@@ -507,6 +508,62 @@ namespace Store_API.Data
                 );
             }
 
+            // 11. Seed User Warehouse
+            if(context.Warehouses.Any() && !context.UserWarehouses.Any())
+            {
+                await context.AddRangeAsync(
+                    new UserWarehouse
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = 2,
+                        RoleId = 2,
+                        WarehouseId = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    },
+                    new UserWarehouse
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = 3,
+                        RoleId = 2,
+                        WarehouseId = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    },
+                    new UserWarehouse
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = 4,
+                        RoleId = 2,
+                        WarehouseId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    }
+                );
+            }
+
+            // 12. Seed User Address
+            if (!context.UserAddresses.Any())
+            {
+                await context.AddRangeAsync(
+                    new UserAddress
+                    {
+                        UserId = 1,
+                        City = "Ho Chi Minh City",
+                        District = "District 1",
+                        Ward = "Ben Nghe",
+                        StreetAddress = "123 Nguyen Hue",
+                        Country = "Vietnam",
+                        PostalCode = "700000",
+                    },
+                    new UserAddress
+                    {
+                        UserId = 1,
+                        City = "Vung Tau City",
+                        District = "District NULL",
+                        Ward = "VT",
+                        StreetAddress = "Hoang Hoa Tham",
+                        Country = "Vietnam",
+                        PostalCode = "690000",
+                    }
+                );
+            }
+
+            // Save changes to the database
             context.SaveChanges();
         }
     }

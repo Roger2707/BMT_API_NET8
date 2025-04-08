@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Warehouse;
 using Store_API.IService;
 
@@ -6,6 +7,7 @@ namespace Store_API.Controllers
 {
     [Route("api/warehouses")]
     [ApiController]
+    [Authorize]
     public class WarehousesController : ControllerBase
     {
         private readonly IWarehouseService _warehouseService;

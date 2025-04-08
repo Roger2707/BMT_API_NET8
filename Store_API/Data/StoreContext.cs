@@ -37,7 +37,7 @@ namespace Store_API.Data
         public DbSet<Stock> Stocks { get; set; }
         public DbSet<StockTransaction> StockTransactions { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
-
+        public DbSet<UserWarehouse> UserWarehouses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -49,39 +49,93 @@ namespace Store_API.Data
                 .WithOne(u => u.User)
                 .HasForeignKey<Basket>(b => b.UserId);
 
-            // Seed Admin User
-            var adminUser = new User
+            // Seed Users
+            var seedUsers = new List<User>()
             {
-                Id = 1,
-                UserName = "admin",
-                FullName = "Admin",
-                NormalizedUserName = "ADMIN",
-                Email = "admin@example.com",
-                NormalizedEmail = "ADMIN@EXAMPLE.COM",
-                EmailConfirmed = true,
-                SecurityStamp = Guid.NewGuid().ToString()
+                new User
+                {
+                    Id = 1,
+                    UserName = "spadmin",
+                    FullName = "SuperAdmin",
+                    NormalizedUserName = "SUPERADMIN",
+                    Email = "spadmin@example.com",
+                    NormalizedEmail = "SPADMIN@EXAMPLE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                },
+                new User
+                {
+                    Id = 2,
+                    UserName = "admin1",
+                    FullName = "Admin1",
+                    NormalizedUserName = "ADMIN1",
+                    Email = "admin1@example.com",
+                    NormalizedEmail = "ADMIN1@EXAMPLE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                },
+                new User
+                {
+                    Id = 3,
+                    UserName = "admin2",
+                    FullName = "Admin2",
+                    NormalizedUserName = "ADMIN2",
+                    Email = "admin2@example.com",
+                    NormalizedEmail = "ADMIN2@EXAMPLE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                },
+                new User
+                {
+                    Id = 4,
+                    UserName = "admin3",
+                    FullName = "Admin3",
+                    NormalizedUserName = "ADMIN3",
+                    Email = "admi3n@example.com",
+                    NormalizedEmail = "ADMIN3@EXAMPLE.COM",
+                    EmailConfirmed = true,
+                    SecurityStamp = Guid.NewGuid().ToString()
+                }
             };
 
-            // Hash mật khẩu (123456)
+            // Hash mật khẩu
             PasswordHasher<User> hasher = new PasswordHasher<User>();
-            adminUser.PasswordHash = hasher.HashPassword(adminUser, "Admin@123");
-            builder.Entity<User>().HasData(adminUser);
+            seedUsers.ForEach(u => u.PasswordHash = hasher.HashPassword(u, $"{u.UserName}@123"));
+            builder.Entity<User>().HasData(seedUsers);
 
             // Seed Role Data
             builder.Entity<Role>()
                 .HasData(
-                    new { Id = 1, Name = "Manager", NormalizedName = "MANAGER" },
+                    new { Id = 1, Name = "SuperAdmin", NormalizedName = "SUPERADMIN" },
                     new { Id = 2, Name = "Admin", NormalizedName = "ADMIN" },
                     new { Id = 3, Name = "Customer", NormalizedName = "CUSTOMER" }
             );
 
-            // Seed Admin Role
-            var adminUserRole = new IdentityUserRole<int>
+            // Seed User - Role
+            var userUserRoles = new List<IdentityUserRole<int>>
             {
-                UserId = 1,
-                RoleId = 2
+                new IdentityUserRole<int>
+                {
+                    UserId = 1,
+                    RoleId = 1
+                },
+                new IdentityUserRole<int>
+                {
+                    UserId = 2,
+                    RoleId = 2
+                },
+                new IdentityUserRole<int>
+                {
+                    UserId = 3,
+                    RoleId = 2
+                },
+                new IdentityUserRole<int>
+                {
+                    UserId = 4,
+                    RoleId = 2
+                },
             };
-            builder.Entity<IdentityUserRole<int>>().HasData(adminUserRole);
+            builder.Entity<IdentityUserRole<int>>().HasData(userUserRoles);
 
             // User - Address (1-N)
             builder.Entity<UserAddress>()
