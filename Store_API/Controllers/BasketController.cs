@@ -2,8 +2,9 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Baskets;
+using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Models.Users;
+using System.Security.Claims;
 
 namespace Store_API.Controllers
 {
@@ -13,20 +14,17 @@ namespace Store_API.Controllers
     {
         private readonly IBasketService _basketService;
         private readonly IProductService _productService;
-        private readonly UserManager<User> _userManager;
-        public BasketController(IBasketService basketService, IProductService productService, UserManager<User> userManager)
+        public BasketController(IBasketService basketService, IProductService productService)
         {
             _basketService = basketService;
             _productService = productService;
-            _userManager = userManager;
         }
 
         [HttpGet("get-basket")]
         [Authorize]
         public async Task<IActionResult> GetBasket()
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            int userId = user.Id;
+            int userId = CF.GetInt(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var redisBasket = await _basketService.GetBasketDTORedis(userId, User.Identity.Name);
             return Ok(redisBasket);
         }
@@ -35,9 +33,7 @@ namespace Store_API.Controllers
         [HttpPost("upsert-basket")]
         public async Task<IActionResult> UpsertBasket([FromBody] BasketUpsertParam basketParams)
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            int userId = user.Id;
-
+            int userId = CF.GetInt(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             var basketUpsertDTO = new BasketUpsertDTO
             {
                 UserId = userId,

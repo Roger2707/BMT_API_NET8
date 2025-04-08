@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
 using Store_API.Data;
-using Store_API.DTOs;
 using Store_API.DTOs.Accounts;
 using Store_API.Helpers;
 using Store_API.IService;
@@ -21,13 +20,12 @@ namespace Store_API.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDapperService _dapperService;
 
-        private readonly IImageService _imageService;
         private readonly EmailSenderService _emailSenderService;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
 
         public UserService(UserManager<User> userManager, SignInManager<User> signInManager, EmailSenderService emailSenderService
-            , IUnitOfWork unitOfWork, ITokenService tokenService, IImageService imageService, IDapperService dapperService, IConfiguration configuration) 
+            , IUnitOfWork unitOfWork, ITokenService tokenService, IDapperService dapperService, IConfiguration configuration) 
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -37,13 +35,12 @@ namespace Store_API.Services
 
             _emailSenderService = emailSenderService;
             _tokenService = tokenService;
-            _imageService = imageService;
             _configuration = configuration;
         }
 
         #region Retrieve
 
-        public async Task<Result<List<UserDTO>>> GetAll()
+        public async Task<List<UserDTO>> GetAll()
         {
             string query = @" 
                             SELECT 
@@ -64,10 +61,10 @@ namespace Store_API.Services
                             LEFT JOIN AspNetRoles r ON r.Id = user_role.RoleId
                             LEFT JOIN Baskets basket ON basket.UserId = user_role.UserId
 
-                            WHERE r.Id != 1 ";
+                            WHERE r.Id != 1 
+";
 
-
-            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, null);
+            List<UserDTO> result = await _dapperService.QueryAsync<UserDTO>(query, null);
 
             if (result.Count == 0) return null;
             List<UserDTO> users = new List<UserDTO>();
@@ -83,60 +80,82 @@ namespace Store_API.Services
                     Dob = user.Dob,
                     ImageUrl = user.ImageUrl,
                     RoleName = user.RoleName,
-                    BasketId = user.BasketId ?? 0
+                    BasketId = user.BasketId,
                 };
 
                 users.Add(userDTO);
             }
-
-            return Result<List<UserDTO>>.Success(users);
+            return users;
         }
 
-        public async Task<Result<UserDTO>> GetCurrentUser(string userName)
+        public async Task<UserDTO> GetUser(string username)
         {
             string query = @" 
-                            SELECT 
-                                u.Id
-                                , FullName
-                                , UserName
-                                , Email
-                                , Dob
-                                , PhoneNumber
-                                , ImageUrl
-                                , ISNULL(b.Id, NULL) as BasketId
+                                SELECT 
+                                    u.Id
+                                    , FullName
+                                    , UserName
+                                    , Email
+                                    , Dob
+                                    , PhoneNumber
+                                    , ImageUrl
+                                    , ISNULL(b.Id, NULL) as BasketId
+                                    , ua.Id as AddressId
+                                    , ua.City
+                                    , ua.District
+                                    , ua.Ward
+                                    , ua.StreetAddress
+                                    , ua.PostalCode
+                                    , ua.Country
                                 FROM AspNetUsers u
-								LEFT JOIN Baskets b ON b.UserId = u.Id
+                                LEFT JOIN Baskets b ON b.UserId = u.Id
+                                INNER JOIN UserAddresses ua ON ua.UserId = u.Id
                                 WHERE UserName = @UserName
                                 ";
 
-            var user = await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, new { UserName = userName });
+            var user = await _dapperService.QueryAsync<UserDapperRow>(query, new { UserName = username });
             if (user == null) return null;
 
-            var respone = new UserDTO
-            {
-                FullName = user.FullName,
-                UserName = user.UserName,
-                Email = user.Email,
-                Dob = user.Dob,
-                PhoneNumber = user.PhoneNumber,
-                ImageUrl = user.ImageUrl,
-                Token = await _tokenService.GenerateToken(new User { Id = user.Id, Email = user.Email, UserName = user.UserName }),
-                BasketId  = CF.GetInt(user.BasketId)
-            };
-            return Result<UserDTO>.Success(respone);
+            var token = await _tokenService.GenerateToken(new User { Id = user[0].Id, Email = user[0].Email, UserName = user[0].UserName });
+            var userDTO = user
+                .GroupBy(g => new { g.Id, g.UserName, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PhoneNumber, g.BasketId})
+                .Select(u => new UserDTO
+                {
+                    Id = u.Key.Id,
+                    UserName = u.Key.UserName,
+                    FullName = u.Key.FullName,
+                    Email = u.Key.Email,
+                    ImageUrl = u.Key.ImageUrl,
+                    Dob = u.Key.Dob,
+                    PhoneNumber = u.Key.PhoneNumber,
+                    BasketId = u.Key.BasketId,
+                    Token = token,
+                    UserAddresses = u.Select(a => new UserAddressDTO
+                    {
+                        Id = a.AddressId,
+                        City = a.City,
+                        District = a.District,
+                        Ward = a.Ward,
+                        StreetAddress = a.StreetAddress,
+                        PostalCode = a.PostalCode,
+                        Country = a.Country
+                    }).ToList()
+                }).FirstOrDefault();
+
+            return userDTO;
         }
 
         #endregion 
 
         #region Sign Up
 
-        public async Task<Result<User>> CreateUserAsync(SignUpRequest request)
+        public async Task<User> CreateUserAsync(SignUpRequest request)
         {
             if (await _userManager.FindByEmailAsync(request.Email) != null)
-                return Result<User>.Failure("Email already exists.");
+                throw new Exception("Email already exists.");
 
             if (await _userManager.FindByNameAsync(request.Username) != null)
-                return Result<User>.Failure("Username already exists.");
+                throw new Exception("Username already exists.");
 
             string password = request.Username[0].ToString().ToUpper() + request.Username.Substring(1).ToLower() + "@123";
 
@@ -150,20 +169,20 @@ namespace Store_API.Services
             };
 
             var result = await _userManager.CreateAsync(user, password);
+            await _userManager.AddToRoleAsync(user, "Customer");
 
             if (!result.Succeeded)
-                return Result<User>.Failure(result.Errors.Select(e => e.Description).ToList());
+            {
+                var errors = new List<string>();
 
-            return Result<User>.Success(user);
-        }
+                foreach (var error in result.Errors)
+                {
+                    errors.Add(error.Description);
+                }
+                throw new Exception(string.Join(", ", errors));
+            }
 
-        public async Task<Result<User>> AssignRoleAsync(User user, string role)
-        {
-            var result = await _userManager.AddToRoleAsync(user, role);
-            if (!result.Succeeded)
-                return Result<User>.Failure(result.Errors.Select(e => e.Description).ToList());
-
-            return Result<User>.Success(user);
+            return user;
         }
 
         public async Task SendWelcomeEmailAsync(string email, string username, string password)
@@ -185,11 +204,11 @@ namespace Store_API.Services
         #endregion
 
         #region Log in
-        public async Task<Result<LoginResponse>> SignInAsync(LoginRequest request)
+        public async Task<LoginResponse> SignInAsync(LoginRequest request)
         {
             var exitedUser = await _userManager.FindByNameAsync(request.Username);
             if (exitedUser == null || !await _userManager.CheckPasswordAsync(exitedUser, request.Password))
-                return Result<LoginResponse>.Failure("Username or password is incorrect.");
+                throw new Exception("Username or password is incorrect.");
 
             await _signInManager.SignInAsync(exitedUser, isPersistent: false);
 
@@ -199,17 +218,17 @@ namespace Store_API.Services
                 Email = exitedUser.Email,
                 Token = await _tokenService.GenerateToken(exitedUser)
             };
-            return Result<LoginResponse>.Success(userResponse);
+            return userResponse;
         }
 
         #endregion
 
         #region OAUth
-        public async Task<Result<LoginResponse>> ExternalLoginRedirect()
+        public async Task<LoginResponse> ExternalLoginRedirect()
         {
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
-                return Result<LoginResponse>.Failure("Error loading external login information.");
+                throw new Exception("External login information is null.");
 
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
             if (result.Succeeded)
@@ -221,7 +240,7 @@ namespace Store_API.Services
                     Email = user.Email,
                     Token = await _tokenService.GenerateToken(user)
                 };
-                return Result<LoginResponse>.Success(userResponse);
+                return userResponse;
             }
             else
             {
@@ -244,16 +263,16 @@ namespace Store_API.Services
                         Email = email,
                         Token = await _tokenService.GenerateToken(user)
                     };
-                    return Result<LoginResponse>.Success(userResponse);
+                    return userResponse;
                 }
             }
-            return Result<LoginResponse>.Failure("Something went wrong.");
+            return null;
         }
 
-        public async Task<Result<LoginResponse>> ExternalLoginPopUp(GoogleAuthRequest request)
+        public async Task<LoginResponse> ExternalLoginPopUp(GoogleAuthRequest request)
         {
             if (string.IsNullOrEmpty(request.AuthCode))
-                return Result<LoginResponse>.Failure("Authorization Code is required");
+                throw new Exception("Authorization code is null or empty.");
 
             var tokenRequestUri = "https://oauth2.googleapis.com/token";
             var requestBody = new Dictionary<string, string>
@@ -270,12 +289,12 @@ namespace Store_API.Services
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-                return Result<LoginResponse>.Failure("Error: Authorization Code");
+                throw new Exception($"Failed to login {responseString}");
 
 
             var tokenResponse = JsonConvert.DeserializeObject<GoogleTokenResponse>(responseString);
             if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.Id_token))
-                return Result<LoginResponse>.Failure("Could not retrieve id_token");
+                throw new Exception("Could not get token from Google");
 
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
@@ -290,7 +309,7 @@ namespace Store_API.Services
                 var createResult = await _userManager.CreateAsync(user);
 
                 if (!createResult.Succeeded)
-                    return Result<LoginResponse>.Failure("Failed to create user");
+                    throw new Exception("Failed to create user");
 
                 await _userManager.AddToRoleAsync(user, "Customer");
             }
@@ -304,21 +323,21 @@ namespace Store_API.Services
                 Email = payload.Email,
                 Token = token
             };
-            return Result<LoginResponse>.Success(userResponse);
+            return userResponse;
         }
 
         #endregion
 
         #region Password Methods
-        public async Task<Result<string>> ChangePassword(string userName, ChangePasswordDTO changePasswordDTO)
+        public async Task ChangePassword(string userName, ChangePasswordDTO changePasswordDTO)
         {
             var user = await _userManager.FindByNameAsync(userName);
             bool checkResult = await _userManager.CheckPasswordAsync(user, changePasswordDTO.CurrentPassword);
             if (!checkResult)
-                return Result<string>.Failure("Current Password is incorrect.");
+                throw new Exception("Wrong password ! Try again.");
 
             if (string.Compare(changePasswordDTO.NewPassword, changePasswordDTO.ConfirmedNewPassword) != 0)
-                return Result<string>.Failure("New Password and ConfirmedPassword must be the same !");
+                throw new Exception("New Password and ConfirmedPassword must be the same !");
 
             var result = await _userManager.ChangePasswordAsync(user, changePasswordDTO.CurrentPassword, changePasswordDTO.NewPassword);
 
@@ -330,15 +349,14 @@ namespace Store_API.Services
                 {
                     errors.Add(error.Description);
                 }
-                return Result<string>.Failure(string.Join(", ", errors));
+                throw new Exception(string.Join(", ", errors));
             }
-            return Result<string>.Success("Password is Changed Successfully !");
         }
 
-        public async Task<Result<string>> ForgetPassword(ForgetPasswordDTO forgetPasswordDTO)
+        public async Task ForgetPassword(ForgetPasswordDTO forgetPasswordDTO)
         {
             var user = await _userManager.FindByEmailAsync(forgetPasswordDTO.Email);
-            if (user == null) return Result<string>.Failure("Email does not exist.");
+            if (user == null) throw new Exception("Email does not exist.");
 
             // Generate Token (Encode in query string)
             var token = CF.Base64ForUrlEncode(await _userManager.GeneratePasswordResetTokenAsync(user));
@@ -350,8 +368,6 @@ namespace Store_API.Services
 
             // Send Message to email
             await _emailSenderService.SendEmailAsync(forgetPasswordDTO.Email, "Reset Password ROGER BMT APP (NET 8)", htmlContent);
-
-            return Result<string>.Success($"Link reset password is sent to your email: {forgetPasswordDTO.Email}.");
         }
 
         public async Task SendLinkResetPwToMail(ForgetPasswordDTO model, User user)
@@ -367,16 +383,16 @@ namespace Store_API.Services
             await _emailSenderService.SendEmailAsync(model.Email, "Reset Password (ROGER APP)", htmlContent);
         }
 
-        public async Task<Result<string>> ResetPassword(ResetPasswordDTO resetPasswordDTO)
+        public async Task ResetPassword(ResetPasswordDTO resetPasswordDTO)
         {
             var user = await _userManager.FindByEmailAsync(resetPasswordDTO.Email);
 
             if (user == null)
-                return Result<string>.Failure("Email does not exist.");
+                throw new Exception("Email does not exist.");
 
             // Compare Password
             if (string.Compare(resetPasswordDTO.NewPassword, resetPasswordDTO.ConfirmNewPassword) != 0)
-                return Result<string>.Failure("New Password and ConfirmedPassword must be the same !");
+                throw new Exception("New Password and ConfirmedPassword must be the same !");
 
             // Handle Result
             var result = await _userManager.ResetPasswordAsync(user, CF.Base64ForUrlDecode(resetPasswordDTO.Token), resetPasswordDTO.NewPassword);
@@ -386,57 +402,71 @@ namespace Store_API.Services
                 foreach (var error in result.Errors)
                     errors.Add(error.Description);
 
-                return Result<string>.Failure(string.Join(", ", errors));
+                throw new Exception(string.Join(", ", errors));
             }
-            return Result<string>.Success("Password reset successfully.");
         }
 
         #endregion
 
         #region Methods
 
-        public async Task<Result<dynamic>> UpdateUserProfile(string userName, UserProfileDTO userProfileDTO)
+        public async Task<string> UpdateUser(UserUpsertDTO model)
         {
-            var user = await _userManager.FindByNameAsync(userName);
-
-            // Update
-            if (userProfileDTO.FullName != user.FullName && userProfileDTO.FullName != "")
-                user.FullName = userProfileDTO.FullName;
-            if (userProfileDTO.PhoneNumber != user.PhoneNumber && userProfileDTO.PhoneNumber != "")
-                user.PhoneNumber = userProfileDTO.PhoneNumber;
-            if (userProfileDTO.Dob != user.Dob && userProfileDTO.Dob.ToString() != "")
-                user.Dob = userProfileDTO.Dob;
-
-            if (userProfileDTO.ImageUrl != null)
+            var user = await GetUser(model.UserName);
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                var imageResult = await _imageService.AddImageAsync(userProfileDTO.ImageUrl, "accounts");
+                // Header
+                if (model.FullName != user.FullName && !string.IsNullOrEmpty(model.FullName))
+                    user.FullName = model.FullName;
+                if (model.Email != user.Email && !string.IsNullOrEmpty(model.Email))
+                    user.Email = model.Email;
+                if (model.PhoneNumber != user.PhoneNumber && !string.IsNullOrEmpty(model.PhoneNumber))
+                    user.PhoneNumber = model.PhoneNumber;
+                if (model.Dob != user.Dob)
+                    user.Dob = model.Dob;
 
-                if (imageResult.Error != null) throw new Exception(imageResult.Error.Message);
-
-                user.ImageUrl = imageResult.SecureUrl.ToString();
-                user.PublicId = imageResult.PublicId;
-            }
-
-            int result = await _unitOfWork.SaveChangesAsync();
-
-            if (result > 0)
-            {
-                var updatedUser = await _userManager.FindByNameAsync(userName);
-
-                return Result<dynamic>.Success(new
+                if(model.ImageUrl != null)
                 {
-                    FullName = updatedUser.FullName,
-                    Dob = updatedUser.Dob,
-                    Email = updatedUser.Email,
-                    ImageUrl = updatedUser.ImageUrl,
-                    PhoneNumber = updatedUser.PhoneNumber,
-                    Token = await _tokenService.GenerateToken(updatedUser),
+                    user.ImageUrl = model.ImageUrl.ToString();
+                    user.PublicId = model.ImageUrl.ToString();
+                }
 
-                    Title = "Updated Successfully !"
-                });
+                // Details
+                // Remove all -> Add again
+                _unitOfWork.UserAddress.RemoveRangeAsync(user.UserAddresses.Select(e => new UserAddress
+                {
+                    Id = e.Id,
+                    UserId = e.UserId,
+                    City = e.City,
+                    District = e.District,
+                    Ward = e.Ward,
+                    PostalCode = e.PostalCode,
+                    StreetAddress = e.StreetAddress,
+                    Country = e.Country,
+                }));
+
+                await _unitOfWork.UserAddress.AddRangeAsync(user.UserAddresses.Select(e => new UserAddress
+                {
+                    Id = e.Id,
+                    UserId = e.UserId,
+                    City = e.City,
+                    District = e.District,
+                    Ward = e.Ward,
+                    PostalCode = e.PostalCode,
+                    StreetAddress = e.StreetAddress,
+                    Country = e.Country,
+                }));
+
+                await _unitOfWork.SaveChangesAsync();
+                await transaction.CommitAsync();
+                return model.UserName;
             }
-
-            return Result<dynamic>.Failure("Update Failed !");
+            catch(Exception ex)
+            {
+                await transaction.RollbackAsync();
+                throw new Exception(ex.Message);
+            }
         }
 
         #endregion

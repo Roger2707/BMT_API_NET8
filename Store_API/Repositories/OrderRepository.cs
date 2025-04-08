@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
-using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
-using Store_API.Models;
 using Store_API.Models.OrderAggregate;
+using Store_API.Models.Users;
 
 namespace Store_API.Repositories
 {

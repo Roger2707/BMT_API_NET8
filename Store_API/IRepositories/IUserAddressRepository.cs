@@ -1,14 +1,10 @@
-﻿using Store_API.DTOs.Orders;
-using Store_API.DTOs;
+﻿using Store_API.DTOs.User;
+using Store_API.Models.Users;
+using Store_API.Repositories;
 
 namespace Store_API.IRepositories
 {
-    public interface IUserAddressRepository
+    public interface IUserAddressRepository : IRepository<UserAddress>
     {
-
-        Task<Result<List<UserAddressDTO>>> GetUserAddresses(int userId);
-        Task<Result<UserAddressDTO>> GetUserAddress(int userAddressId);
-        Task<Result<dynamic>> UpsertUserAddresses(int userId, UserAddressDTO userAddressDTO);
-        Task<Result<string>> Delete(int userAddressId);
     }
 }

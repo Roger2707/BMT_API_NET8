@@ -1,7 +1,6 @@
-﻿using Store_API.Models.Users;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Store_API.Models.OrderAggregate
+namespace Store_API.Models.Users
 {
     public class UserAddress
     {

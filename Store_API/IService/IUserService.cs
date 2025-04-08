@@ -1,5 +1,4 @@
-﻿using Store_API.DTOs;
-using Store_API.DTOs.Accounts;
+﻿using Store_API.DTOs.Accounts;
 using Store_API.DTOs.User;
 using Store_API.Models.Users;
 
@@ -8,8 +7,8 @@ namespace Store_API.IService
     public interface IUserService
     {
         #region Retrieve
-        Task<Result<List<UserDTO>>> GetAll();
-        Task<Result<UserDTO>> GetCurrentUser(string userName);
+        Task<List<UserDTO>> GetAll();
+        Task<UserDTO> GetUser(string userName);
         #endregion
 
         #region Email Send
@@ -18,22 +17,21 @@ namespace Store_API.IService
         #endregion
 
         #region Authentication
-        Task<Result<User>> CreateUserAsync(SignUpRequest request);
-        Task<Result<User>> AssignRoleAsync(User user, string role);
-        Task<Result<LoginResponse>> SignInAsync(LoginRequest request);
-        Task<Result<LoginResponse>> ExternalLoginRedirect();
-        Task<Result<LoginResponse>> ExternalLoginPopUp(GoogleAuthRequest request);
+        Task<User> CreateUserAsync(SignUpRequest request);
+        Task<LoginResponse> SignInAsync(LoginRequest request);
+        Task<LoginResponse> ExternalLoginRedirect();
+        Task<LoginResponse> ExternalLoginPopUp(GoogleAuthRequest request);
         #endregion
 
         #region Password Handles
-        Task<Result<string>> ChangePassword(string userName, ChangePasswordDTO changePasswordDTO);
-        Task<Result<string>> ForgetPassword(ForgetPasswordDTO forgetPasswordDTO);
-        Task<Result<string>> ResetPassword(ResetPasswordDTO resetPasswordDTO);
+        Task ChangePassword(string userName, ChangePasswordDTO changePasswordDTO);
+        Task ForgetPassword(ForgetPasswordDTO forgetPasswordDTO);
+        Task ResetPassword(ResetPasswordDTO resetPasswordDTO);
         #endregion
 
         #region Methods
 
-        Task<Result<dynamic>> UpdateUserProfile(string userName, UserProfileDTO userProfileDTO);
+        Task<string> UpdateUser(UserUpsertDTO userUpserDTO);
 
         #endregion
 
