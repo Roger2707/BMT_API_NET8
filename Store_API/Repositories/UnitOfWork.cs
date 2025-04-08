@@ -28,10 +28,12 @@ namespace Store_API.Repositories
             Stock = new StockRepository(_db, _dapperService);
             StockTransaction = new StockTransactionRepository(_db, _dapperService);
             Basket = new BasketRepository(_dapperService, _redis);
+            UserAddress = new UserAddressRepository(_db, _dapperService);
+            UserAddress = new UserAddressRepository(_db, _dapperService);
+            UserWarehouse = new UserWarehouseRepository(_db, _dapperService);
 
             Comment = new CommentRepository(_db, _dapperService);
             Rating = new RatingRepository(_db, _dapperService);
-            UserAddress = new UserAddressRepository(_db, _dapperService);
             Order = new OrderRepository(_dapperService, _db);
             Payment = new PaymentRepository(_db);
         }
@@ -52,6 +54,7 @@ namespace Store_API.Repositories
         public IWarehouseRepository Warehouse { get; private set; }
         public IStockRepository Stock { get; private set; }
         public IStockTransactionRepository StockTransaction { get; private set; }
+        public IUserWarehouseRepository UserWarehouse { get; private set; }
 
         #endregion
 

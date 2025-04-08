@@ -20,6 +20,7 @@ namespace Store_API.Repositories
         public IWarehouseRepository Warehouse { get; }
         public IStockRepository Stock { get; }
         public IStockTransactionRepository StockTransaction { get; }
+        public IUserWarehouseRepository UserWarehouse { get; }
 
 
         #region EF Core Methods
