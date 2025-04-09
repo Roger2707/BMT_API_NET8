@@ -109,7 +109,7 @@ namespace Store_API.Services
                                     , ua.Country
                                 FROM AspNetUsers u
                                 LEFT JOIN Baskets b ON b.UserId = u.Id
-                                INNER JOIN UserAddresses ua ON ua.UserId = u.Id
+                                LEFT JOIN UserAddresses ua ON ua.UserId = u.Id
                                 WHERE UserName = @UserName
                                 ";
 

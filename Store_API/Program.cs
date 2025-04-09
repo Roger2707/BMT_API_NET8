@@ -112,6 +112,7 @@ builder.Services
     });
 
 builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationServices();
 
 #endregion 
 

@@ -17,7 +17,6 @@ namespace Store_API.Extensions
 
             // Services
             services.AddScoped<IUserService, UserService>();
-
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IBrandService, BrandService>();
             services.AddScoped<IPromotionService, PromotionService>();
@@ -26,7 +25,7 @@ namespace Store_API.Extensions
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<IStockService, StockService>();
             services.AddScoped<IBasketService, BasketService>();
-            services.AddScoped<IAuthorizationService, AuthorizationService>();
+            services.AddScoped<IInventoryAuthorization, InventoryAuthorizationService>();
 
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPaymentService, PaymentService>();

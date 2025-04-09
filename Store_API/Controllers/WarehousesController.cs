@@ -18,6 +18,7 @@ namespace Store_API.Controllers
         }
 
         [HttpGet("get-all")]
+        [Authorize(Policy = "WarehouseAccess")]
         public async Task<IActionResult> GetAll()
         {
             var warehouses = await _warehouseService.GetAll();
@@ -25,13 +26,23 @@ namespace Store_API.Controllers
         }
 
         [HttpGet("get-warehouse-detail", Name = "GetDetailWarehouse")]
+        [Authorize(Policy = "ViewWarehouseDetails")]
         public async Task<IActionResult> GetById([FromQuery] Guid warehouseId)
         {
             var warehouse = await _warehouseService.GetWarehouseDetail(warehouseId);
             return Ok(warehouse);
         }
 
+        [HttpGet("transactions")]
+        [Authorize(Policy = "ViewTransactions")]
+        public async Task<IActionResult> GetTransactions([FromQuery] Guid warehouseId)
+        {
+            // Implementation for getting warehouse transactions
+            return Ok();
+        }
+
         [HttpPost("create")]
+        [Authorize(Policy = "ManageWarehouses")]
         public async Task<IActionResult> Create([FromForm] WarehouseUpsertDTO model)
         {
             try
@@ -46,6 +57,7 @@ namespace Store_API.Controllers
         }
 
         [HttpPut("update")]
+        [Authorize(Policy = "ManageTransactions")]
         public async Task<IActionResult> Update([FromForm] WarehouseUpsertDTO model)
         {
             try
@@ -60,11 +72,12 @@ namespace Store_API.Controllers
         }
 
         [HttpDelete("delete")]
-        public async Task<IActionResult> Delete(Guid id)
+        [Authorize(Policy = "ManageWarehouses")]
+        public async Task<IActionResult> Delete([FromQuery] Guid warehouseId)
         {
             try
             {
-                await _warehouseService.Delete(id);
+                await _warehouseService.Delete(warehouseId);
                 return Ok();
             }
             catch (Exception ex)
