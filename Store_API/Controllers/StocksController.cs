@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Stocks;
 using Store_API.IService;
 
@@ -18,6 +19,7 @@ namespace Store_API.Controllers
         #region Retrieve Stock Data
 
         [HttpGet("get-stock-product-detail")]
+        [Authorize(Policy = "ViewStockDetails")]
         public async Task<IActionResult> GetDetailStock([FromQuery] Guid productId)
         {
             var stock = await _stockService.GetStock(productId);
@@ -30,6 +32,7 @@ namespace Store_API.Controllers
         #region Retrieve Stock Transaction Data
 
         [HttpGet("get-stock-transactions")]
+        [Authorize(Policy = "ViewStockTransactions")]
         public async Task<IActionResult> GetStockTransaction([FromQuery] Guid productId)
         {
             var stockTransactions = await _stockService.GetStockTransactions(productId);
@@ -41,8 +44,8 @@ namespace Store_API.Controllers
 
         #region Import / Export Stocks Handlers
 
-
         [HttpPost("upsert-stock")]
+        [Authorize(Policy = "ManageStock")]
         public async Task<IActionResult> UpsertStock([FromBody] StockUpsertDTO stockUpsertDTO)
         {
             try

@@ -26,6 +26,15 @@ namespace Store_API.Authorization
 
             int userId = CF.GetInt(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
+            // For SuperAdmin, always succeed for non-SuperAdmin-only operations
+            if (await _authorizationService.IsSuperAdmin(userId))
+            {
+                context.Succeed(requirement);
+                return;
+            }
+
+            // Requirement checks //
+
             // For SuperAdmin-only operations (e.g CRUD)
             if (requirement.RequireSuperAdmin)
             {
@@ -40,13 +49,6 @@ namespace Store_API.Authorization
                 return;
             }
 
-            // For SuperAdmin, always succeed for non-SuperAdmin-only operations
-            if (await _authorizationService.IsSuperAdmin(userId))
-            {
-                context.Succeed(requirement);
-                return;
-            }
-
             // If warehouse access is required
             if (requirement.RequireWarehouseAccess)
             {
@@ -57,27 +59,20 @@ namespace Store_API.Authorization
                     return;
                 }
 
-                var hasAccess = await _authorizationService.HasWarehouseAccess(userId, Guid.Parse(warehouseId));
+                // Check wareHouse access for current user
+                // if user is superAdmin -> ok
+                // if no -> check admin access
+                if (await _authorizationService.IsSuperAdmin(userId))
+                {
+                    context.Succeed(requirement);
+                    return;
+                }
+
+                var hasAccess = await _authorizationService.IsWarehouseAdmin(userId, Guid.Parse(warehouseId));
                 if (!hasAccess)
                 {
                     context.Fail();  // This sets authorizeResult.Succeeded to false
                     return;
-                }
-            }
-
-            // If specific permission is required
-            if (!string.IsNullOrEmpty(requirement.Permission))
-            {
-                // Only check permission if warehouse access is required
-                if (requirement.RequireWarehouseAccess)
-                {
-                    var warehouseId = _httpContextAccessor.HttpContext.Request.Query["warehouseId"].ToString();
-                    var hasPermission = await _authorizationService.HasSpecialAccess(userId, Guid.Parse(warehouseId), requirement.Permission);
-                    if (!hasPermission)
-                    {
-                        context.Fail();  // This sets authorizeResult.Succeeded to false
-                        return;
-                    }
                 }
             }
 

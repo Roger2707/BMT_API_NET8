@@ -13,6 +13,7 @@ namespace Store_API.Extensions
 
             // Register the authorization handler
             services.AddScoped<IAuthorizationHandler, WarehouseAccessHandler>();
+            services.AddScoped<IAuthorizationHandler, StockAccessHandler>();
 
             // Register the custom authorization failure handler
             services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuthorizationFailureHandler>();
@@ -20,25 +21,36 @@ namespace Store_API.Extensions
             // Register authorization policies
             services.AddAuthorization(options =>
             {
-                // Basic warehouse access - for operations that don't need specific warehouse
+                // Warehouse policies
                 options.AddPolicy("WarehouseAccess", policy =>
                     policy.Requirements.Add(new WarehouseAccessRequirement(requireWarehouseAccess: false)));
 
-                // View specific warehouse details or transactions
                 options.AddPolicy("ViewWarehouseDetails", policy =>
                     policy.Requirements.Add(new WarehouseAccessRequirement(requireWarehouseAccess: true)));
 
-                // View transactions in a specific warehouse
-                options.AddPolicy("ViewTransactions", policy =>
-                    policy.Requirements.Add(new WarehouseAccessRequirement(Permission.VIEW_STOCK, requireWarehouseAccess: true)));
-
-                // Manage transactions in a specific warehouse
-                options.AddPolicy("ManageTransactions", policy =>
-                    policy.Requirements.Add(new WarehouseAccessRequirement(Permission.MANAGE_STOCK, requireWarehouseAccess: true)));
-
-                // SuperAdmin only operations (create/delete warehouses)
                 options.AddPolicy("ManageWarehouses", policy =>
                     policy.Requirements.Add(new WarehouseAccessRequirement(requireSuperAdmin: true, requireWarehouseAccess: false)));
+
+                // Stock policies
+                // For viewing stock details and transactions - SuperAdmin and Admin can see
+                options.AddPolicy("ViewStockDetails", policy =>
+                    policy.Requirements.Add(new StockAccessRequirement(
+                        requireSuperAdmin: false,
+                        requireAdminAccess: true,
+                        requireWarehouseAccess: true)));
+
+                options.AddPolicy("ViewStockTransactions", policy =>
+                    policy.Requirements.Add(new StockAccessRequirement(
+                        requireSuperAdmin: false,
+                        requireAdminAccess: true,
+                        requireWarehouseAccess: true)));
+
+                // For managing stock - SuperAdmin can do anything, Admin can only manage their warehouse
+                options.AddPolicy("ManageStock", policy =>
+                    policy.Requirements.Add(new StockAccessRequirement(
+                        requireSuperAdmin: false,
+                        requireAdminAccess: true,
+                        requireWarehouseAccess: true)));
             });
         }
     }
