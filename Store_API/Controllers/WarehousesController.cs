@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Warehouse;
 using Store_API.IService;
+using System.Security.Claims;
 
 namespace Store_API.Controllers
 {
@@ -33,14 +34,6 @@ namespace Store_API.Controllers
             return Ok(warehouse);
         }
 
-        [HttpGet("transactions")]
-        [Authorize(Policy = "ViewTransactions")]
-        public async Task<IActionResult> GetTransactions([FromQuery] Guid warehouseId)
-        {
-            // Implementation for getting warehouse transactions
-            return Ok();
-        }
-
         [HttpPost("create")]
         [Authorize(Policy = "ManageWarehouses")]
         public async Task<IActionResult> Create([FromForm] WarehouseUpsertDTO model)
@@ -62,7 +55,8 @@ namespace Store_API.Controllers
         {
             try
             {
-                await _warehouseService.Update(model);
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                await _warehouseService.Update(model, userId);
                 return CreatedAtRoute("GetDetailWarehouse", new { id = model.Id }, model);
             }
             catch (Exception ex)
@@ -77,7 +71,8 @@ namespace Store_API.Controllers
         {
             try
             {
-                await _warehouseService.Delete(warehouseId);
+                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                await _warehouseService.Delete(warehouseId, userId);
                 return Ok();
             }
             catch (Exception ex)

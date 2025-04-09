@@ -6,11 +6,9 @@ namespace Store_API.IService
     {
         Task<IEnumerable<WarehouseDTO>> GetAll();
         Task<WarehouseDTO> GetWarehouseDetail(Guid id);
-        Task<Guid> Create(WarehouseUpsertDTO warehouseDTO);
-        Task<Guid> Update(WarehouseUpsertDTO warehouseDTO);
-        Task Delete(Guid id);
-
-
         Task<List<WarehouseProductQuantity>> GetProductQuantityInWarehouse(Guid productDetalId);
+        Task<Guid> Create(WarehouseUpsertDTO warehouseDTO);
+        Task<Guid> Update(WarehouseUpsertDTO warehouseDTO, int userId);
+        Task Delete(Guid id, int userId);
     }
 }

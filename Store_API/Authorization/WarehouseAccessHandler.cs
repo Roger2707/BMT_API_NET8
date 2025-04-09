@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Store_API.Helpers;
 using Store_API.IService;
+using Store_API.Repositories;
 using System.Security.Claims;
 
 namespace Store_API.Authorization
@@ -9,14 +10,19 @@ namespace Store_API.Authorization
     {
         private readonly IInventoryAuthorization _authorizationService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public WarehouseAccessHandler(IInventoryAuthorization authorizationService, IHttpContextAccessor httpContextAccessor)
+        public WarehouseAccessHandler(
+            IInventoryAuthorization authorizationService, 
+            IHttpContextAccessor httpContextAccessor,
+            IUnitOfWork unitOfWork)
         {
             _authorizationService = authorizationService;
             _httpContextAccessor = httpContextAccessor;
+            _unitOfWork = unitOfWork;
         }
 
-        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context,WarehouseAccessRequirement requirement)
+        protected override async Task HandleRequirementAsync(AuthorizationHandlerContext context, WarehouseAccessRequirement requirement)
         {
             if (!context.User.Identity.IsAuthenticated)
             {
@@ -44,7 +50,7 @@ namespace Store_API.Authorization
                 }
                 else
                 {
-                    context.Fail();  // This sets authorizeResult.Succeeded to false
+                    context.Fail();
                 }
                 return;
             }
@@ -55,7 +61,28 @@ namespace Store_API.Authorization
                 var warehouseId = _httpContextAccessor.HttpContext.Request.Query["warehouseId"].ToString();
                 if (string.IsNullOrEmpty(warehouseId))
                 {
-                    context.Fail();  // This sets authorizeResult.Succeeded to false
+                    context.Fail();
+                    return;
+                }
+
+                var warehouse = await _unitOfWork.Warehouse.GetByIdAsync(Guid.Parse(warehouseId));
+                if (warehouse == null)
+                {
+                    context.Fail();
+                    return;
+                }
+
+                // Check if warehouse is SuperAdmin-only
+                if (warehouse.IsSuperAdminOnly)
+                {
+                    if (await _authorizationService.IsSuperAdmin(userId))
+                    {
+                        context.Succeed(requirement);
+                    }
+                    else
+                    {
+                        context.Fail();
+                    }
                     return;
                 }
 
@@ -71,7 +98,7 @@ namespace Store_API.Authorization
                 var hasAccess = await _authorizationService.IsWarehouseAdmin(userId, Guid.Parse(warehouseId));
                 if (!hasAccess)
                 {
-                    context.Fail();  // This sets authorizeResult.Succeeded to false
+                    context.Fail();
                     return;
                 }
             }
