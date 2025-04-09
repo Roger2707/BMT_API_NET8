@@ -111,7 +111,6 @@ builder.Services
         options.ClientSecret = builder.Configuration["OAuth:ClientSecret"];
     });
 
-builder.Services.AddAuthorization();
 builder.Services.AddAuthorizationServices();
 
 #endregion 

@@ -38,9 +38,14 @@ namespace Store_API.Authorization
                         .Where(c => c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role")
                         .Select(c => c.Value)
                         .ToList(),
-                    FailureReasons = authorizeResult.Failure?.FailureReasons.Select(f => f.Message).ToList(),
                     UserId = context.User.FindFirst("sub")?.Value,
-                    WarehouseId = context.Request.RouteValues["warehouseId"]?.ToString()
+                    WarehouseId = context.Request.RouteValues["warehouseId"]?.ToString(),
+                    AuthorizationResult = new
+                    {
+                        Succeeded = authorizeResult.Succeeded,
+                        Challenged = authorizeResult.Challenged,
+                        Forbidden = authorizeResult.Forbidden
+                    }
                 }
             };
 
