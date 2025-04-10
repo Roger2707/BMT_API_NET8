@@ -151,7 +151,7 @@ namespace Store_API.Controllers
 
         [HttpPut("update-profile")]
         [Authorize]
-        public async Task<IActionResult> UpdateProfile([FromBody] UserUpsertDTO userUpsertDTO)
+        public async Task<IActionResult> UpdateProfile([FromBody] UserDTO userUpsertDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             try

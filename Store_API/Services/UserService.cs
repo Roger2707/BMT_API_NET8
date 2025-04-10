@@ -99,6 +99,7 @@ namespace Store_API.Services
                                     , Dob
                                     , PhoneNumber
                                     , ImageUrl
+                                    , u.PublicId
                                     , ISNULL(b.Id, NULL) as BasketId
                                     , ua.Id as AddressId
                                     , ua.City
@@ -118,7 +119,7 @@ namespace Store_API.Services
 
             var token = await _tokenService.GenerateToken(new User { Id = user[0].Id, Email = user[0].Email, UserName = user[0].UserName });
             var userDTO = user
-                .GroupBy(g => new { g.Id, g.UserName, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PhoneNumber, g.BasketId})
+                .GroupBy(g => new { g.Id, g.UserName, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PublicId, g.PhoneNumber, g.BasketId})
                 .Select(u => new UserDTO
                 {
                     Id = u.Key.Id,
@@ -127,6 +128,7 @@ namespace Store_API.Services
                     Email = u.Key.Email,
                     ImageUrl = u.Key.ImageUrl,
                     Dob = u.Key.Dob,
+                    PublicId = u.Key.PublicId,
                     PhoneNumber = u.Key.PhoneNumber,
                     BasketId = u.Key.BasketId,
                     Token = token,
@@ -410,9 +412,9 @@ namespace Store_API.Services
 
         #region Methods
 
-        public async Task<string> UpdateUser(UserUpsertDTO model)
+        public async Task<string> UpdateUser(UserDTO model)
         {
-            var user = await GetUser(model.UserName);
+            var user = await _userManager.FindByNameAsync(model.UserName);
             using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -431,25 +433,18 @@ namespace Store_API.Services
                     user.ImageUrl = model.ImageUrl.ToString();
                     user.PublicId = model.ImageUrl.ToString();
                 }
-
+                
                 // Details
                 // Remove all -> Add again
-                _unitOfWork.UserAddress.RemoveRangeAsync(user.UserAddresses.Select(e => new UserAddress
+                var userAddresses = await _unitOfWork.UserAddress.GetAllAsync(e => e.UserId == user.Id);
+                if(userAddresses != null && userAddresses.Any())
                 {
-                    Id = e.Id,
-                    UserId = e.UserId,
-                    City = e.City,
-                    District = e.District,
-                    Ward = e.Ward,
-                    PostalCode = e.PostalCode,
-                    StreetAddress = e.StreetAddress,
-                    Country = e.Country,
-                }));
+                    _unitOfWork.UserAddress.RemoveRangeAsync(userAddresses);
+                }
 
-                await _unitOfWork.UserAddress.AddRangeAsync(user.UserAddresses.Select(e => new UserAddress
+                await _unitOfWork.UserAddress.AddRangeAsync(model.UserAddresses.Select(e => new UserAddress
                 {
-                    Id = e.Id,
-                    UserId = e.UserId,
+                    UserId = user.Id,
                     City = e.City,
                     District = e.District,
                     Ward = e.Ward,

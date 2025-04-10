@@ -10,6 +10,7 @@
         public DateTime Dob { get; set; }
         public string PhoneNumber { get; set; }
         public string? ImageUrl { get; set; }
+        public string? PublicId { get; set; }
         public string RoleName { get; set; }
         public Guid BasketId { get; set; }
         public int AddressId { get; set; }

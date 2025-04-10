@@ -31,7 +31,7 @@ namespace Store_API.IService
 
         #region Methods
 
-        Task<string> UpdateUser(UserUpsertDTO userUpserDTO);
+        Task<string> UpdateUser(UserDTO userUpserDTO);
 
         #endregion
 
