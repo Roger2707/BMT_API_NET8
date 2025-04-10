@@ -534,31 +534,31 @@ namespace Store_API.Data
             }
 
             // 12. Seed User Address
-            if (!context.UserAddresses.Any())
-            {
-                await context.AddRangeAsync(
-                    new UserAddress
-                    {
-                        UserId = 1,
-                        City = "Ho Chi Minh City",
-                        District = "District 1",
-                        Ward = "Ben Nghe",
-                        StreetAddress = "123 Nguyen Hue",
-                        Country = "Vietnam",
-                        PostalCode = "700000",
-                    },
-                    new UserAddress
-                    {
-                        UserId = 1,
-                        City = "Vung Tau City",
-                        District = "District NULL",
-                        Ward = "VT",
-                        StreetAddress = "Hoang Hoa Tham",
-                        Country = "Vietnam",
-                        PostalCode = "690000",
-                    }
-                );
-            }
+            //if (!context.UserAddresses.Any())
+            //{
+            //    await context.AddRangeAsync(
+            //        new UserAddress
+            //        {
+            //            UserId = 1,
+            //            City = "Ho Chi Minh City",
+            //            District = "District 1",
+            //            Ward = "Ben Nghe",
+            //            StreetAddress = "123 Nguyen Hue",
+            //            Country = "Vietnam",
+            //            PostalCode = "700000",
+            //        },
+            //        new UserAddress
+            //        {
+            //            UserId = 1,
+            //            City = "Vung Tau City",
+            //            District = "District NULL",
+            //            Ward = "VT",
+            //            StreetAddress = "Hoang Hoa Tham",
+            //            Country = "Vietnam",
+            //            PostalCode = "690000",
+            //        }
+            //    );
+            //}
 
             // Save changes to the database
             context.SaveChanges();

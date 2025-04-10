@@ -207,7 +207,7 @@ namespace Store_API.Services
         #endregion
 
         #region Log in
-        public async Task<LoginResponse> SignInAsync(LoginRequest request)
+        public async Task<UserDTO> SignInAsync(LoginRequest request)
         {
             var exitedUser = await _userManager.FindByNameAsync(request.Username);
             if (exitedUser == null || !await _userManager.CheckPasswordAsync(exitedUser, request.Password))
@@ -215,19 +215,14 @@ namespace Store_API.Services
 
             await _signInManager.SignInAsync(exitedUser, isPersistent: false);
 
-            var userResponse = new LoginResponse
-            {
-                FullName = exitedUser.FullName,
-                Email = exitedUser.Email,
-                Token = await _tokenService.GenerateToken(exitedUser)
-            };
+            var userResponse = await GetUser(exitedUser.UserName);
             return userResponse;
         }
 
         #endregion
 
-        #region OAUth
-        public async Task<LoginResponse> ExternalLoginRedirect()
+        #region OAUth 2.0 (Google)
+        public async Task<UserDTO> LoginOAuthRedirect()
         {
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -237,12 +232,7 @@ namespace Store_API.Services
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-                var userResponse = new LoginResponse
-                {
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    Token = await _tokenService.GenerateToken(user)
-                };
+                var userResponse = await GetUser(user.UserName);
                 return userResponse;
             }
             else
@@ -260,19 +250,14 @@ namespace Store_API.Services
                     await _userManager.AddLoginAsync(user, info);
                     await _signInManager.SignInAsync(user, isPersistent: false);
 
-                    var userResponse = new LoginResponse
-                    {
-                        FullName = fullName,
-                        Email = email,
-                        Token = await _tokenService.GenerateToken(user)
-                    };
+                    var userResponse = await GetUser(user.UserName);
                     return userResponse;
                 }
             }
             return null;
         }
 
-        public async Task<LoginResponse> ExternalLoginPopUp(GoogleAuthRequest request)
+        public async Task<UserDTO> LoginOAuth(GoogleAuthRequest request)
         {
             if (string.IsNullOrEmpty(request.AuthCode))
                 throw new Exception("Authorization code is null or empty.");
@@ -316,16 +301,11 @@ namespace Store_API.Services
 
                 await _userManager.AddToRoleAsync(user, "Customer");
             }
-            var token = await _tokenService.GenerateToken(user);
 
-            // Log in into system -> set User.identity.IsAuthenticated
+            // Log in into system -> set User.identity.IsAuthenticated = TRUE
             await _signInManager.SignInAsync(user, isPersistent: false);
-            var userResponse = new LoginResponse
-            {
-                FullName = payload.Name,
-                Email = payload.Email,
-                Token = token
-            };
+            var userResponse = await GetUser(user.UserName);
+
             return userResponse;
         }
 

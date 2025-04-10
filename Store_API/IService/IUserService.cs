@@ -18,9 +18,9 @@ namespace Store_API.IService
 
         #region Authentication
         Task<User> CreateUserAsync(SignUpRequest request);
-        Task<LoginResponse> SignInAsync(LoginRequest request);
-        Task<LoginResponse> ExternalLoginRedirect();
-        Task<LoginResponse> ExternalLoginPopUp(GoogleAuthRequest request);
+        Task<UserDTO> SignInAsync(LoginRequest request);
+        Task<UserDTO> LoginOAuthRedirect();
+        Task<UserDTO> LoginOAuth(GoogleAuthRequest request);
         #endregion
 
         #region Password Handles

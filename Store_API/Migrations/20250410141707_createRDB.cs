@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Store_API.Migrations
 {
     /// <inheritdoc />
-    public partial class createDBAgain : Migration
+    public partial class createRDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -105,7 +105,8 @@ namespace Store_API.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsSuperAdminOnly = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -325,18 +326,11 @@ namespace Store_API.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
                     WarehouseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserWarehouses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserWarehouses_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserWarehouses_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -655,10 +649,10 @@ namespace Store_API.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "a17d37cd-c106-482c-b4b0-cb321bba8dae", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SUPERADMIN", "AQAAAAIAAYagAAAAEFFRB5oFMkUhzXpy5uC+Ttuzs/5x2jWTAyZcXwpLgDs7J33Jbgtnw9dxpRNY2GyVHQ==", null, false, null, "ac131037-e5f3-429f-b6a6-9368afe229d2", false, "spadmin" },
-                    { 2, 0, "18f3140c-c72b-4d3d-bd53-71c24b1a3c30", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEDPueLQf18pRaOxD4UMxGicRL36KfjjeMZf9r070esFdanArDEwkAK28w/s6Ibq10g==", null, false, null, "137581ee-0ba5-48ef-9021-fff2271df6f2", false, "admin1" },
-                    { 3, 0, "409bf59f-72fc-4d7f-8eb8-def1ef67b63d", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAENZFhAZuaGGbjhbYompXNqLPYIv1si0da0KGQPNeMh12jiPrfYHguSTo30+QFGIO4A==", null, false, null, "d42f6223-9ad4-46f8-a7f3-d5b2d44fae78", false, "admin2" },
-                    { 4, 0, "caa0f236-6450-46df-98d1-51c2a17516ce", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEKq3lA6jB+0GutRgUbuctnp06lz5thexRgRPdTMR7rULkDuYKCGlxy6UF117ZVX1LA==", null, false, null, "798fc1ea-610a-4738-991c-3baaf8a37750", false, "admin3" }
+                    { 1, 0, "8911c1d2-f742-4a30-adf3-3d636406d594", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SUPERADMIN", "AQAAAAIAAYagAAAAEK7uxZTyHpboIL/4lGhlKzEQ0ADEyHurV5GFe21lGCBlvgAejwUqzpiSRvYL4KGqyQ==", null, false, null, "1a8c31db-d3c0-4e84-98b5-1ffdbd5ea88d", false, "spadmin" },
+                    { 2, 0, "be285314-99d6-41d9-9fd8-25dadd038724", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEKaJO3lAYQzzXOIMLEmsYDqRsRoPBQjwixtgdV83gJc3gYILqt+sHeqy87q3i/A3ZA==", null, false, null, "f32ed7c0-2ac9-4ed4-b916-368e631e47e8", false, "admin1" },
+                    { 3, 0, "05a9e042-b2a8-488d-92bd-99de3906c48c", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEAwOBOCtoWo2qWty1IplhT2EHYaxPMdc497vsDnStdoQWoCiZS4q6vAyGsjfcsEMgw==", null, false, null, "2bf921bd-bfee-4f37-930f-e0a771f16211", false, "admin2" },
+                    { 4, 0, "77c30863-203b-4e5f-a301-22246bb95d06", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEOlSNuxOArkjRGyhcE8qhExL4IVeGBct9RyER8uD6gV7aQ+0nPWd07b/1GTRDZATkg==", null, false, null, "e6a982c7-4e04-42a8-ade0-879c180f381a", false, "admin3" }
                 });
 
             migrationBuilder.InsertData(
@@ -833,11 +827,6 @@ namespace Store_API.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserWarehouses_RoleId",
-                table: "UserWarehouses",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserWarehouses_UserId",
                 table: "UserWarehouses",
                 column: "UserId");
@@ -897,6 +886,9 @@ namespace Store_API.Migrations
                 name: "UserWarehouses");
 
             migrationBuilder.DropTable(
+                name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
                 name: "Baskets");
 
             migrationBuilder.DropTable(
@@ -910,9 +902,6 @@ namespace Store_API.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductDetails");
-
-            migrationBuilder.DropTable(
-                name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "Warehouses");

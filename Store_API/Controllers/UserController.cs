@@ -34,7 +34,7 @@ namespace Store_API.Controllers
         {
             try
             {
-                var userResponse = await _userService.ExternalLoginPopUp(model);
+                var userResponse = await _userService.LoginOAuth(model);
                 if (userResponse != null) return Ok(userResponse);
                 return BadRequest(new ProblemDetails { Title = "Login failed !" });
             }
