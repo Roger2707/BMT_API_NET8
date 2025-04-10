@@ -142,7 +142,8 @@ namespace Store_API.Services
                         PostalCode = a.PostalCode,
                         Country = a.Country
                     }).ToList()
-                }).FirstOrDefault();
+                })
+                .FirstOrDefault();
 
             return userDTO;
         }
