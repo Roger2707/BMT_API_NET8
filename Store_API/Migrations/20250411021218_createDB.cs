@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Store_API.Migrations
 {
     /// <inheritdoc />
-    public partial class createRDB : Migration
+    public partial class createDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -649,10 +649,10 @@ namespace Store_API.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "8911c1d2-f742-4a30-adf3-3d636406d594", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SUPERADMIN", "AQAAAAIAAYagAAAAEK7uxZTyHpboIL/4lGhlKzEQ0ADEyHurV5GFe21lGCBlvgAejwUqzpiSRvYL4KGqyQ==", null, false, null, "1a8c31db-d3c0-4e84-98b5-1ffdbd5ea88d", false, "spadmin" },
-                    { 2, 0, "be285314-99d6-41d9-9fd8-25dadd038724", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEKaJO3lAYQzzXOIMLEmsYDqRsRoPBQjwixtgdV83gJc3gYILqt+sHeqy87q3i/A3ZA==", null, false, null, "f32ed7c0-2ac9-4ed4-b916-368e631e47e8", false, "admin1" },
-                    { 3, 0, "05a9e042-b2a8-488d-92bd-99de3906c48c", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEAwOBOCtoWo2qWty1IplhT2EHYaxPMdc497vsDnStdoQWoCiZS4q6vAyGsjfcsEMgw==", null, false, null, "2bf921bd-bfee-4f37-930f-e0a771f16211", false, "admin2" },
-                    { 4, 0, "77c30863-203b-4e5f-a301-22246bb95d06", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEOlSNuxOArkjRGyhcE8qhExL4IVeGBct9RyER8uD6gV7aQ+0nPWd07b/1GTRDZATkg==", null, false, null, "e6a982c7-4e04-42a8-ade0-879c180f381a", false, "admin3" }
+                    { 1, 0, "5db07944-a4db-43ef-9a6a-3a94fb72432e", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEKJsR0zh3jiTXIAcSQPzSvz2KKqkY9CWaDqrkDe5upvHoRX7V/sjRf5Du6FXG9ak9Q==", null, false, null, "f6e04d07-7736-4fd2-9d42-55eaf2bab8b3", false, "spadmin" },
+                    { 2, 0, "921eaa0b-5403-40e8-b481-9cea3c1f68b4", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAELw3uOMiTsD13q7zH69bzrFliqR9YTW61pz2IWYM6jF0ghU9VwbxNOwz2FXLSF9v2w==", null, false, null, "9f7d41cf-f7d2-4a40-b562-2f92b1355cf7", false, "admin1" },
+                    { 3, 0, "d9f35233-b0d9-4462-9ebb-7339db4a9b89", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEDYqntPlsO4i7RdJ5IbEQtcW6SpK/kdQHPyyxBdSdO49Laal9x2W3v8YDRIdeiM0ig==", null, false, null, "e30b8f32-23e0-4da9-b67c-a9aeef454bf3", false, "admin2" },
+                    { 4, 0, "41e11833-8f19-450e-967c-059614b2b333", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEFFe6IaozvwHlJSjRVFV0I2KN5qblzMzQ8cuYgrGptcmSS4fcpqcP4J9d0kK/W107A==", null, false, null, "8345b0b9-744d-4946-8ae2-47c8b988e871", false, "admin3" }
                 });
 
             migrationBuilder.InsertData(

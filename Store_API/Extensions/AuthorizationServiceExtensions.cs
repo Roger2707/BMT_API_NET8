@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
 using Store_API.Authorization;
-using Store_API.Models.Users;
 
 namespace Store_API.Extensions
 {
@@ -21,17 +20,18 @@ namespace Store_API.Extensions
             // Register authorization policies
             services.AddAuthorization(options =>
             {
-                // Warehouse policies
-                options.AddPolicy("WarehouseAccess", policy =>
-                    policy.Requirements.Add(new WarehouseAccessRequirement(requireWarehouseAccess: false)));
+                #region Warehouse Policies
 
-                options.AddPolicy("ViewWarehouseDetails", policy =>
+                options.AddPolicy("WarehouseAccess", policy =>
                     policy.Requirements.Add(new WarehouseAccessRequirement(requireWarehouseAccess: true)));
 
                 options.AddPolicy("ManageWarehouses", policy =>
                     policy.Requirements.Add(new WarehouseAccessRequirement(requireSuperAdmin: true, requireWarehouseAccess: false)));
 
-                // Stock policies
+                #endregion
+
+                #region Stock Policies
+
                 // For viewing stock details and transactions - SuperAdmin and Admin can see
                 options.AddPolicy("ViewStockDetails", policy =>
                     policy.Requirements.Add(new StockAccessRequirement(
@@ -51,6 +51,8 @@ namespace Store_API.Extensions
                         requireSuperAdmin: false,
                         requireAdminAccess: true,
                         requireWarehouseAccess: true)));
+
+                #endregion
             });
         }
     }

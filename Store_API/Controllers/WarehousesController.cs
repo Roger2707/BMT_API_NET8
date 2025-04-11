@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Warehouse;
+using Store_API.Helpers;
 using Store_API.IService;
 using System.Security.Claims;
 
@@ -19,7 +20,6 @@ namespace Store_API.Controllers
         }
 
         [HttpGet("get-all")]
-        [Authorize(Policy = "WarehouseAccess")]
         public async Task<IActionResult> GetAll()
         {
             var warehouses = await _warehouseService.GetAll();
@@ -27,7 +27,7 @@ namespace Store_API.Controllers
         }
 
         [HttpGet("get-warehouse-detail", Name = "GetDetailWarehouse")]
-        [Authorize(Policy = "ViewWarehouseDetails")]
+        [Authorize(Policy = "WarehouseAccess")]
         public async Task<IActionResult> GetById([FromQuery] Guid warehouseId)
         {
             var warehouse = await _warehouseService.GetWarehouseDetail(warehouseId);
@@ -50,12 +50,12 @@ namespace Store_API.Controllers
         }
 
         [HttpPut("update")]
-        [Authorize(Policy = "ManageTransactions")]
+        [Authorize(Policy = "ManageWarehouses")]
         public async Task<IActionResult> Update([FromForm] WarehouseUpsertDTO model)
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var userId = CF.GetInt(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 await _warehouseService.Update(model, userId);
                 return CreatedAtRoute("GetDetailWarehouse", new { id = model.Id }, model);
             }
@@ -71,7 +71,7 @@ namespace Store_API.Controllers
         {
             try
             {
-                var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
+                var userId = CF.GetInt(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
                 await _warehouseService.Delete(warehouseId, userId);
                 return Ok();
             }
