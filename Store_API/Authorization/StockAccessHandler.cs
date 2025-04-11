@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
+using Store_API.Helpers;
 using Store_API.IService;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace Store_API.Authorization
 {
@@ -25,8 +27,8 @@ namespace Store_API.Authorization
                 return;
             }
 
-            var userId = int.Parse(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
-            var warehouseId = GetWarehouseIdFromRoute();
+            var userId = CF.GetInt(context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            var warehouseId = await GetWarehouseIdFromBody();
 
             // Check for SuperAdmin requirement
             if (requirement.RequireSuperAdmin)
@@ -72,15 +74,35 @@ namespace Store_API.Authorization
             context.Succeed(requirement);
         }
 
-        private Guid? GetWarehouseIdFromRoute()
+        private async Task<Guid?> GetWarehouseIdFromBody()
         {
-            var routeData = _httpContextAccessor.HttpContext?.Request.RouteValues;
-            if (routeData == null) return null;
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext == null) return null;
 
-            if (routeData.TryGetValue("warehouseId", out var warehouseIdObj) && 
-                Guid.TryParse(warehouseIdObj?.ToString(), out var warehouseId))
+            // Only read the body for POST/PUT requests
+            if (httpContext.Request.Method != "POST" && httpContext.Request.Method != "PUT")
+                return null;
+
+            // Read the request body
+            using var reader = new StreamReader(httpContext.Request.Body);
+            var body = await reader.ReadToEndAsync();
+
+            // Parse the JSON to get the warehouseId
+            try
             {
-                return warehouseId;
+                var jsonDocument = JsonDocument.Parse(body);
+                if (jsonDocument.RootElement.TryGetProperty("warehouseId", out var warehouseIdElement))
+                {
+                    if (Guid.TryParse(warehouseIdElement.GetString(), out var warehouseId))
+                    {
+                        return warehouseId;
+                    }
+                }
+            }
+            catch
+            {
+                // If parsing fails, return null
+                return null;
             }
 
             return null;
