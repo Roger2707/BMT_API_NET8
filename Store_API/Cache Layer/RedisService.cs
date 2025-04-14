@@ -26,6 +26,12 @@ namespace Store_API.Cache_Layer
             await db.StringSetAsync(key, json, expiration);
         }
 
+        public async Task RemoveAsync(string key)
+        {
+            var db = _redis.GetDatabase();
+            await db.KeyDeleteAsync(key);
+        }
+
         public async Task<IEnumerable<string>> GetKeysAsync(string pattern)
         {
             var server = _redis.GetServer(_redis.GetEndPoints().First());

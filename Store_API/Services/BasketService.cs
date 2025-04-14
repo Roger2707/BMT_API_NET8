@@ -1,10 +1,8 @@
 ﻿using Store_API.Cache_Layer;
 using Store_API.DTOs.Baskets;
-using Store_API.DTOs.Products;
 using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Repositories;
-using Microsoft.Extensions.Logging;
 
 namespace Store_API.Services
 {
@@ -27,7 +25,7 @@ namespace Store_API.Services
             _logger = logger;
         }
 
-        #region Retrieve & Sync Data
+        #region Retrieve Data
 
         public async Task<BasketDTO> GetBasketDTORedis(int userId, string username)
         {
@@ -47,6 +45,20 @@ namespace Store_API.Services
             return basketDb;
         }
 
+        #endregion
+
+        #region Sync database Implementations
+
+        public async Task<IEnumerable<string>> GetBasketKeysAsync()
+        {
+            return await _redisService.GetKeysAsync("basket:*");
+        }
+
+        public async Task<TimeSpan?> GetBasketTTLAsync(string key)
+        {
+            return await _redisService.GetKeyTimeToLiveAsync(key);
+        }
+
         public async Task SyncBasketDB(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
@@ -59,7 +71,6 @@ namespace Store_API.Services
             try
             {
                 await _unitOfWork.BeginTransactionDapperAsync();
-
                 if (await _unitOfWork.Basket.CheckBasketExistedDB(redisBasket.UserId, redisBasket.Id))
                 {
                     await _unitOfWork.Basket.DeleteBasketItem(redisBasket.Id);
@@ -81,29 +92,6 @@ namespace Store_API.Services
                 await _unitOfWork.RollbackAsync();
                 _logger.LogError(ex, $"Failed to sync basket for user {username}");
                 throw new Exception("An error occurred while syncing the basket.", ex);
-            }
-        }
-
-        public async Task CleanupExpiredBaskets()
-        {
-            try
-            {
-                var keys = await _redisService.GetKeysAsync("basket:*");
-                foreach (var key in keys)
-                {
-                    var ttl = await _redisService.GetKeyTimeToLiveAsync(key);
-                    if (ttl?.TotalMinutes < 5) // If less than 5 minutes remaining
-                    {
-                        var username = key.Split(':')[1];
-                        await SyncBasketDB(username);
-                        _logger.LogInformation($"Synced basket for user {username} during cleanup");
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error during basket cleanup");
-                throw;
             }
         }
 
@@ -129,22 +117,7 @@ namespace Store_API.Services
             {
                 redisBasket = await GetOrCreateBasket(redisBasket, basketUpsertDTO);
                 await UpdateBasketItems(redisBasket, basketUpsertDTO);
-                await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(30));
-                
-                // Start background sync task
-                _ = Task.Run(async () => 
-                {
-                    try
-                    {
-                        await Task.Delay(TimeSpan.FromMinutes(25));
-                        await SyncBasketDB(basketUpsertDTO.Username);
-                        _logger.LogInformation($"Background sync completed for user {basketUpsertDTO.Username}");
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, $"Background sync failed for user {basketUpsertDTO.Username}");
-                    }
-                });
+                await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(1));
             }
             catch (Exception ex)
             {

@@ -69,7 +69,7 @@ namespace Store_API.Repositories
 
         #endregion
 
-        #region Retrieve 
+        #region Retrieved
 
         public async Task<BasketDTO> GetBasketDTORedis(int userId, string username)
         {
@@ -95,7 +95,7 @@ namespace Store_API.Repositories
                         };
 
                     var basketJson = JsonSerializer.Serialize(basketDB);
-                    await _redis.StringSetAsync(basketKey, basketJson, TimeSpan.FromMinutes(30));
+                    await _redis.StringSetAsync(basketKey, basketJson, TimeSpan.FromMinutes(1));
                     return basketDB;
                 }
 

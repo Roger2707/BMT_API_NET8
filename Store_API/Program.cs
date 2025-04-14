@@ -10,7 +10,6 @@ using Store_API.Hubs;
 using Store_API.Extensions;
 using Store_API.RabbitMQ;
 using Store_API.Models.Users;
-using Store_API.BackgroundServices;
 using Store_API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -118,7 +117,7 @@ builder.Services.AddAuthorizationServices();
 #region Services
 
 builder.Services.AddApplicationServices();
-builder.Services.AddHostedService<BasketCleanupService>();
+builder.Services.AddHostedService<BasketBackgroundService>();
 
 #endregion 
 
