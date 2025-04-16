@@ -85,7 +85,7 @@ namespace Store_API.Controllers
             try
             {
                 await _userService.ChangePassword(User.Identity.Name, passwordDTO);
-                return Ok();
+                return Ok(new { Title = "Change Password Successfully !" });
             }
             catch(Exception ex)
             {
@@ -114,7 +114,7 @@ namespace Store_API.Controllers
             try
             {
                 await _userService.ResetPassword(model);
-                return Ok();
+                return Ok(new {Title = "Reset Password Successfully !"});
             }
             catch (Exception ex)
             {

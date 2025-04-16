@@ -15,10 +15,10 @@ namespace Store_API.Extensions
                     ProductDetailId = item.ProducDetailId,
                     ProductName = item.ProductName,
                     ProductFirstImage = item.ProductFirstImage,
-                    Quantity = 0,
-                    OriginPrice = 0,
-                    DiscountPercent = 0,
-                    DiscountPrice = 0,
+                    Quantity = item.Quantity,
+                    OriginPrice = item.OriginPrice,
+                    DiscountPercent = item.DiscountPercent,
+                    DiscountPrice = item.DiscountPrice,
                     Status = item.Status,
                 };
 
