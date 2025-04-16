@@ -83,13 +83,19 @@ namespace Store_API.Authorization
             if (httpContext.Request.Method != "POST" && httpContext.Request.Method != "PUT")
                 return null;
 
-            // Read the request body
-            using var reader = new StreamReader(httpContext.Request.Body);
-            var body = await reader.ReadToEndAsync();
-
-            // Parse the JSON to get the warehouseId
             try
             {
+                // Enable buffering if not already enabled
+                httpContext.Request.EnableBuffering();
+                
+                // Read the request body
+                using var reader = new StreamReader(httpContext.Request.Body, leaveOpen: true);
+                var body = await reader.ReadToEndAsync();
+                
+                // Reset the position to allow reading again in the controller
+                httpContext.Request.Body.Position = 0;
+
+                // Parse the JSON to get the warehouseId
                 var jsonDocument = JsonDocument.Parse(body);
                 if (jsonDocument.RootElement.TryGetProperty("warehouseId", out var warehouseIdElement))
                 {
@@ -101,7 +107,11 @@ namespace Store_API.Authorization
             }
             catch
             {
-                // If parsing fails, return null
+                // If parsing fails, ensure we reset the position
+                if (httpContext.Request.Body.CanSeek)
+                {
+                    httpContext.Request.Body.Position = 0;
+                }
                 return null;
             }
 

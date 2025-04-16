@@ -200,16 +200,19 @@ app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 
-#endregion 
+// Enable request body buffering
+app.Use(async (context, next) =>
+{
+    context.Request.EnableBuffering();
+    await next();
+});
 
 app.MapControllers();
+//app.MapFallbackToController("Index", "Fallback");
 
-#region Signal hubs
+#endregion 
 
 app.MapHub<OrderHub>("/orderHub");
-
-#endregion
-
 
 #region Seed Data
 
