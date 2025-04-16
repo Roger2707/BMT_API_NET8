@@ -213,8 +213,6 @@ namespace Store_API.Services
             if (exitedUser == null || !await _userManager.CheckPasswordAsync(exitedUser, request.Password))
                 throw new Exception("Username or password is incorrect.");
 
-            await _signInManager.SignInAsync(exitedUser, isPersistent: false);
-
             var userResponse = await GetUser(exitedUser.UserName);
             return userResponse;
         }
@@ -301,11 +299,7 @@ namespace Store_API.Services
 
                 await _userManager.AddToRoleAsync(user, "Customer");
             }
-
-            // Log in into system -> set User.identity.IsAuthenticated = TRUE
-            await _signInManager.SignInAsync(user, isPersistent: false);
             var userResponse = await GetUser(user.UserName);
-
             return userResponse;
         }
 

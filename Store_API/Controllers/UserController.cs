@@ -21,6 +21,7 @@ namespace Store_API.Controllers
             _userService = userService;
         }
 
+        [Authorize(Roles = "Super Admin, Admin")]
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {
@@ -80,16 +81,8 @@ namespace Store_API.Controllers
             }
         }
 
-        [HttpPost("log-out")]
-        public async Task<IActionResult> LogOut()
-        {
-            await _signInManager.SignOutAsync();
-            HttpContext.Response.Cookies.Delete("user");
-            return Ok("Log Out Successfully !");
-        }
-
-        [HttpPost("change-password")]
         [Authorize]
+        [HttpPost("change-password")]
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -104,6 +97,7 @@ namespace Store_API.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("forget-password")]
         public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordDTO model)
         {
@@ -133,13 +127,13 @@ namespace Store_API.Controllers
             }
         }
 
+        [Authorize]
         [HttpGet("current-user")]
         public async Task<IActionResult> GetCurrentUser()
         {
             try
             {
                 string userName = User.Identity.Name;
-                if (string.IsNullOrEmpty(userName)) return Ok();
                 var user = await _userService.GetUser(userName);
                 return Ok(user);
             }
@@ -149,8 +143,8 @@ namespace Store_API.Controllers
             }
         }
 
-        [HttpPut("update-profile")]
         [Authorize]
+        [HttpPut("update-profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UserDTO userUpsertDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
