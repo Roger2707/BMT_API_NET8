@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Accounts;
 using Store_API.DTOs.User;
 using Store_API.IService;
-using Store_API.Models.Users;
 
 namespace Store_API.Controllers
 {
@@ -12,12 +10,10 @@ namespace Store_API.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly SignInManager<User> _signInManager;
         private readonly IUserService _userService;
 
-        public UserController(SignInManager<User> signInManager, IUserService userService)
+        public UserController(IUserService userService)
         {
-            _signInManager = signInManager;
             _userService = userService;
         }
 
@@ -97,7 +93,6 @@ namespace Store_API.Controllers
             }
         }
 
-        [Authorize]
         [HttpPost("forget-password")]
         public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordDTO model)
         {

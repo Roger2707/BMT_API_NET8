@@ -333,18 +333,30 @@ namespace Store_API.Services
         public async Task ForgetPassword(ForgetPasswordDTO forgetPasswordDTO)
         {
             var user = await _userManager.FindByEmailAsync(forgetPasswordDTO.Email);
-            if (user == null) throw new Exception("Email does not exist.");
+            
+            // Don't reveal if the email exists or not
+            if (user != null)
+            {   
+                // Generate Token (Encode in query string)
+                var token = CF.Base64ForUrlEncode(await _userManager.GeneratePasswordResetTokenAsync(user));
 
-            // Generate Token (Encode in query string)
-            var token = CF.Base64ForUrlEncode(await _userManager.GeneratePasswordResetTokenAsync(user));
+                string linkResetPassword = $"http://localhost:3000/get-reset-password?email={forgetPasswordDTO.Email}&token={token}";
 
-            string linkResetPassword = $"http://localhost:3000/get-reset-password?email={forgetPasswordDTO.Email}&token={token}";
+                string htmlContent = $@"
+                    <h2>Password Reset Request</h2>
+                    <p>Hello,</p>
+                    <p>We received a request to reset your password. If you didn't make this request, you can safely ignore this email.</p>
+                    <p>To reset your password, click the link below:</p>
+                    <p><a href='{linkResetPassword}'>Reset Password</a></p>
+                    <p>This link will expire in 24 hours.</p>
+                    <p>Best regards,<br/>ROGER BMT Store Team</p>";
 
-            string htmlContent = $"This is your link to reset password :" + Environment.NewLine
-               + $"Link :" + linkResetPassword;
+                // Send Message to email
+                await _emailSenderService.SendEmailAsync(forgetPasswordDTO.Email, "Reset Password - ROGER BMT Store", htmlContent);
+            }
 
-            // Send Message to email
-            await _emailSenderService.SendEmailAsync(forgetPasswordDTO.Email, "Reset Password ROGER BMT APP (NET 8)", htmlContent);
+            // Always return success to prevent email enumeration
+            return;
         }
 
         public async Task SendLinkResetPwToMail(ForgetPasswordDTO model, User user)
