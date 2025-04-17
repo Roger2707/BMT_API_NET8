@@ -31,25 +31,32 @@ namespace Store_API.Repositories
             string query = @"
                             SELECT 
                                 au.Id as UserId
-	                            , au.FullName
-	                            , au.Email
-	                            , au.PhoneNumber
-	                            , o.Id
-	                            , o.OrderDate
-	                            , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Completed', IIF(o.Status = 2, 'Cancelled', 'Refunded'))) as OrderStatus
-	                            , o.DeliveryFee
-	                            , o.GrandTotal
+                                , o.Id
+
+                                , au.FullName
+                                , au.Email
+                                , au.PhoneNumber
+
+                                , o.OrderDate
+                                , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Completed', IIF(o.Status = 2, 'Cancelled', 'Refunded'))) as OrderStatus
+                                , o.DeliveryFee
+                                , o.GrandTotal
                                 , o.Id as OrderItemId
-	                            , oi.ProductId
-	                            , p.Name as ProductName
+
+	                            , oi.Id as OrderItemId
+                                , oi.ProductDetailId
+                                , p.Name as ProductName
                                 , '' as ProductImageUrl
-	                            , oi.Quantity
-	                            , oi.SubTotal
-	                            , u.City
-	                            , u.District
-	                            , u.Ward
-	                            , u.PostalCode
-	                            , u.StreetAddress
+                                , oi.Quantity
+                                , oi.SubTotal
+
+	                            , u.Id as UserAddressId
+                                , u.City
+                                , u.District
+                                , u.Ward
+                                , u.PostalCode
+                                , u.StreetAddress
+                                , u.Country 
 	
                             FROM Orders o
 
@@ -59,19 +66,17 @@ namespace Store_API.Repositories
                             LEFT JOIN AspNetUsers au ON au.Id = u.UserId
 
                             WHERE o.Id = @Id
-
                            "
             ;
 
-            List<dynamic> result = await _dapperService.QueryAsync<dynamic>(query, new { Id = orderId });
+            var result = await _dapperService.QueryAsync<OrderDapperRow>(query, new { Id = orderId });
             if (result.Count == 0) return null;
-
             var orderGroup = 
                 result
                     .GroupBy(o => new 
                             { o.Id, o.UserId, o.FullName, o.Email, o.PhoneNumber, o.OrderDate
                                 , o.DeliveryFee, o.OrderStatus, o.GrandTotal
-                                , o.City, o.District, o.Ward, o.StreetAddress, o.PostalCode, o.Country 
+                                , o.UserAddressId, o.City, o.District, o.Ward, o.StreetAddress, o.PostalCode, o.Country 
                             })
                     .Select(g => 
                         new OrderDTO 
@@ -81,13 +86,14 @@ namespace Store_API.Repositories
                             FullName = g.Key.FullName,
                             Email = g.Key.Email,
                             PhoneNumber = g.Key.PhoneNumber,
-                            OrderDate = g.Key.OrderDate,
+                            OrderDate = g.Key.OrderDate,               
                             Status = g.Key.OrderStatus,
                             DeliveryFee = g.Key.DeliveryFee,
                             GrandTotal = g.Key.GrandTotal,
 
                             UserAddress = new UserAddress
                             {
+                                Id = g.Key.UserAddressId,
                                 City = g.Key.City,
                                 District = g.Key.District,
                                 Ward = g.Key.Ward,
@@ -99,7 +105,7 @@ namespace Store_API.Repositories
                             Items = g.Select(oi => new OrderItemDTO
                             {
                                 Id = oi.OrderItemId,
-                                ProductId = oi.ProductId,
+                                ProductDetailId = oi.ProductDetailId,
                                 ProductName = oi.ProductName,
                                 ProductImageUrl = oi.ProductImageUrl,
                                 Quantity = oi.Quantity,
@@ -110,6 +116,7 @@ namespace Store_API.Repositories
             return orderGroup;
         }
 
+        // Will be updated later
         public async Task<IEnumerable<OrderDTO>> GetOrders(int userId)
         {
             string query = @"
@@ -196,7 +203,7 @@ namespace Store_API.Repositories
                             Items = g.Select(oi => new OrderItemDTO
                             {
                                 Id = oi.OrderItemId,
-                                ProductId = oi.ProductId,
+                                ProductDetailId = oi.ProductDetailId,
                                 ProductName = oi.ProductName,
                                 ProductImageUrl = oi.ProductImageUrl,
                                 Quantity = oi.Quantity,

@@ -8,7 +8,6 @@ using Store_API.Data;
 using System.Text;
 using Store_API.Hubs;
 using Store_API.Extensions;
-using Store_API.RabbitMQ;
 using Store_API.Models.Users;
 using Store_API.Services;
 
@@ -173,7 +172,7 @@ builder.Services.AddSignalR(options =>
 
 #region RabbitMQ
 
-builder.Services.AddHostedService<RabbitMQConsumerService>();
+//builder.Services.AddHostedService<RabbitMQConsumerService>();
 
 #endregion 
 
@@ -181,7 +180,6 @@ var app = builder.Build();
 
 #region Middlewares
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -200,7 +198,7 @@ app.UseCors("AllowSpecificOrigin");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Enable request body buffering
+// Because the request body can only be read once, we need to enable buffering
 app.Use(async (context, next) =>
 {
     context.Request.EnableBuffering();
@@ -208,7 +206,6 @@ app.Use(async (context, next) =>
 });
 
 app.MapControllers();
-//app.MapFallbackToController("Index", "Fallback");
 
 #endregion 
 

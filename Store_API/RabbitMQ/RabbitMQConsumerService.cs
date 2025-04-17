@@ -7,7 +7,6 @@ using Store_API.Hubs;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 using Store_API.Services;
-using System.Net.Mail;
 using System.Text;
 
 namespace Store_API.RabbitMQ

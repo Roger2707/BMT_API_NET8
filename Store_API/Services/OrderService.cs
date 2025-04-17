@@ -18,6 +18,8 @@ namespace Store_API.Services
             _basketService = basketService;
         }
 
+        #region Create Order
+
         public async Task<OrderResponseDTO> Create(int userId, string userName, BasketDTO basket, int userAddressId)
         {
             using var transaction = await _unitOfWork.BeginTransactionAsync();
@@ -29,7 +31,7 @@ namespace Store_API.Services
                     .Select(i => 
                             new OrderItem
                             {
-                                ProductId = i.ProductDetailId,
+                                ProductDetailId = i.ProductDetailId,
                                 Quantity = i.Quantity,
                                 SubTotal = i.DiscountPrice * i.Quantity,
                             })
@@ -47,7 +49,7 @@ namespace Store_API.Services
                     UserAddressId = userAddressId,
                     Items = orderItems,
                     GrandTotal = grandTotal,
-                    DeliveryFee = grandTotal > 100 ? 0 : 10,
+                    DeliveryFee = grandTotal > 1000000 ? 0 : 50000,
                 };
 
                 await _unitOfWork.Order.Create(order);
@@ -80,6 +82,10 @@ namespace Store_API.Services
             }
         }
 
+        #endregion
+
+        #region Retrieve 
+
         public async Task<OrderDTO> GetOrder(int orderId)
         {
             var orderDTO = await _unitOfWork.Order.GetOrder(orderId);
@@ -91,6 +97,8 @@ namespace Store_API.Services
             var orders = await _unitOfWork.Order.GetOrders(orderId);
             return orders;
         }
+
+        #endregion
 
         #region Helpers
 

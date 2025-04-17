@@ -17,7 +17,7 @@ namespace Store_API.Controllers
             _userService = userService;
         }
 
-        [Authorize(Roles = "Super Admin, Admin")]
+        [Authorize(Roles = "SuperAdmin, Admin")]
         [HttpGet("get-all")]
         public async Task<IActionResult> GetAll()
         {

@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Store_API.DTOs.Orders;
 using Store_API.IService;
 using Store_API.Models.Users;
 
@@ -28,15 +27,15 @@ namespace Store_API.Controllers
         {
             try
             {
-                // 1. Check userAddressId 
+                // 1. Check userAddressId
                 if(userAddressId == 0) return BadRequest(new ProblemDetails { Title = "User Address is not found" });
 
                 // 2. Get Basket - Current User 
-                var basketDTO = new DTOs.Baskets.BasketDTO();
-                if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
-
                 var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 int userId = user.Id;
+
+                var basketDTO = await _basketService.GetBasketDTORedis(userId, User.Identity.Name);
+                if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
 
                 // 3. Order processing
                 var orderResponse = await _orderService.Create(userId, User.Identity.Name, basketDTO, userAddressId);
