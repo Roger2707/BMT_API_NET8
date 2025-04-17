@@ -80,20 +80,20 @@ namespace Store_API.Repositories
             try
             {
                 var redisBasket = await _redis.StringGetAsync(basketKey);
-
                 if (string.IsNullOrEmpty(redisBasket))
                 {
                     var basketDB = await GetBasketDTODB(username);
 
                     if (basketDB == null)
-                        return new BasketDTO 
-                        { 
+                    {
+                        basketDB = new BasketDTO
+                        {
                             Id = Guid.NewGuid(),
-                            UserId = userId, 
-                            Items = new List<BasketItemDTO>(), 
-                            GrandTotal = 0 
+                            UserId = userId,
+                            Items = new List<BasketItemDTO>(),
+                            GrandTotal = 0
                         };
-
+                    }
                     var basketJson = JsonSerializer.Serialize(basketDB);
                     await _redis.StringSetAsync(basketKey, basketJson, TimeSpan.FromMinutes(1));
                     return basketDB;
@@ -102,7 +102,6 @@ namespace Store_API.Repositories
                 var basketDTO = JsonSerializer.Deserialize<BasketDTO>(redisBasket);
                 if (basketDTO == null)
                     throw new Exception("Failed to deserialize basket from Redis");
-
                 return basketDTO;
             }
             catch (Exception ex)
@@ -115,7 +114,6 @@ namespace Store_API.Repositories
         {
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException("Username cannot be empty", nameof(username));
-
             string query = @"
                 SELECT 
                     basket.Id

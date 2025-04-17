@@ -6,8 +6,7 @@ namespace Store_API.IService
     {
         #region Retrieve Data
 
-        Task<BasketDTO> GetBasketDTORedis(int userId, string username);
-        Task<BasketDTO> GetBasketDTODB(string username);
+        Task<BasketDTO> GetBasketDTO(int userId, string username);
 
         #endregion
 
@@ -23,7 +22,7 @@ namespace Store_API.IService
 
         Task UpsertBasket(BasketUpsertDTO basketUpsertDTO);
         Task ToggleBasketItemStatus(string username, Guid basketItemId);
-        Task RemoveRangeItems(string username);
+        Task RemoveRangeItems(string username, Guid basketId);
 
         #endregion
     }

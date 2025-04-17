@@ -23,7 +23,7 @@ namespace Store_API.Repositories
 
         public async Task<Order> FirstOrDefaultAsync(int orderId)
         {
-            return await _db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            return await _db.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
         public async Task<OrderDTO> GetOrder(int orderId)
@@ -86,7 +86,7 @@ namespace Store_API.Repositories
                             FullName = g.Key.FullName,
                             Email = g.Key.Email,
                             PhoneNumber = g.Key.PhoneNumber,
-                            OrderDate = g.Key.OrderDate,               
+                            OrderDate = g.Key.OrderDate,
                             Status = g.Key.OrderStatus,
                             DeliveryFee = g.Key.DeliveryFee,
                             GrandTotal = g.Key.GrandTotal,

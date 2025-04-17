@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Store_API.DTOs.Payments;
+using Store_API.DTOs.Stocks;
 using Store_API.Helpers;
+using Store_API.IService;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
@@ -11,12 +13,14 @@ namespace Store_API.Services
     public class PaymentService : IPaymentService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IStockService _stockService;
         private readonly IConfiguration _configuration;
         private readonly string _apiKey;
 
-        public PaymentService(IUnitOfWork unitOfWork, IConfiguration configuration)
+        public PaymentService(IUnitOfWork unitOfWork, IStockService stockService, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
+            _stockService = stockService;
             _configuration = configuration;
             _apiKey = _configuration["Stripe:SecretKey"];
 
@@ -29,10 +33,9 @@ namespace Store_API.Services
 
         public async Task<PaymentIntent> CreatePaymentIntentAsync(int orderId, double amount)
         {
-            // Exchange rate (vnd -> usd)
+            // 1. Exchange rate (vnd -> usd)
             decimal exchangeRate = 0.000039m;
             long amountInCents = (long)(CF.GetDecimal(amount) * exchangeRate * 100);
-
             var options = new PaymentIntentCreateOptions
             {
                 Amount = amountInCents,
@@ -40,6 +43,7 @@ namespace Store_API.Services
                 PaymentMethodTypes = new List<string> { "card" }
             };
 
+            // 2. Create PaymentIntent
             var service = new PaymentIntentService();
             var paymentIntent = await service.CreateAsync(options);
 
@@ -62,7 +66,7 @@ namespace Store_API.Services
             {
                 if (stripeEvent.Type == Events.PaymentIntentSucceeded)
                 {
-                    // Handle Stripe webhook event
+                    // 1. Handle Stripe webhook event
                     var intent = stripeEvent.Data.Object as PaymentIntent;
                     if (intent == null) return;
 
@@ -70,19 +74,35 @@ namespace Store_API.Services
                     var messageBody = JsonConvert.SerializeObject(paymentMessage);
 
                     var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentMessage.PaymentIntentId);
-
                     if (payment == null)
                         throw new Exception($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
 
-                    // Find related order
+                    // 2. Find related order
                     var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
                     if (order == null)
                         throw new Exception($"Order not found for PaymentIntentId: {paymentMessage.PaymentIntentId}");
 
-                    // Update Status Order and Payment -> Check out 
-                    payment.Status = OrderStatus.Completed;
-                    order.Status = OrderStatus.Completed;
+                    // 3. Check Inventory and Update StockTransaction (Export)
+                    foreach (var item in order.Items)
+                    {
+                        var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
+                        if (stockExist == null || stockExist.Quantity < item.Quantity)
+                            throw new Exception($"Sorry! Product is not enoungh quantity in Inventory !");
 
+                        var stockUpsertDTO = new StockUpsertDTO
+                        {
+                            ProductDetailId = item.ProductDetailId,
+                            WarehouseId = stockExist.WarehouseId,
+                            Quantity = item.Quantity,
+                        };
+                        await _stockService.ExportStock(stockUpsertDTO);
+                    }
+
+                    // 4. Update Status Order and Payment -> Check out 
+                    payment.Status = OrderStatus.Completed;
+                    order.Status = OrderStatus.Shipping;
+
+                    // 5. Save DB
                     await _unitOfWork.SaveChangesAsync();
                     await transaction.CommitAsync();
                 }

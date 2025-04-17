@@ -278,7 +278,6 @@ namespace Store_API.Services
             if (!response.IsSuccessStatusCode)
                 throw new Exception($"Failed to login {responseString}");
 
-
             var tokenResponse = JsonConvert.DeserializeObject<GoogleTokenResponse>(responseString);
             if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.Id_token))
                 throw new Exception("Could not get token from Google");

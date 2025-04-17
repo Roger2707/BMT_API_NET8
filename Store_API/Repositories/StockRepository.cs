@@ -1,6 +1,5 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs.Stocks;
-using Store_API.Helpers;
 using Store_API.IRepositories;
 using Store_API.Models.Inventory;
 
@@ -22,8 +21,6 @@ namespace Store_API.Repositories
             var result = await _dapperService.QueryFirstOrDefaultAsync<StockQuantity>(query, p);
             return result;
         }
-
-        #region Retrieve Data
 
         public async Task<StockDTO> GetStock(Guid productDetailId)
         {
@@ -79,6 +76,24 @@ namespace Store_API.Repositories
             return stockDTO;
         }
 
-        #endregion
+        public async Task<StockExistDTO> GetStockExisted(Guid productDetailId)
+        {
+            string query = @" 
+                            SELECT TOP 1
+                                 wh.Id AS WarehouseId,
+                                 wh.Name AS WarehouseName,
+	                             d.Id as ProductDetailId,
+                                 ISNULL(s.Quantity, 0) AS Quantity
+                             FROM Warehouses wh
+
+                             LEFT JOIN ProductDetails d ON d.Id = @ProductDetailId
+                             LEFT JOIN Stocks s ON s.WarehouseId = wh.Id AND s.ProductDetailId = d.Id
+
+                             WHERE Quantity > 0"
+                            ;
+            var p = new { ProductDetailId = productDetailId };
+            var result =await _dapperService.QueryFirstOrDefaultAsync<StockExistDTO>(query, p);
+            return result;
+        }
     }
 }

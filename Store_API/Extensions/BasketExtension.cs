@@ -12,7 +12,7 @@ namespace Store_API.Extensions
                 var itemDTO = new BasketItemDTO()
                 {
                     BasketItemId = item.BasketItemId,
-                    ProductDetailId = item.ProducDetailId,
+                    ProductDetailId = item.ProductDetailId,
                     ProductName = item.ProductName,
                     ProductFirstImage = item.ProductFirstImage,
                     Quantity = item.Quantity,

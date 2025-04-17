@@ -34,7 +34,7 @@ namespace Store_API.Controllers
                 var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 int userId = user.Id;
 
-                var basketDTO = await _basketService.GetBasketDTORedis(userId, User.Identity.Name);
+                var basketDTO = await _basketService.GetBasketDTO(userId, User.Identity.Name);
                 if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
 
                 // 3. Order processing

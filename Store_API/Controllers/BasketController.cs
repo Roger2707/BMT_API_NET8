@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Baskets;
 using Store_API.Helpers;
@@ -25,7 +24,7 @@ namespace Store_API.Controllers
         public async Task<IActionResult> GetBasket()
         {
             int userId = CF.GetInt(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            var redisBasket = await _basketService.GetBasketDTORedis(userId, User.Identity.Name);
+            var redisBasket = await _basketService.GetBasketDTO(userId, User.Identity.Name);
             return Ok(redisBasket);
         }
 
@@ -48,8 +47,8 @@ namespace Store_API.Controllers
             try
             {
                 await _basketService.UpsertBasket(basketUpsertDTO);
-                var redisBasket = await _basketService.GetBasketDTORedis(userId, User.Identity.Name);
-                var newItemUpdated = redisBasket.Items.FirstOrDefault(i => i.ProductDetailId == basketUpsertDTO.ProductDetailId);
+                var basketDTO = await _basketService.GetBasketDTO(userId, User.Identity.Name);
+                var newItemUpdated = basketDTO.Items.FirstOrDefault(i => i.ProductDetailId == basketUpsertDTO.ProductDetailId);
                 return Ok(newItemUpdated);
             }
             catch (Exception ex)

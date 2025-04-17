@@ -25,7 +25,15 @@ namespace Store_API.Services
             using var transaction = await _unitOfWork.BeginTransactionAsync();
             try
             {
-                // 1. Get Order Items
+                // 1. Check Quantity Product in Inventory
+                foreach (var item in basket.Items)
+                {
+                    var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
+                    if (stockExist == null || stockExist.Quantity < item.Quantity)
+                        throw new Exception($"Sorry! Product {item.ProductName} is not enoungh quantity in Inventory !");
+                }
+
+                // 2. Get Order Items
                 var orderItems = basket.Items
                     .Where(item => item.Status)
                     .Select(i => 
@@ -37,10 +45,10 @@ namespace Store_API.Services
                             })
                     .ToList();
 
-                // 2. Calc Grand Total
+                // 3. Calc Grand Total
                 double grandTotal = orderItems.Sum(item => item.SubTotal);
 
-                // 3. Add Order in DB
+                // 4. Add Order in DB
                 var order = new Order
                 {
                     UserId = userId,
@@ -52,17 +60,17 @@ namespace Store_API.Services
                     DeliveryFee = grandTotal > 1000000 ? 0 : 50000,
                 };
 
+                // 5. Remove Items in Basket - Sync Redis
+                var items = basket.Items.Where(x => x.Status == true).ToList();
+                await _basketService.RemoveRangeItems(userName, basket.Id);
+
                 await _unitOfWork.Order.Create(order);
                 await _unitOfWork.SaveChangesAsync();
 
-                // 4. Remove Items in Basket - Sync Redis
-                var items = basket.Items.Where(x => x.Status == true).ToList();
-                await _basketService.RemoveRangeItems(userName);
-
-                // 5. Create PaymentIntent on Stripe (Add Payment in db)
+                // 6. Create PaymentIntent on Stripe (Add Payment in db)
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
 
-                // 6. Save and Commit
+                // 7. Save and Commit
                 await _unitOfWork.SaveChangesAsync();
                 await transaction.CommitAsync();
 

@@ -5,7 +5,7 @@
         public Guid Id { get; set; }
         public int UserId { get; set; }
         public Guid BasketItemId { get; set; }
-        public Guid ProducDetailId { get; set; }
+        public Guid ProductDetailId { get; set; }
         public string ProductName { get; set; }
         public string ProductFirstImage { get; set; }
         public int Quantity { get; set; }

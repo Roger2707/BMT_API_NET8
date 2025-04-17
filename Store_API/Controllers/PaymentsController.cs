@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Store_API.IService;
 using Store_API.Repositories;
 using Stripe;
 
@@ -18,6 +17,7 @@ namespace Store_API.Controllers
             _configuration = configuration;
         }
 
+        // stripe listen --forward-to localhost:5110/api/payments/webhook
         [HttpPost("webhook")]
         public async Task<IActionResult> StripeWebhook()
         {
@@ -27,15 +27,15 @@ namespace Store_API.Controllers
                 var whSecret = _configuration["Stripe:WhSecret"];
                 var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], whSecret);
 
+                // Can improve this by using RabbitMQ
                 await _paymentService.HandleStripeWebhookAsync(stripeEvent);
-
             }
             catch (Exception ex)
             {
                 return BadRequest(new ProblemDetails { Title = ex.Message });
             }
 
-            return Ok();
+            return Ok(new { Title = "Check out Successfully !" });
         }
 
         #region API test helpers
