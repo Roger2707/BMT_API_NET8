@@ -193,7 +193,7 @@ namespace Store_API.Services
             await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(1));
         }
 
-        public async Task RemoveRangeItems(string username, Guid basketId)
+        public async Task RemoveRangeItems(string username, int userId, Guid basketId)
         {
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException("Username cannot be empty", nameof(username));
@@ -204,6 +204,7 @@ namespace Store_API.Services
             await _redisService.RemoveAsync(basketKey);
 
             // 2. Delete items on database
+            await _unitOfWork.Basket.DeleteBasket(userId, basketId);
             await _unitOfWork.Basket.DeleteBasketItem(basketId);
         }
 

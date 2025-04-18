@@ -64,7 +64,7 @@ namespace Store_API.Services
 
                 // 5. Remove Items in Basket - Sync Redis
                 var items = basket.Items.Where(x => x.Status == true).ToList();
-                await _basketService.RemoveRangeItems(userName, basket.Id);
+                await _basketService.RemoveRangeItems(userName, userId, basket.Id);
 
                 // 6. Create PaymentIntent on Stripe (Add Payment in db)
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);

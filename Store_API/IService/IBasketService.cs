@@ -22,7 +22,7 @@ namespace Store_API.IService
 
         Task UpsertBasket(BasketUpsertDTO basketUpsertDTO);
         Task ToggleBasketItemStatus(string username, Guid basketItemId);
-        Task RemoveRangeItems(string username, Guid basketId);
+        Task RemoveRangeItems(string username, int userId, Guid basketId);
 
         #endregion
     }
