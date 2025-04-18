@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Store_API.DTOs.Payments;
 using Store_API.DTOs.Stocks;
+using Store_API.Enums;
 using Store_API.Helpers;
 using Store_API.IService;
 using Store_API.Models;
@@ -52,7 +53,7 @@ namespace Store_API.Services
                 OrderId = orderId,
                 PaymentIntentId = paymentIntent.Id,
                 Amount = amount,
-                Status = OrderStatus.Pending,
+                Status = PaymentStatus.Pending,
                 CreatedAt = DateTime.UtcNow,
             };
             await _unitOfWork.Payment.AddAsync(payment);
@@ -61,7 +62,7 @@ namespace Store_API.Services
 
         public async Task HandleStripeWebhookAsync(Event stripeEvent)
         {
-            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
             try
             {
                 if (stripeEvent.Type == Events.PaymentIntentSucceeded)
@@ -99,12 +100,11 @@ namespace Store_API.Services
                     }
 
                     // 4. Update Status Order and Payment -> Check out 
-                    payment.Status = OrderStatus.Completed;
+                    payment.Status = PaymentStatus.Succeeded;
                     order.Status = OrderStatus.Shipping;
 
                     // 5. Save DB
                     await _unitOfWork.SaveChangesAsync();
-                    await transaction.CommitAsync();
                 }
                 else if(stripeEvent.Type == Events.PaymentIntentCanceled)
                 {
@@ -113,7 +113,7 @@ namespace Store_API.Services
             }
             catch(Exception ex)
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }

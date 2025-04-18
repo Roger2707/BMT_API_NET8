@@ -170,12 +170,6 @@ builder.Services.AddSignalR(options =>
 
 #endregion
 
-#region RabbitMQ
-
-//builder.Services.AddHostedService<RabbitMQConsumerService>();
-
-#endregion 
-
 var app = builder.Build();
 
 #region Middlewares

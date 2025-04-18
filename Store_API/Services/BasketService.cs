@@ -11,18 +11,15 @@ namespace Store_API.Services
         private readonly IRedisService _redisService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IProductService _productService;
-        private readonly ILogger<BasketService> _logger;
 
         public BasketService(
             IRedisService redisService, 
             IUnitOfWork unitOfWork, 
-            IProductService productService,
-            ILogger<BasketService> logger)
+            IProductService productService)
         {
             _redisService = redisService;
             _unitOfWork = unitOfWork;
             _productService = productService;
-            _logger = logger;
         }
 
         #region Retrieve Data
@@ -61,7 +58,7 @@ namespace Store_API.Services
 
             try
             {
-                await _unitOfWork.BeginTransactionDapperAsync();
+                await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
                 if (await _unitOfWork.Basket.CheckBasketExistedDB(redisBasket.UserId, redisBasket.Id))
                 {
                     await _unitOfWork.Basket.DeleteBasketItem(redisBasket.Id);
@@ -75,13 +72,11 @@ namespace Store_API.Services
                     await _unitOfWork.Basket.InsertBasketItems(redisBasket);
                 }
 
-                await _unitOfWork.CommitAsync();
-                _logger.LogInformation($"Successfully synced basket for user {username}");
+                await _unitOfWork.SaveChangesAsync();
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-                _logger.LogError(ex, $"Failed to sync basket for user {username}");
                 throw new Exception("An error occurred while syncing the basket.", ex);
             }
         }
@@ -112,7 +107,6 @@ namespace Store_API.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Failed to upsert basket for user {basketUpsertDTO.Username}");
                 throw new Exception($"Failed to upsert basket for user {basketUpsertDTO.Username}", ex);
             }
         }

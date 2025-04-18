@@ -50,7 +50,7 @@ namespace Store_API.Services
 
         public async Task<Guid> CreateProduct(ProductUpsertDTO model)
         {
-            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.EntityFramework);
             try
             {
                 var product = new Product()
@@ -78,16 +78,13 @@ namespace Store_API.Services
                 }
 
                 await _unitOfWork.Product.AddAsync(product);
-                int result = await _unitOfWork.SaveChangesAsync();
-                if(result > 0)
-                {
-                    await transaction.CommitAsync();
-                    return model.Id;
-                }
+                await _unitOfWork.SaveChangesAsync();
+
+                return model.Id;
             }
             catch(Exception ex)
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
             return Guid.Empty;
@@ -95,7 +92,7 @@ namespace Store_API.Services
 
         public async Task<Guid> UpdateProduct(ProductUpsertDTO model)
         {
-            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.EntityFramework);
 
             try
             {
@@ -134,19 +131,14 @@ namespace Store_API.Services
                     Status = d.Status
                 }));
 
-                int result = await _unitOfWork.SaveChangesAsync();
-                if(result > 0)
-                {
-                    await transaction.CommitAsync();
-                    return model.Id;
-                }
+                await _unitOfWork.SaveChangesAsync();
+                return model.Id;
             }
             catch(Exception ex)
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
-            return Guid.Empty;
         }
 
         public async Task<int> UpdateProductStatus(Guid productId)

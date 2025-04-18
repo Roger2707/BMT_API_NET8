@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
-using Store_API.Data;
-using Store_API.Helpers;
+﻿using Store_API.Data;
 using Store_API.IRepositories;
 using StackExchange.Redis;
+using Store_API.Enums;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage;
+using Microsoft.EntityFrameworkCore;
 
 namespace Store_API.Repositories
 {
@@ -12,11 +14,22 @@ namespace Store_API.Repositories
         private readonly IDapperService _dapperService;
         private readonly IConnectionMultiplexer _redis;
 
-        public UnitOfWork(StoreContext db, IDapperService dapperService, IConnectionMultiplexer redis)
+        #region Fields to manage transactions
+
+        private readonly string _connectionString;
+        private SqlConnection _sqlConnection;
+        private SqlTransaction _sqlTransaction;
+        private IDbContextTransaction _efTransaction;
+        private TransactionType _currentType;
+
+        #endregion
+
+        public UnitOfWork(StoreContext db, IDapperService dapperService, IConfiguration config, IConnectionMultiplexer redis)
         {
             _db = db;
             _dapperService = dapperService;
             _redis = redis;
+            _connectionString = config.GetConnectionString("DefaultConnection");
 
             Category = new CategoryRepository(_db, _dapperService);
             Brand = new BrandRepository(_db, _dapperService);
@@ -31,11 +44,12 @@ namespace Store_API.Repositories
             UserAddress = new UserAddressRepository(_db, _dapperService);
             UserAddress = new UserAddressRepository(_db, _dapperService);
             UserWarehouse = new UserWarehouseRepository(_db, _dapperService);
-
-            Comment = new CommentRepository(_db, _dapperService);
-            Rating = new RatingRepository(_db, _dapperService);
             Order = new OrderRepository(_dapperService, _db);
             Payment = new PaymentRepository(_db);
+
+            // Handle Later
+            Comment = new CommentRepository(_db, _dapperService);
+            Rating = new RatingRepository(_db, _dapperService);
         }
 
         #region Models Repository
@@ -58,56 +72,55 @@ namespace Store_API.Repositories
 
         #endregion
 
-        #region EF Core Methods
-        public async Task<IDbContextTransaction> BeginTransactionAsync()
+        #region Transaction Handle
+
+        public async Task BeginTransactionAsync(TransactionType type)
         {
-            return await _db.Database.BeginTransactionAsync();
+            _currentType = type;
+
+            if (type == TransactionType.Dapper || type == TransactionType.Both)
+            {
+                _sqlConnection = new SqlConnection(_connectionString);
+                await _sqlConnection.OpenAsync();
+                _sqlTransaction = _sqlConnection.BeginTransaction();
+
+                _dapperService.UseConnection(_sqlConnection);
+                _dapperService.SetTransaction(_sqlTransaction);
+            }
+
+            if (type == TransactionType.EntityFramework || type == TransactionType.Both)
+            {
+                _efTransaction = await _db.Database.BeginTransactionAsync();
+            }
         }
 
-        public async Task<int> SaveChangesAsync()
+        public async Task SaveChangesAsync()
         {
-            int result = await _db.SaveChangesAsync();
-            return result;
-        }
+            if (_currentType == TransactionType.EntityFramework || _currentType == TransactionType.Both)
+            {
+                await _db.SaveChangesAsync(); 
+                await _efTransaction?.CommitAsync();
+            }
 
-        #endregion
-
-        #region Dapper Methods
-        public async Task BeginTransactionDapperAsync()
-        {
-            await _dapperService.BeginTransactionAsync();
-        }
-
-        public async Task CommitAsync()
-        {
-            await _dapperService.CommitAsync();
+            if (_currentType == TransactionType.Dapper || _currentType == TransactionType.Both)
+            {
+                _sqlTransaction?.Commit();
+                await _sqlConnection?.CloseAsync();
+            }
         }
 
         public async Task RollbackAsync()
         {
-            await _dapperService.RollbackAsync();
-        }
+            if (_currentType == TransactionType.EntityFramework || _currentType == TransactionType.Both)
+                await _efTransaction?.RollbackAsync();
 
-        public async Task CloseConnectionAsync()
-        {
-            await _dapperService.CloseConnectionAsync();
-        }
-
-        #endregion
-
-        #region Check Exisred Field in Table
-
-        public async Task<bool> CheckExisted(string tableName, int id)
-        {
-            string query = @" SELECT COUNT(Id) as Record FROM " + tableName + " WHERE Id = @Id ";
-            var p = new { id };
-            int result = await _dapperService.QueryFirstOrDefaultAsync<int>(query, p);
-            if (CF.GetInt(result) > 0) return true;
-            return false;
+            if (_currentType == TransactionType.Dapper || _currentType == TransactionType.Both)
+            {
+                _sqlTransaction?.Rollback();
+                await _sqlConnection?.CloseAsync();
+            }
         }
 
         #endregion
-
     }
-        
 }

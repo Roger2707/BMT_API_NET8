@@ -1,10 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using Store_API.Enums;
 using Store_API.IRepositories;
 
 namespace Store_API.Repositories
 {
     public interface IUnitOfWork
     {
+        Task BeginTransactionAsync(TransactionType type);
+        Task SaveChangesAsync();
+        Task RollbackAsync();
+
         public IProductRepository Product { get; }
         public IProductDetailRepository ProductDetail { get; }
         public ICategoryRepository Category { get; }
@@ -21,24 +25,5 @@ namespace Store_API.Repositories
         public IStockRepository Stock { get; }
         public IStockTransactionRepository StockTransaction { get; }
         public IUserWarehouseRepository UserWarehouse { get; }
-
-
-        #region EF Core Methods
-        Task<int> SaveChangesAsync();
-        Task<IDbContextTransaction> BeginTransactionAsync();
-
-        #endregion
-
-        #region Dapper Methods
-        public Task BeginTransactionDapperAsync();
-        public Task CommitAsync();
-        public Task RollbackAsync();
-
-        public Task CloseConnectionAsync();
-        #endregion
-
-        #region Existed Field in Table
-        public Task<bool> CheckExisted(string tableName, int id);
-        #endregion
     }
 }

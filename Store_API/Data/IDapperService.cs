@@ -1,14 +1,16 @@
-﻿namespace Store_API.Data
+﻿using Microsoft.Data.SqlClient;
+
+namespace Store_API.Data
 {
     public interface IDapperService
     {
-        public Task<List<TResult>> QueryAsync<TResult>(string query, object p);
-        public Task<TResult> QueryFirstOrDefaultAsync<TResult>(string query, object p);
-        public Task<int> Execute(string query, object p);
+        void UseConnection(SqlConnection connection);
+        void SetTransaction(SqlTransaction transaction);
+        SqlTransaction GetTransaction();
+        SqlConnection GetConnection();
 
-        Task BeginTransactionAsync();
-        Task CommitAsync();
-        Task RollbackAsync();
-        Task CloseConnectionAsync();
+        public Task<List<TResult>> QueryAsync<TResult>(string query, object p = null);
+        public Task<TResult> QueryFirstOrDefaultAsync<TResult>(string query, object p = null);
+        public Task<int> Execute(string query, object p = null);
     }
 }

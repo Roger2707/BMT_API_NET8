@@ -19,5 +19,6 @@ namespace Store_API.Models.OrderAggregate
         public List<OrderItem> Items { get; set; }
         public double DeliveryFee { get; set; }
         public double GrandTotal { get; set; }
+        public string ClientSecret { get; set; }
     }
 }

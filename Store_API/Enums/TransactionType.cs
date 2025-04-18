@@ -2,7 +2,8 @@
 {
     public enum TransactionType
     {
-       Import = 1,
-       Export = 0
+        Dapper = 0,
+        EntityFramework = 1,
+        Both = 2
     }
 }

@@ -20,8 +20,5 @@ namespace Store_API.Repositories
         Task<BasketDTO> GetBasketDTODB(string username);
 
         #endregion
-
-        //
-        Task<int> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username);
     }
 }

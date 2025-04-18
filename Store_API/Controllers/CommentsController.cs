@@ -1,7 +1,4 @@
-﻿using CsvHelper.Configuration.Attributes;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.Models.Users;
@@ -31,11 +28,9 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                await _unitOfWork.BeginTransactionDapperAsync();
-
+                await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
                 await _unitOfWork.Comment.Create(userId, productId, content);
-
-                await _unitOfWork.CommitAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             catch(Exception ex)
             {
@@ -62,9 +57,9 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                await _unitOfWork.BeginTransactionDapperAsync();
+                await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
                 await _unitOfWork.Comment.Update(commentId, content);
-                await _unitOfWork.CommitAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             catch(Exception ex)
             {

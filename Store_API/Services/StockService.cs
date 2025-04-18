@@ -1,4 +1,5 @@
 ﻿using Store_API.DTOs.Stocks;
+using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Models.Inventory;
 using Store_API.Repositories;
@@ -38,7 +39,7 @@ namespace Store_API.Services
 
         public async Task<bool> ImportStock(StockUpsertDTO stockUpsertDTO)
         {
-            var transaction = await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
             try
             {
                 // Add New Stock Transaction
@@ -71,19 +72,18 @@ namespace Store_API.Services
                 }
 
                 await _unitOfWork.SaveChangesAsync();
-                await transaction.CommitAsync();
                 return true;
             }
             catch(Exception ex)
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }
 
         public async Task<bool> ExportStock(StockUpsertDTO stockUpsertDTO)
         {
-            var transaction = await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
             try
             {
                 // Handle Stock
@@ -105,15 +105,14 @@ namespace Store_API.Services
                     TransactionType = 0,
                     Created = DateTime.UtcNow,
                 };
-                await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
 
+                await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
                 await _unitOfWork.SaveChangesAsync();
-                await transaction.CommitAsync();
                 return true;
             }
             catch(Exception ex)
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }

@@ -9,7 +9,7 @@ using System.Security.Claims;
 using Store_API.DTOs.User;
 using Google.Apis.Auth;
 using Store_API.Models.Users;
-using Dapper;
+using Store_API.Enums;
 
 namespace Store_API.Services
 {
@@ -402,7 +402,7 @@ namespace Store_API.Services
         public async Task<string> UpdateUser(UserDTO model)
         {
             var user = await _userManager.FindByNameAsync(model.UserName);
-            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
             try
             {
                 // Header
@@ -441,12 +441,11 @@ namespace Store_API.Services
                 }));
 
                 await _unitOfWork.SaveChangesAsync();
-                await transaction.CommitAsync();
                 return model.UserName;
             }
             catch(Exception ex)
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw new Exception(ex.Message);
             }
         }

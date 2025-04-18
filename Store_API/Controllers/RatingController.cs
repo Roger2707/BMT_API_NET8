@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.Models.Users;
@@ -42,9 +41,9 @@ namespace Store_API.Controllers
             string error = "";
             try
             {
-                await _unitOfWork.BeginTransactionDapperAsync();
+                await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
                 await _unitOfWork.Rating.SetRating(currentUserId, productId, star);
-                await _unitOfWork.CommitAsync();
+                await _unitOfWork.SaveChangesAsync();
             }
             catch(Exception ex)
             {

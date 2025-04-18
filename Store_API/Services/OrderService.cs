@@ -1,5 +1,6 @@
 ﻿using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
+using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
@@ -22,7 +23,7 @@ namespace Store_API.Services
 
         public async Task<OrderResponseDTO> Create(int userId, string userName, BasketDTO basket, int userAddressId)
         {
-            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
             try
             {
                 // 1. Check Quantity Product in Inventory
@@ -59,20 +60,18 @@ namespace Store_API.Services
                     GrandTotal = grandTotal,
                     DeliveryFee = grandTotal > 1000000 ? 0 : 50000,
                 };
+                await _unitOfWork.Order.Create(order);
 
                 // 5. Remove Items in Basket - Sync Redis
                 var items = basket.Items.Where(x => x.Status == true).ToList();
                 await _basketService.RemoveRangeItems(userName, basket.Id);
 
-                await _unitOfWork.Order.Create(order);
-                await _unitOfWork.SaveChangesAsync();
-
                 // 6. Create PaymentIntent on Stripe (Add Payment in db)
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
+                order.ClientSecret = paymentIntent.ClientSecret;
 
                 // 7. Save and Commit
                 await _unitOfWork.SaveChangesAsync();
-                await transaction.CommitAsync();
 
                 return new OrderResponseDTO
                 {
@@ -85,7 +84,7 @@ namespace Store_API.Services
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
+                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }

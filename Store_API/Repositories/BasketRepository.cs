@@ -1,5 +1,4 @@
-﻿using Microsoft.Data.SqlClient;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using Store_API.Data;
 using Store_API.DTOs.Baskets;
 using Store_API.Extensions;
@@ -159,44 +158,6 @@ namespace Store_API.Repositories
             catch (Exception ex)
             {
                 throw new Exception($"Failed to get basket from database for user {username}", ex);
-            }
-        }
-
-        #endregion
-
-        //
-        #region Basket Payment ( will update later )
-
-        public async Task<int> UpdateBasketPayment(string paymentIntentId, string clientSecret, string username)
-        {
-            string query = @"                               
-
-                                -- Update later - get basket Id - combine in one function 
-
-                              SELECT b.Id 
-                              FROM Baskets b
-                              INNER JOIN AspNetUsers u ON u.Id = b.UserId
-                              WHERE u.UserName = @UserName
-
-                              Update Baskets 
-                              SET PaymentIntentId = @PaymentIntentId, ClientSecret = @ClientSecret
-                              WHERE Id = @Id  
-                            ";
-
-            var p = new { PaymentIntentId = paymentIntentId, ClientSecret = clientSecret };
-
-            try
-            {
-                await _dapperService.BeginTransactionAsync();
-                await _dapperService.Execute(query, p);
-                await _dapperService.CommitAsync();
-
-                return 1;
-            }
-            catch (SqlException ex)
-            {
-                await _dapperService.RollbackAsync();
-                throw;
             }
         }
 
