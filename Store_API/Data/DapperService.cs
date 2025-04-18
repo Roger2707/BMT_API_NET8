@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace Store_API.Data
 {
@@ -7,6 +8,12 @@ namespace Store_API.Data
     {
         private SqlConnection _connection;
         private SqlTransaction _transaction;
+        private readonly string _connectionString;
+
+        public DapperService(IConfiguration _configuration)
+        {
+            _connectionString = _configuration.GetConnectionString("DefaultConnection");
+        }
 
         #region Transaction Methods
 
@@ -23,18 +30,33 @@ namespace Store_API.Data
         public SqlTransaction GetTransaction() => _transaction;
         public SqlConnection GetConnection() => _connection;
 
+        private async Task<SqlConnection> EnsureConnectionAsync()
+        {
+            if (_connection != null)
+                return _connection;
+
+            var conn = new SqlConnection(_connectionString);
+            await conn.OpenAsync();
+            return conn;
+        }
+
         #endregion
 
         #region Methods
 
         public async Task<List<TResult>> QueryAsync<TResult>(string query, object p = null)
-            => (await _connection.QueryAsync<TResult>(query, p)).ToList();
+        {
+            await EnsureConnectionAsync();
+            return (await _connection.QueryAsync<TResult>(query, p)).ToList();
+        }    
 
         public async Task<TResult> QueryFirstOrDefaultAsync<TResult>(string query, object p = null)
-            => await _connection.QueryFirstOrDefaultAsync<TResult>(query, p);
+        {
+            await EnsureConnectionAsync();
+            return await _connection.QueryFirstOrDefaultAsync<TResult>(query, p);
+        }
 
-        public async Task<int> Execute(string query, object p = null)
-            => await _connection.ExecuteAsync(query, p, _transaction);
+        public async Task<int> Execute(string query, object p = null) => await _connection.ExecuteAsync(query, p, _transaction);
 
         #endregion
     }
