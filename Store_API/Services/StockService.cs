@@ -72,6 +72,7 @@ namespace Store_API.Services
                 }
 
                 await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch(Exception ex)
@@ -108,6 +109,7 @@ namespace Store_API.Services
 
                 await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
                 await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
                 return true;
             }
             catch(Exception ex)

@@ -105,6 +105,7 @@ namespace Store_API.Services
 
                     // 5. Save DB
                     await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.CommitAsync();
                 }
                 else if(stripeEvent.Type == Events.PaymentIntentCanceled)
                 {

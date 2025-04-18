@@ -46,13 +46,13 @@ namespace Store_API.Data
         public async Task<List<TResult>> QueryAsync<TResult>(string query, object p = null)
         {
             var connection = await EnsureConnectionAsync();
-            return (await connection.QueryAsync<TResult>(query, p)).ToList();
+            return (await connection.QueryAsync<TResult>(query, p, _transaction)).ToList();
         }    
 
         public async Task<TResult> QueryFirstOrDefaultAsync<TResult>(string query, object p = null)
         {
             var connection = await EnsureConnectionAsync();
-            return await connection.QueryFirstOrDefaultAsync<TResult>(query, p);
+            return await connection.QueryFirstOrDefaultAsync<TResult>(query, p, _transaction);
         }
 
         public async Task<int> Execute(string query, object p = null) => await _connection.ExecuteAsync(query, p, _transaction);

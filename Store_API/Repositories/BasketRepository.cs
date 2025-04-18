@@ -84,15 +84,8 @@ namespace Store_API.Repositories
                     var basketDB = await GetBasketDTODB(username);
 
                     if (basketDB == null)
-                    {
-                        basketDB = new BasketDTO
-                        {
-                            Id = Guid.NewGuid(),
-                            UserId = userId,
-                            Items = new List<BasketItemDTO>(),
-                            GrandTotal = 0
-                        };
-                    }
+                        return null;
+
                     var basketJson = JsonSerializer.Serialize(basketDB);
                     await _redis.StringSetAsync(basketKey, basketJson, TimeSpan.FromMinutes(1));
                     return basketDB;

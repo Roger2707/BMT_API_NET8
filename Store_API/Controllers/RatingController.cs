@@ -43,7 +43,7 @@ namespace Store_API.Controllers
             {
                 await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
                 await _unitOfWork.Rating.SetRating(currentUserId, productId, star);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch(Exception ex)
             {

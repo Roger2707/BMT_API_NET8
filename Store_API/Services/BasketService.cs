@@ -58,12 +58,10 @@ namespace Store_API.Services
 
             try
             {
-                await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
-                if (await _unitOfWork.Basket.CheckBasketExistedDB(redisBasket.UserId, redisBasket.Id))
-                {
-                    await _unitOfWork.Basket.DeleteBasketItem(redisBasket.Id);
-                    await _unitOfWork.Basket.DeleteBasket(redisBasket.UserId, redisBasket.Id);
-                }
+                await _unitOfWork.BeginTransactionAsync(TransactionType.Dapper);
+
+                await _unitOfWork.Basket.DeleteBasketItem(redisBasket.Id);
+                await _unitOfWork.Basket.DeleteBasket(redisBasket.UserId, redisBasket.Id);
 
                 // Only sync if basket has items
                 if (redisBasket.Items.Any())
@@ -72,7 +70,7 @@ namespace Store_API.Services
                     await _unitOfWork.Basket.InsertBasketItems(redisBasket);
                 }
 
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch (Exception ex)
             {

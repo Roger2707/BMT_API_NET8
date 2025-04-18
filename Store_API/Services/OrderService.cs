@@ -60,7 +60,10 @@ namespace Store_API.Services
                     GrandTotal = grandTotal,
                     DeliveryFee = grandTotal > 1000000 ? 0 : 50000,
                 };
+
+                // SaveChange in order to get Id
                 await _unitOfWork.Order.Create(order);
+                await _unitOfWork.SaveChangesAsync();
 
                 // 5. Remove Items in Basket - Sync Redis
                 var items = basket.Items.Where(x => x.Status == true).ToList();
@@ -70,8 +73,9 @@ namespace Store_API.Services
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
                 order.ClientSecret = paymentIntent.ClientSecret;
 
-                // 7. Save and Commit
+                // 7. Save and Commit -> update database
                 await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
 
                 return new OrderResponseDTO
                 {
@@ -96,6 +100,12 @@ namespace Store_API.Services
         public async Task<OrderDTO> GetOrder(int orderId)
         {
             var orderDTO = await _unitOfWork.Order.GetOrder(orderId);
+            return orderDTO;
+        }
+
+        public async Task<IEnumerable<OrderItemDapperRow>> GetOrder(string clientSecret)
+        {
+            var orderDTO = await _unitOfWork.Order.GetOrder(clientSecret);
             return orderDTO;
         }
 

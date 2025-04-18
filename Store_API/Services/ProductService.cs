@@ -79,6 +79,7 @@ namespace Store_API.Services
 
                 await _unitOfWork.Product.AddAsync(product);
                 await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
 
                 return model.Id;
             }
@@ -132,6 +133,7 @@ namespace Store_API.Services
                 }));
 
                 await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
                 return model.Id;
             }
             catch(Exception ex)

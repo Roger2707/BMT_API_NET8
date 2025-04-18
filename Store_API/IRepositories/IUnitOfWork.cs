@@ -7,6 +7,7 @@ namespace Store_API.Repositories
     {
         Task BeginTransactionAsync(TransactionType type);
         Task SaveChangesAsync();
+        Task CommitAsync();
         Task RollbackAsync();
 
         public IProductRepository Product { get; }

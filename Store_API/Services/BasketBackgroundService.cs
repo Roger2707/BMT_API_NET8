@@ -6,7 +6,7 @@ namespace Store_API.Services
     {
         private readonly IServiceProvider _serviceProvider;
         private readonly ILogger<BasketBackgroundService> _logger;
-        private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(20);
+        private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(15);
         public BasketBackgroundService(IServiceProvider serviceProvider, ILogger<BasketBackgroundService> logger)
         {
             _serviceProvider = serviceProvider;
@@ -28,7 +28,7 @@ namespace Store_API.Services
                         try
                         {
                             var ttl = await basketService.GetBasketTTLAsync(key);
-                            if (ttl?.TotalSeconds < 25)
+                            if (ttl?.TotalSeconds <= 15)
                             {
                                 var username = key.Split(':')[1];
                                 await basketService.SyncBasketDB(username);

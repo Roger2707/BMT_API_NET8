@@ -38,19 +38,20 @@ namespace Store_API.Repositories
                                 , au.PhoneNumber
 
                                 , o.OrderDate
-                                , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Completed', IIF(o.Status = 2, 'Cancelled', 'Refunded'))) as OrderStatus
+                                , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Shipping', IIF(o.Status = 2, 'Completed', IIF(o.Status = 3, 'Cancelled', 'Refunded')))) as OrderStatus
                                 , o.DeliveryFee
                                 , o.GrandTotal
                                 , o.Id as OrderItemId
+	                            , o.ClientSecret
 
-	                            , oi.Id as OrderItemId
+                                , oi.Id as OrderItemId
                                 , oi.ProductDetailId
                                 , p.Name as ProductName
                                 , '' as ProductImageUrl
                                 , oi.Quantity
                                 , oi.SubTotal
 
-	                            , u.Id as UserAddressId
+                                , u.Id as UserAddressId
                                 , u.City
                                 , u.District
                                 , u.Ward
@@ -61,7 +62,8 @@ namespace Store_API.Repositories
                             FROM Orders o
 
                             LEFT JOIN OrderItems oi ON oi.OrderId = o.Id
-                            LEFT JOIN Products p ON p.Id = oi.ProductId
+                            LEFT JOIN ProductDetails pd ON pd.Id = oi.ProductDetailId
+                            LEFT JOIN Products p ON p.Id = pd.ProductId
                             LEFT JOIN UserAddresses u ON u.UserId = o.UserId 
                             LEFT JOIN AspNetUsers au ON au.Id = u.UserId
 
@@ -75,7 +77,7 @@ namespace Store_API.Repositories
                 result
                     .GroupBy(o => new 
                             { o.Id, o.UserId, o.FullName, o.Email, o.PhoneNumber, o.OrderDate
-                                , o.DeliveryFee, o.OrderStatus, o.GrandTotal
+                                , o.DeliveryFee, o.OrderStatus, o.GrandTotal, o.ClientSecret
                                 , o.UserAddressId, o.City, o.District, o.Ward, o.StreetAddress, o.PostalCode, o.Country 
                             })
                     .Select(g => 
@@ -89,6 +91,7 @@ namespace Store_API.Repositories
                             OrderDate = g.Key.OrderDate,
                             Status = g.Key.OrderStatus,
                             DeliveryFee = g.Key.DeliveryFee,
+                            ClientSecret = g.Key.ClientSecret,
                             GrandTotal = g.Key.GrandTotal,
 
                             UserAddress = new UserAddress
@@ -114,6 +117,41 @@ namespace Store_API.Repositories
                         }).FirstOrDefault();
 
             return orderGroup;
+        }
+
+        public async Task<IEnumerable<OrderItemDapperRow>> GetOrder(string clientSecret)
+        {
+            string query = @"
+                            SELECT 
+	                            o.Id
+                                , o.OrderDate
+                                , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Shipping', IIF(o.Status = 2, 'Completed', IIF(o.Status = 3, 'Cancelled', 'Refunded')))) as OrderStatus
+                                , o.DeliveryFee
+                                , o.GrandTotal
+                                , o.Id as OrderItemId
+	                            , o.ClientSecret
+
+                                , oi.Id as OrderItemId
+                                , oi.ProductDetailId
+                                , p.Name as ProductName
+                                , p.ImageUrl as ProductImageUrl
+                                , oi.Quantity
+                                , oi.SubTotal
+
+	
+                            FROM Orders o
+
+                            LEFT JOIN OrderItems oi ON oi.OrderId = o.Id
+                            LEFT JOIN ProductDetails pd ON pd.Id = oi.ProductDetailId
+                            LEFT JOIN Products p ON p.Id = pd.ProductId
+
+                            WHERE o.ClientSecret = @ClientSecret
+                           "
+            ;
+
+            var result = await _dapperService.QueryAsync<OrderItemDapperRow>(query, new { ClientSecret = clientSecret });
+            if (result.Count == 0) return null;
+            return result;
         }
 
         // Will be updated later

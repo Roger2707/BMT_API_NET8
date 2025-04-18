@@ -8,6 +8,7 @@ namespace Store_API.IService
     {
         Task<OrderResponseDTO> Create(int userId, string userName, BasketDTO basket, int userAddressId);
         Task<OrderDTO> GetOrder(int orderId);
+        Task<IEnumerable<OrderItemDapperRow>> GetOrder(string clientSecret);
         Task<IEnumerable<OrderDTO>> GetOrders(int userId);
         Task UpdateOrderStatus(int orderId, OrderStatus status);
     }

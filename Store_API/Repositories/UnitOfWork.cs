@@ -99,9 +99,15 @@ namespace Store_API.Repositories
             if (_currentType == TransactionType.EntityFramework || _currentType == TransactionType.Both)
             {
                 await _db.SaveChangesAsync(); 
+            }
+        }
+
+        public async Task CommitAsync()
+        {
+            if (_currentType == TransactionType.EntityFramework || _currentType == TransactionType.Both)
+            {
                 await _efTransaction?.CommitAsync();
             }
-
             if (_currentType == TransactionType.Dapper || _currentType == TransactionType.Both)
             {
                 _sqlTransaction?.Commit();

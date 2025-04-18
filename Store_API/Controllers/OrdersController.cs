@@ -57,6 +57,15 @@ namespace Store_API.Controllers
         }
 
         [Authorize]
+        [HttpGet("get-order-by-client-secret")]
+        public async Task<IActionResult> GetOrder(string clientSecret)
+        {
+            var order = await _orderService.GetOrder(clientSecret);
+            if (order == null) return NotFound(new ProblemDetails { Title = "Order not found" });
+            return Ok(order);
+        }
+
+        [Authorize]
         [HttpGet("get-orders")]
         public async Task<IActionResult> GetOrders()
         {

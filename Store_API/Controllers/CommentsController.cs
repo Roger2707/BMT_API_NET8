@@ -30,7 +30,7 @@ namespace Store_API.Controllers
             {
                 await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
                 await _unitOfWork.Comment.Create(userId, productId, content);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch(Exception ex)
             {
@@ -59,7 +59,7 @@ namespace Store_API.Controllers
             {
                 await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
                 await _unitOfWork.Comment.Update(commentId, content);
-                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
             }
             catch(Exception ex)
             {
