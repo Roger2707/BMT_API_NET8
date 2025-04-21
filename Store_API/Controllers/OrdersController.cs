@@ -53,7 +53,7 @@ namespace Store_API.Controllers
         public async Task<IActionResult> GetOrder(int orderId)
         {
             var order = await _orderService.GetOrder(orderId);
-            if (order == null) return NotFound(new ProblemDetails { Title = "Order not found" });
+            if (order == null) return BadRequest(new ProblemDetails { Title = "Order not found" });
             return Ok(order);
         }
 
@@ -62,29 +62,17 @@ namespace Store_API.Controllers
         public async Task<IActionResult> GetOrder(string clientSecret)
         {
             var order = await _orderService.GetOrder(clientSecret);
-            if (order == null) return NotFound(new ProblemDetails { Title = "Order not found" });
+            if (order == null) return BadRequest(new ProblemDetails { Title = "Order not found" });
             return Ok(order);
         }
 
-        [Authorize]
+        [Authorize(Roles = "SuperAdmin,Admin")]
         [HttpGet("get-orders")]
         public async Task<IActionResult> GetOrders()
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
-
             var orders = await _orderService.GetOrders(user.Id);
             return Ok(orders);
         }
-
-        #region Helpers
-
-        [HttpPost("update-order-status")]
-        public async Task<IActionResult> UpdateOrderStatus(int orderId)
-        {
-            await _orderService.UpdateOrderStatus(orderId, Models.OrderAggregate.OrderStatus.Completed);
-            return Ok();
-        }
-
-        #endregion 
     }
 }

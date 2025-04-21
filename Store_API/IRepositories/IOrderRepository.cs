@@ -10,6 +10,5 @@ namespace Store_API.Repositories
         Task<IEnumerable<OrderItemDapperRow>> GetOrder(string clientSecret);
         Task<IEnumerable<OrderDTO>> GetOrders(int userId);
         Task<Order> FirstOrDefaultAsync(int orderId);
-        Task UpdateOrderStatus(int orderId, OrderStatus orderStatus);
     }
 }

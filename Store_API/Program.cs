@@ -10,6 +10,7 @@ using Store_API.Hubs;
 using Store_API.Extensions;
 using Store_API.Models.Users;
 using Store_API.Services;
+using Store_API.SignalIR;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -203,7 +204,7 @@ app.MapControllers();
 
 #endregion 
 
-app.MapHub<OrderHub>("/orderHub");
+app.MapHub<OrderStatusHub>("/orderStatusHub");
 
 #region Seed Data
 

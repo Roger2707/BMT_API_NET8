@@ -1,4 +1,7 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.SignalR;
+using Newtonsoft.Json;
+using Renci.SshNet.Messages;
+using Store_API.DTOs.Orders;
 using Store_API.DTOs.Payments;
 using Store_API.DTOs.Stocks;
 using Store_API.Enums;
@@ -6,7 +9,9 @@ using Store_API.Helpers;
 using Store_API.IService;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
+using Store_API.Models.Users;
 using Store_API.Repositories;
+using Store_API.SignalIR;
 using Stripe;
 
 namespace Store_API.Services
@@ -17,14 +22,20 @@ namespace Store_API.Services
         private readonly IStockService _stockService;
         private readonly IConfiguration _configuration;
         private readonly EmailSenderService _emailSenderService;
+        private readonly IHubContext<OrderStatusHub> _hubContext;
         private readonly string _apiKey;
 
-        public PaymentService(IUnitOfWork unitOfWork, IStockService stockService, IConfiguration configuration, EmailSenderService emailSenderService)
+        public PaymentService
+        (   IUnitOfWork unitOfWork, IStockService stockService
+            , IConfiguration configuration, EmailSenderService emailSenderService
+            , IHubContext<OrderStatusHub> hubContext
+        )
         {
             _unitOfWork = unitOfWork;
             _stockService = stockService;
             _configuration = configuration;
             _emailSenderService = emailSenderService;
+            _hubContext = hubContext;
 
             _apiKey = _configuration["Stripe:SecretKey"];
 
@@ -44,6 +55,10 @@ namespace Store_API.Services
             {
                 Amount = amountInCents,
                 Currency = "usd",
+                Metadata = new Dictionary<string, string>
+                {
+                    { "orderId", orderId.ToString() }  // use for signal IR
+                },
 
                 // ## 3D Secure
                 AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
@@ -84,7 +99,7 @@ namespace Store_API.Services
 
                     var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentMessage.PaymentIntentId);
                     if (payment == null)
-                        throw new Exception($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
+                        throw new InvalidOperationException($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
 
                     // 2. ✅ Idempotency check
                     if (payment.Status == PaymentStatus.Succeeded)
@@ -93,7 +108,7 @@ namespace Store_API.Services
                     // 3. Find related order
                     var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
                     if (order == null)
-                        throw new Exception($"Order not found for PaymentIntentId: {paymentMessage.PaymentIntentId}");
+                        throw new InvalidOperationException($"Order not found for PaymentIntentId: {paymentMessage.PaymentIntentId}");
 
                     // 4. Check Inventory and Update StockTransaction (Export)
                     string orderItemText = "";
@@ -101,7 +116,7 @@ namespace Store_API.Services
                     {
                         var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
                         if (stockExist == null || stockExist.Quantity < item.Quantity)
-                            throw new Exception($"Sorry! Product is not enoungh quantity in Inventory !");
+                            throw new InvalidOperationException($"Sorry! Product is not enoungh quantity in Inventory !");
 
                         var stockUpsertDTO = new StockUpsertDTO
                         {
@@ -132,9 +147,18 @@ namespace Store_API.Services
 
                     await _emailSenderService.SendEmailAsync(order.Email, "[NEW] 🔥 Your Check out:", content);
 
-                    // 8. Signal IR ( Handle later soon )
+                    // 7. Signal IR - Send Message To Client
+                    var orderUpdateMessage = new OrderUpdateHub
+                    {
+                        Id = order.Id,
+                        OrderStatus = OrderStatus.Shipping,
+                    };
+                    // All Admins is Received
+                    await _hubContext.Clients.Group("Admins").SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
+                    // User (Order of login user) is Received
+                    await _hubContext.Clients.User(order.UserId.ToString()).SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
 
-                    // 7. Save DB
+                    // 8. Save DB
                     await _unitOfWork.SaveChangesAsync();
                     await _unitOfWork.CommitAsync();
                 }

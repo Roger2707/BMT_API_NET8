@@ -252,12 +252,5 @@ namespace Store_API.Repositories
 
             return orderGroup;
         }
-
-        public async Task UpdateOrderStatus(int orderId, OrderStatus orderStatus)
-        {
-            var order = await FirstOrDefaultAsync(orderId);
-            if (order == null) throw new Exception("Order not found");
-            order.Status = orderStatus;
-        }
     }
 }

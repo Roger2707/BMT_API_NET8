@@ -118,14 +118,5 @@ namespace Store_API.Services
 
         #endregion
 
-        #region Helpers
-
-        public async Task UpdateOrderStatus(int orderId, OrderStatus status)
-        {
-            await _unitOfWork.Order.UpdateOrderStatus(orderId, status);
-            await _unitOfWork.SaveChangesAsync();
-        }
-
-        #endregion 
     }
 }
