@@ -6,6 +6,5 @@ namespace Store_API.IRepositories
     {
         Task AddAsync(Payment payment);
         Task<Payment> GetByPaymentIntent(string paymentIntentId);
-        Task<List<Payment>> GetByOrderId(int orderId);
     }
 }

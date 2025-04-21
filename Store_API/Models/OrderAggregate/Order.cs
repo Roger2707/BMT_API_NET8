@@ -13,6 +13,7 @@ namespace Store_API.Models.OrderAggregate
         public int UserAddressId { get; set; }
         [ForeignKey("UserAddressId")]
         public UserAddress UserAddress { get; set; }
+        public string Email { get; set; }
 
         public DateTime OrderDate { get; set; } = DateTime.Now;
         public OrderStatus Status { get; set; }

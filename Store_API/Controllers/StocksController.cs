@@ -53,11 +53,11 @@ namespace Store_API.Controllers
                 bool result = true;
                 if(stockUpsertDTO.TransactionType == 1)
                 {
-                    result = await _stockService.ImportStock(stockUpsertDTO);
+                    result = await _stockService.Import(stockUpsertDTO);
                 }
                 else if(stockUpsertDTO.TransactionType == 0)
                 {
-                    result = await _stockService.ExportStock(stockUpsertDTO);
+                    result = await _stockService.Export(stockUpsertDTO);
                 }
                 return Ok(result);
             }

@@ -17,8 +17,10 @@ namespace Store_API.IService
 
         #region Import / Export Stock
 
-        Task<bool> ImportStock(StockUpsertDTO stockUpsertDTO);
-        Task<bool> ExportStock(StockUpsertDTO stockUpsertDTO);
+        Task ImportStock(StockUpsertDTO stockUpsertDTO);
+        Task<bool> Import(StockUpsertDTO stockUpsertDTO);
+        Task ExportStock(StockUpsertDTO stockUpsertDTO);
+        Task<bool> Export(StockUpsertDTO stockUpsertDTO);
 
         #endregion
     }

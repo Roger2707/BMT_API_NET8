@@ -16,13 +16,16 @@ namespace Store_API.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IStockService _stockService;
         private readonly IConfiguration _configuration;
+        private readonly EmailSenderService _emailSenderService;
         private readonly string _apiKey;
 
-        public PaymentService(IUnitOfWork unitOfWork, IStockService stockService, IConfiguration configuration)
+        public PaymentService(IUnitOfWork unitOfWork, IStockService stockService, IConfiguration configuration, EmailSenderService emailSenderService)
         {
             _unitOfWork = unitOfWork;
             _stockService = stockService;
             _configuration = configuration;
+            _emailSenderService = emailSenderService;
+
             _apiKey = _configuration["Stripe:SecretKey"];
 
             if (string.IsNullOrEmpty(_apiKey)) throw new Exception("Stripe API Key is missing from configuration.");
@@ -41,7 +44,12 @@ namespace Store_API.Services
             {
                 Amount = amountInCents,
                 Currency = "usd",
-                PaymentMethodTypes = new List<string> { "card" }
+
+                // ## 3D Secure
+                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                {
+                    Enabled = true
+                }
             };
 
             // 2. Create PaymentIntent
@@ -78,12 +86,17 @@ namespace Store_API.Services
                     if (payment == null)
                         throw new Exception($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
 
-                    // 2. Find related order
+                    // 2. ✅ Idempotency check
+                    if (payment.Status == PaymentStatus.Succeeded)
+                        return;
+
+                    // 3. Find related order
                     var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
                     if (order == null)
                         throw new Exception($"Order not found for PaymentIntentId: {paymentMessage.PaymentIntentId}");
 
-                    // 3. Check Inventory and Update StockTransaction (Export)
+                    // 4. Check Inventory and Update StockTransaction (Export)
+                    string orderItemText = "";
                     foreach (var item in order.Items)
                     {
                         var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
@@ -97,13 +110,31 @@ namespace Store_API.Services
                             Quantity = item.Quantity,
                         };
                         await _stockService.ExportStock(stockUpsertDTO);
+
+                        // 4.1 Add to order item text for email
+                        orderItemText += $"{item.ProductDetailId} - {item.Quantity} pcs\n";
                     }
 
-                    // 4. Update Status Order and Payment -> Check out 
+                    // 5. Update Status Order and Payment -> Check out 
                     payment.Status = PaymentStatus.Succeeded;
                     order.Status = OrderStatus.Shipping;
 
-                    // 5. Save DB
+                    // 6. Send Email
+                    string content = $@"    
+                                    Thank you for shopping at ROGER STORE
+                                    Your ORDER info: {order.Id}
+
+                                    {orderItemText}
+
+                                    Hope you 'll have a good day. Thank you!
+                                                                [ROGER's Customer Service Team]                                       
+                                ";
+
+                    await _emailSenderService.SendEmailAsync(order.Email, "[NEW] 🔥 Your Check out:", content);
+
+                    // 8. Signal IR ( Handle later soon )
+
+                    // 7. Save DB
                     await _unitOfWork.SaveChangesAsync();
                     await _unitOfWork.CommitAsync();
                 }

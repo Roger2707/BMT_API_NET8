@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Store_API.Models.Users;
 using Store_API.Repositories;
 using Stripe;
 
@@ -8,16 +11,19 @@ namespace Store_API.Controllers
     [ApiController]
     public class PaymentsController : ControllerBase
     {
-        private IPaymentService _paymentService;
-        private IConfiguration _configuration;
+        private readonly IPaymentService _paymentService;
+        private readonly IConfiguration _configuration;
+        private readonly UserManager<User> _userManager;
 
-        public PaymentsController(IPaymentService paymentService, IConfiguration configuration)
+        public PaymentsController(IPaymentService paymentService, IConfiguration configuration, UserManager<User> userManager)
         {
             _paymentService = paymentService;
             _configuration = configuration;
+            _userManager = userManager;
         }
 
         // stripe listen --forward-to localhost:5110/api/payments/webhook
+        [AllowAnonymous]
         [HttpPost("webhook")]
         public async Task<IActionResult> StripeWebhook()
         {

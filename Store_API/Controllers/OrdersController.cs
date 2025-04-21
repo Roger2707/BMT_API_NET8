@@ -33,12 +33,13 @@ namespace Store_API.Controllers
                 // 2. Get Basket - Current User 
                 var user = await _userManager.FindByNameAsync(User.Identity.Name);
                 int userId = user.Id;
+                string email = user.Email;
 
                 var basketDTO = await _basketService.GetBasketDTO(userId, User.Identity.Name);
                 if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
 
                 // 3. Order processing
-                var orderResponse = await _orderService.Create(userId, User.Identity.Name, basketDTO, userAddressId);
+                var orderResponse = await _orderService.Create(userId, User.Identity.Name, email, basketDTO, userAddressId);
                 return Ok(orderResponse);
             }
             catch (Exception ex)

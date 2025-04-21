@@ -21,7 +21,7 @@ namespace Store_API.Services
 
         #region Create Order
 
-        public async Task<OrderResponseDTO> Create(int userId, string userName, BasketDTO basket, int userAddressId)
+        public async Task<OrderResponseDTO> Create(int userId, string userName, string email, BasketDTO basket, int userAddressId)
         {
             await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
             try
@@ -53,6 +53,7 @@ namespace Store_API.Services
                 var order = new Order
                 {
                     UserId = userId,
+                    Email = email,
                     OrderDate = DateTime.Now,
                     Status = OrderStatus.Pending,
                     UserAddressId = userAddressId,

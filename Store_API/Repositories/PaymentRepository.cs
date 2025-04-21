@@ -17,12 +17,6 @@ namespace Store_API.Repositories
             await _db.Payments.AddAsync(payment);
         }
 
-        public async Task<List<Payment>> GetByOrderId(int orderId)
-        {
-            var payments = await _db.Payments.Where(p => p.OrderId == orderId).ToListAsync();
-            return payments;
-        }
-
         public async Task<Payment> GetByPaymentIntent(string paymentIntentId)
         {
             var payment = await _db.Payments.FirstOrDefaultAsync(p => p.PaymentIntentId == paymentIntentId);
