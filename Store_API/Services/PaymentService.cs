@@ -88,52 +88,75 @@ namespace Store_API.Services
             {
                 if (stripeEvent.Type == Events.PaymentIntentSucceeded)
                 {
-                    // 1. Handle Stripe webhook event
-                    var intent = stripeEvent.Data.Object as PaymentIntent;
-                    if (intent == null) return;
+                    await HandlePaymentIntentSuccess(stripeEvent);
+                }
+                else if(stripeEvent.Type == Events.PaymentIntentPaymentFailed)
+                {
+                    await HandlePaymentIntentFailed(stripeEvent);
+                }
 
-                    var paymentMessage = new PaymentProcessingMessage { PaymentIntentId = intent.Id };
-                    var messageBody = JsonConvert.SerializeObject(paymentMessage);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+            }
+            catch(Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
 
-                    var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentMessage.PaymentIntentId);
-                    if (payment == null)
-                        throw new InvalidOperationException($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
+        #endregion
 
-                    // 2. ✅ Idempotency check
-                    if (payment.Status == PaymentStatus.Succeeded)
-                        return;
+        #region Stripe Payment Intent Events
 
-                    // 3. Find related order
-                    var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
-                    if (order == null)
-                        throw new InvalidOperationException($"Order not found for PaymentIntentId: {paymentMessage.PaymentIntentId}");
+        private async Task HandlePaymentIntentSuccess(Event stripeEvent)
+        {
+            // 1. Handle Stripe webhook event
+            var intent = stripeEvent.Data.Object as PaymentIntent;
+            if (intent == null) return;
 
-                    // 4. Check Inventory and Update StockTransaction (Export)
-                    string orderItemText = "";
-                    foreach (var item in order.Items)
-                    {
-                        var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
-                        if (stockExist == null || stockExist.Quantity < item.Quantity)
-                            throw new InvalidOperationException($"Sorry! Product is not enoungh quantity in Inventory !");
+            var paymentMessage = new PaymentProcessingMessage { PaymentIntentId = intent.Id };
+            var messageBody = JsonConvert.SerializeObject(paymentMessage);
 
-                        var stockUpsertDTO = new StockUpsertDTO
-                        {
-                            ProductDetailId = item.ProductDetailId,
-                            WarehouseId = stockExist.WarehouseId,
-                            Quantity = item.Quantity,
-                        };
-                        await _stockService.ExportStock(stockUpsertDTO);
+            var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentMessage.PaymentIntentId);
+            if (payment == null)
+                throw new InvalidOperationException($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
 
-                        // 4.1 Add to order item text for email
-                        orderItemText += $"{item.ProductDetailId} - {item.Quantity} pcs\n";
-                    }
+            // 2. ✅ Idempotency check
+            if (payment.Status == PaymentStatus.Succeeded)
+                return;
 
-                    // 5. Update Status Order and Payment -> Check out 
-                    payment.Status = PaymentStatus.Succeeded;
-                    order.Status = OrderStatus.Shipping;
+            // 3. Find related order
+            var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
+            if (order == null)
+                throw new InvalidOperationException($"Order not found for PaymentIntentId: {paymentMessage.PaymentIntentId}");
 
-                    // 6. Send Email
-                    string content = $@"    
+            // 4. Check Inventory and Update StockTransaction (Export)
+            string orderItemText = "";
+            foreach (var item in order.Items)
+            {
+                var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
+                if (stockExist == null || stockExist.Quantity < item.Quantity)
+                    throw new InvalidOperationException($"Sorry! Product is not enoungh quantity in Inventory !");
+
+                var stockUpsertDTO = new StockUpsertDTO
+                {
+                    ProductDetailId = item.ProductDetailId,
+                    WarehouseId = stockExist.WarehouseId,
+                    Quantity = item.Quantity,
+                };
+                await _stockService.ExportStock(stockUpsertDTO);
+
+                // 4.1 Add to order item text for email
+                orderItemText += $"{item.ProductDetailId} - {item.Quantity} pcs\n";
+            }
+
+            // 5. Update Status Order and Payment -> Check out 
+            payment.Status = PaymentStatus.Succeeded;
+            order.Status = OrderStatus.Shipping;
+
+            // 6. Send Email
+            string content = $@"    
                                     Thank you for shopping at ROGER STORE
                                     Your ORDER info: {order.Id}
 
@@ -143,33 +166,33 @@ namespace Store_API.Services
                                                                 [ROGER's Customer Service Team]                                       
                                 ";
 
-                    await _emailSenderService.SendEmailAsync(order.Email, "[NEW] 🔥 Your Check out:", content);
+            await _emailSenderService.SendEmailAsync(order.Email, "[NEW] 🔥 Your Check out:", content);
 
-                    // 7. Signal IR - Send Message To Client
-                    var orderUpdateMessage = new OrderUpdateHub
-                    {
-                        Id = order.Id,
-                        OrderStatus = OrderStatus.Shipping,
-                    };
-                    // All Admins is Received
-                    await _hubContext.Clients.Group("Admins").SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
-                    // User (Order of login user) is Received
-                    await _hubContext.Clients.User(order.UserId.ToString()).SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
-
-                    // 8. Save DB
-                    await _unitOfWork.SaveChangesAsync();
-                    await _unitOfWork.CommitAsync();
-                }
-                else if(stripeEvent.Type == Events.PaymentIntentCanceled)
-                {
-
-                }
-            }
-            catch(Exception ex)
+            // 7. Signal IR - Send Message To Client
+            var orderUpdateMessage = new OrderUpdateHub
             {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
+                Id = order.Id,
+                OrderStatus = OrderStatus.Shipping,
+            };
+            // All Admins is Received
+            await _hubContext.Clients.Group("Admins").SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
+            // User (Order of login user) is Received
+            await _hubContext.Clients.User(order.UserId.ToString()).SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
+        }
+
+        private async Task HandlePaymentIntentFailed(Event stripeEvent)
+        {
+            var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+            if (paymentIntent == null) return;
+
+            var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentIntent.Id);
+
+            var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
+            if (order == null)
+                throw new InvalidOperationException($"Order not found for PaymentIntentId: {paymentIntent.Id}");
+
+            payment.Status = PaymentStatus.Failed;
+            order.Status = OrderStatus.Cancelled;
         }
 
         #endregion
