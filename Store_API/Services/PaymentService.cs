@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
-using Renci.SshNet.Messages;
 using Store_API.DTOs.Orders;
 using Store_API.DTOs.Payments;
 using Store_API.DTOs.Stocks;
@@ -9,7 +8,6 @@ using Store_API.Helpers;
 using Store_API.IService;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
-using Store_API.Models.Users;
 using Store_API.Repositories;
 using Store_API.SignalIR;
 using Stripe;

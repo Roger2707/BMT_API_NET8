@@ -6,7 +6,6 @@ using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using Store_API.Data;
 using System.Text;
-using Store_API.Hubs;
 using Store_API.Extensions;
 using Store_API.Models.Users;
 using Store_API.Services;
