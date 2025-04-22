@@ -48,8 +48,8 @@ namespace Store_API.Controllers
             {
                 await _basketService.UpsertBasket(basketUpsertDTO);
                 var basketDTO = await _basketService.GetBasketDTO(userId, User.Identity.Name);
-                var newItemUpdated = basketDTO.Items.FirstOrDefault(i => i.ProductDetailId == basketUpsertDTO.ProductDetailId);
-                return Ok(newItemUpdated);
+                //var newItemUpdated = basketDTO.Items.FirstOrDefault(i => i.ProductDetailId == basketUpsertDTO.ProductDetailId);
+                return Ok(basketDTO);
             }
             catch (Exception ex)
             {

@@ -110,9 +110,9 @@ namespace Store_API.Services
             return orderDTO;
         }
 
-        public async Task<IEnumerable<OrderDTO>> GetOrders(int orderId)
+        public async Task<IEnumerable<OrderDTO>> GetOrders(int userId)
         {
-            var orders = await _unitOfWork.Order.GetOrders(orderId);
+            var orders = await _unitOfWork.Order.GetOrders(userId);
             return orders;
         }
 

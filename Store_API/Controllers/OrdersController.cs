@@ -49,7 +49,7 @@ namespace Store_API.Controllers
         }
 
         [Authorize]
-        [HttpGet("get-order")]
+        [HttpGet("get-order-by-id")]
         public async Task<IActionResult> GetOrder(int orderId)
         {
             var order = await _orderService.GetOrder(orderId);
@@ -66,8 +66,8 @@ namespace Store_API.Controllers
             return Ok(order);
         }
 
-        [Authorize(Roles = "SuperAdmin,Admin")]
-        [HttpGet("get-orders")]
+        [Authorize]
+        [HttpGet("get-orders-of-user")]
         public async Task<IActionResult> GetOrders()
         {
             var user = await _userManager.FindByNameAsync(User.Identity.Name);
