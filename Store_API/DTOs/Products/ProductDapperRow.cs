@@ -21,5 +21,6 @@
         public int Status { get; set; }
         public string Color { get; set; }
         public string? ExtraName { get; set; } = "";
+        public int TotalRow { get; set; }
     }
 }

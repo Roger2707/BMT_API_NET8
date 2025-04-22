@@ -18,9 +18,8 @@ namespace Store_API.Services
 
         public async Task<Pagination<ProductDTO>> GetPageProductDTOs(ProductParams productParams)
         {
-            int totalRow = await _unitOfWork.Product.GetNumbersRecord(productParams);
             var products = await _unitOfWork.Product.GetProducts(productParams);
-            var result = Pagination<ProductDTO>.GetPaginationData(products, totalRow, productParams.CurrentPage, 10);
+            var result = Pagination<ProductDTO>.GetPaginationData(products, _unitOfWork.Product.TotalRow, productParams.CurrentPage, 10);
             return result;
         }
 
