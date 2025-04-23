@@ -47,6 +47,7 @@ namespace Store_API.Repositories
                     , detail.Status
                     , IIF(promotion.PercentageDiscount IS NULL, detail.Price, detail.Price - (detail.Price * promotion.PercentageDiscount / 100.0)) as DiscountPrice
                     , (SELECT COUNT(1) AS TotalRow FROM ProductFiltered) as TotalRow
+                    , ISNULL((SELECT AVG(Star) as Star FROM Ratings WHERE ProductId = filtered.Id), 0) as Stars
 
                 FROM ProductFiltered filtered
                 INNER JOIN ProductDetails detail ON detail.ProductId = filtered.Id
@@ -68,7 +69,7 @@ namespace Store_API.Repositories
             if (result.Count == 0) return null;
 
             var products = result
-                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry, g.TotalRow })
+                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry, g.TotalRow, g.Stars })
                 .Select(s => new ProductDTO
                 {
                     Id = s.Key.Id,
@@ -81,6 +82,7 @@ namespace Store_API.Repositories
                     BrandId = s.Key.BrandId,
                     BrandName = s.Key.BrandName,
                     BrandCountry = s.Key.BrandCountry,
+                    Stars = s.Key.Stars,
                     Details = s.Select(d => new ProductDetailDTO
                     {
                         Id = d.DetailId,

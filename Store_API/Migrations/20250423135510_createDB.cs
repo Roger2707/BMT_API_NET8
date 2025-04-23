@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Store_API.Migrations
 {
     /// <inheritdoc />
-    public partial class updateOrderColumns : Migration
+    public partial class createDB : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -81,6 +81,22 @@ namespace Store_API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Categories", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Ratings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Star = table.Column<double>(type: "float", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Ratings", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -353,10 +369,12 @@ namespace Store_API.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     UserAddressId = table.Column<int>(type: "int", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     DeliveryFee = table.Column<double>(type: "float", nullable: false),
-                    GrandTotal = table.Column<double>(type: "float", nullable: false)
+                    GrandTotal = table.Column<double>(type: "float", nullable: false),
+                    ClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -447,33 +465,6 @@ namespace Store_API.Migrations
                         name: "FK_ProductTechnologies_Technologies_TechnologyId",
                         column: x => x.TechnologyId,
                         principalTable: "Technologies",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Ratings",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Star = table.Column<double>(type: "float", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Ratings", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Ratings_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Ratings_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -649,10 +640,10 @@ namespace Store_API.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "51471f98-33d3-453f-943c-e2b846fe3150", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEHFiuztwLPAAEj3b5dwrIdbgZflNn/OXYmu97jRfEyETHelJqGHptLJDoIQItRmbRw==", null, false, null, "9f7f5d60-26e7-4de0-97bc-97fb31f7eddd", false, "spadmin" },
-                    { 2, 0, "a605c5bb-75c6-4575-aa41-153e043cd6c9", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEKiQ08T8hSUu8YdIyapW0ueqOd+qGx9THRd2lUgOxrfCdIyK1rKKtDY/mlARcRvIdQ==", null, false, null, "d6292db5-1354-4e4d-8fe0-a2fe9021cda2", false, "admin1" },
-                    { 3, 0, "cacfe215-d184-48fa-afca-9c99c5c4b43e", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEF4XZbeeYnuSVhp1RF5549zLbJGuu3zcM8UDBJDUMZmfyXCw6RHfnPecQfu4GG8y9Q==", null, false, null, "a4863f73-db81-4e71-b9a8-f13ec1d14bc8", false, "admin2" },
-                    { 4, 0, "681f31af-08ca-43e8-b829-8c273f800d2e", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEOTtcu0RlJNfyOG77fsIG/7qPwt/JnjP7UT2FUVwrN8BNXBFfhU3Ze/k/WMDrqJwfQ==", null, false, null, "5a5d892b-3bc6-4d0e-b015-2267402b92a3", false, "admin3" }
+                    { 1, 0, "6e88cd40-ed52-4357-8c80-2bdf91bbee76", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEDPONeIVzZW9iRD9TTJH9t6M29hjIagaGzy0LIxrict5elP8BUhXN5qWNSD1pXPfGQ==", null, false, null, "ca609750-9fd6-477f-b0e4-0d1b47cc24c2", false, "spadmin" },
+                    { 2, 0, "6187f4dd-dc13-41c8-b355-9cab04b150ec", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEO5esgItafZayr7UfdfqNXTMR+m4iidwhweOuv+r8F5gSB48rHxJh2/l1cXmy0zqQA==", null, false, null, "f5d7f738-b9f3-4ecc-9d92-b7dfa728f006", false, "admin1" },
+                    { 3, 0, "1296bb5c-79b7-4f64-98be-f949b7580f80", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAENrUnjylRXBmUf9eFeiTfkaeHMBckgbnaybZ3F7wJvUzmy3nC9V8X6oT0rXASVH7YQ==", null, false, null, "42e64ba7-98cc-4cc7-97bc-264f8419df99", false, "admin2" },
+                    { 4, 0, "c2fcf5a3-26bd-4199-bb99-e18d31e3c3d0", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAECSmoHvzPg4EaoUWz8sAfOgwMtTroR0m2R1cqf5kZ8RxRc6mCs4A1N/E3revhRjn+w==", null, false, null, "a44ca02d-7f19-4e39-8ac7-b26bf606fd50", false, "admin3" }
                 });
 
             migrationBuilder.InsertData(
@@ -785,16 +776,6 @@ namespace Store_API.Migrations
                 name: "IX_Promotions_CategoryId",
                 table: "Promotions",
                 column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Ratings_ProductId",
-                table: "Ratings",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Ratings_UserId",
-                table: "Ratings",
-                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Replies_CommentId",

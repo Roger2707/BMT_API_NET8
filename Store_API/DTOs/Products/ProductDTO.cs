@@ -12,6 +12,7 @@
         public Guid BrandId { get; set; }
         public string BrandName { get; set; }
         public string BrandCountry { get; set; }
+        public double Stars { get; set; }
         public List<ProductDetailDTO> Details { get; set; } = new();
     }
 
