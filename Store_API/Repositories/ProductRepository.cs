@@ -7,83 +7,63 @@ namespace Store_API.Repositories
 {
     public class ProductRepository : Repository<Product>, IProductRepository
     {
-        protected readonly int count_in_page = 10;
         public int TotalRow { get; set; }
+        public int PageSize { get; set; }
 
         public ProductRepository(StoreContext db, IDapperService dapperService) : base(db, dapperService)
         {
-
+            PageSize = 10;
         }
 
         #region Retrieve Data
         public async Task<List<ProductDTO>> GetProducts(ProductParams productParams)
         {
             string query = @" 
-                        WITH ProductBase AS (
-	                        SELECT 
-		                        product.Id
-		                        , product.Name 
-		                        , product.Created
-		                        , category.Name as CategoryName
-		                        , brand.Name as BrandName
-		                        , ROW_NUMBER() OVER (
-			                        ORDER BY 
-				                        CASE WHEN @SortBy = 'price' THEN MIN(detail.Price) END,
-				                        CASE WHEN @SortBy = 'priceDesc' THEN MAX(detail.Price) END DESC,
-				                        CASE WHEN @SortBy = 'nameDesc' THEN product.Name END DESC,
-				                        CASE WHEN (@SortBy = '' OR @SortBy IS NULL) THEN product.Name END
-		                        ) as RowNumber
+                WITH ProductFiltered AS (
+                    SELECT 
+                        product.Id
+                        , product.Name
+                        , product.Description
+                        , product.ImageUrl
+                        , product.PublicId
+                        , product.CategoryId
+                        , product.BrandId
+                        , product.Created
+                        , category.Name as CategoryName
+                        , brand.Name as BrandName
+                        , brand.Country as BrandCountry
+                        , ROW_NUMBER() OVER (ORDER BY product.Id) AS RowNum
+                    FROM Products product
+                    INNER JOIN Categories category ON category.Id = product.CategoryId
+                    INNER JOIN Brands brand ON brand.Id = product.BrandId
+                    WHERE 1 = 1 -- conditions
+                )
+                SELECT 
+                    filtered.*
+                    , detail.Id as DetailId
+                    , detail.Price
+                    , detail.Color
+                    , detail.ExtraName
+                    , detail.Status
+                    , IIF(promotion.PercentageDiscount IS NULL, detail.Price, detail.Price - (detail.Price * promotion.PercentageDiscount / 100.0)) as DiscountPrice
+                    , (SELECT COUNT(1) AS TotalRow FROM ProductFiltered) as TotalRow
 
-	                        FROM Products product
-	                        LEFT JOIN Categories category ON category.Id = product.CategoryId
-	                        LEFT JOIN Brands brand ON brand.Id = product.BrandId
-	                        LEFT JOIN ProductDetails detail ON detail.ProductId = product.Id
-	                        WHERE detail.Status = 1
-	                        GROUP BY product.Id, product.Name, product.Created, category.Name, brand.Name
-                        )
+                FROM ProductFiltered filtered
+                INNER JOIN ProductDetails detail ON detail.ProductId = filtered.Id
+                LEFT JOIN Promotions promotion 
+                    ON promotion.CategoryId = filtered.CategoryId
+                    AND promotion.BrandId = filtered.BrandId
+                    AND promotion.EndDate >= GETDATE()
 
-                        , PagedProductIds AS (
-	                        SELECT Id
-	                        FROM ProductBase
-	                        WHERE RowNumber > @PageSize * (@PageNumber - 1) AND RowNumber <= @PageSize * @PageNumber
-                        )
-
-                        SELECT 
-	                        product.Id
-	                        , product.Name 
-	                        , product.Description
-	                        , product.ImageUrl
-	                        , product.PublicId
-	                        , product.CategoryId
-	                        , product.BrandId
-	                        , product.Created
-	                        , category.Name as CategoryName
-	                        , brand.Name as BrandName
-	                        , brand.Country as BrandCountry
-	                        , detail.Id as DetailId
-	                        , detail.Price
-	                        , detail.Color
-	                        , detail.ExtraName
-	                        , detail.Status
-	                        , IIF(promotion.PercentageDiscount IS NULL, detail.Price, detail.Price - (detail.Price * promotion.PercentageDiscount / 100.0)) as DiscountPrice
-
-                        FROM Products product
-
-                        LEFT JOIN Categories category ON category.Id = product.CategoryId
-                        LEFT JOIN Brands brand ON brand.Id = product.BrandId
-                        LEFT JOIN ProductDetails detail ON detail.ProductId = product.Id
-                        LEFT JOIN Promotions promotion 
-	                        ON promotion.CategoryId = product.CategoryId
-	                        AND promotion.BrandId = product.BrandId
-	                        AND promotion.EndDate >= GETDATE()
-
-                        WHERE detail.Status = 1 AND product.Id IN (SELECT Id FROM PagedProductIds)
-
-                            ";
+                WHERE detail.Status = 1 AND filtered.RowNum BETWEEN (@PageNumber - 1) * @PageSize + 1 AND @PageNumber * @PageSize
+                -- orderBy
+                    ";
 
             string where = GetConditionString(productParams);
+            string orderBy = GetOrderByString(productParams.OrderBy);
             query = query.Replace("-- conditions", where);
-            var result = await _dapperService.QueryAsync<ProductDapperRow>(query, new { PageSize = 10, PageNumber = productParams.CurrentPage, SortBy = productParams.OrderBy });
+            query = query.Replace("-- orderBy", orderBy);
+            var result = await _dapperService.QueryAsync<ProductDapperRow>(query, new { PageSize = PageSize, PageNumber = productParams.CurrentPage });
 
             if (result.Count == 0) return null;
 
@@ -108,7 +88,7 @@ namespace Store_API.Repositories
                         Color = d.Color,
                         Price = CF.GetDouble(d.Price),
                         DiscountPrice = CF.GetDouble(d.DiscountPrice),
-                        Status = CF.GetInt(d.Status) == 1 ? "In stock" : "Out Stock",
+                        Status = CF.GetInt(d.Status) == 1 ? "Active" : "Non - Active",
                         ExtraName = d.ExtraName
                     }).ToList()
 
@@ -178,7 +158,7 @@ namespace Store_API.Repositories
                         Id = d.DetailId,
                         ProductId = g.Key.Id,
                         Color = d.Color,
-                        Status = CF.GetInt(d.Status) == 1 ? "In stock" : "Out Stock",
+                        Status = CF.GetInt(d.Status) == 1 ? "Active" : "Non - Active",
                         Price = d.Price,
                         DiscountPrice = d.DiscountPrice,
                         ExtraName = d.ExtraName
@@ -272,42 +252,7 @@ namespace Store_API.Repositories
 
         #endregion
 
-        #region Other Functionalities
-
-        public async Task<int> GetNumbersRecord(ProductParams productParams)
-        {
-            string query = @"   
-                            WITH ProductIdsGroup AS 
-
-                            (
-                            SELECT product.Id
-
-                            FROM Products as product
-
-                            INNER JOIN ProductDetails detail ON product.Id = detail.ProductId
-                            INNER JOIN Categories as category ON product.CategoryId = category.Id
-                            INNER JOIN Brands as brand ON product.BrandId = brand.Id 
-                            LEFT JOIN Promotions as promotion 
-
-                            ON product.CategoryId = promotion.CategoryId 
-                                AND product.BrandId = promotion.BrandId 
-                                AND promotion.EndDate <= GETDATE()
-
-                            WHERE detail.Status = 1
-                            -- where
-
-                            GROUP BY product.Id
-                            )
-
-                            SELECT COUNT(1) as TotalRecords FROM ProductIdsGroup
-                            ";
-
-            string where = GetConditionString(productParams);
-            query = query.Replace("-- where", where);
-
-            int result = await _dapperService.QueryFirstOrDefaultAsync<int>(query, null);
-            return result;
-        }
+        #region Helper Functionalities
 
         private static string GetConditionString(ProductParams productParams)
         {
@@ -355,16 +300,16 @@ namespace Store_API.Repositories
             {
                 case "":
                 case null:
-                    orderBy = " ORDER BY product.Name ";
+                    orderBy = " ORDER BY Name ";
                     break;
-                case "NameDesc":
-                    orderBy = " ORDER BY product.Name DESC ";
+                case "nameDesc":
+                    orderBy = " ORDER BY Name DESC ";
                     break;
-                case "priceASC":
-                    orderBy = " ORDER BY detail.Price ASC ";
+                case "priceAsc":
+                    orderBy = " ORDER BY Price ASC ";
                     break;
-                case "priceDESC":
-                    orderBy = " ORDER BY detail.Price DESC ";
+                case "priceDesc":
+                    orderBy = " ORDER BY Price DESC ";
                     break;
             }
 

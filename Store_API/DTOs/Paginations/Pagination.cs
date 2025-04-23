@@ -1,5 +1,4 @@
-﻿using Store_API.DTOs.Products;
-using Store_API.Helpers;
+﻿using Store_API.Helpers;
 
 namespace Store_API.DTOs.Paginations
 {

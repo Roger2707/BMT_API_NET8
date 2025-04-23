@@ -19,7 +19,7 @@ namespace Store_API.Services
         public async Task<Pagination<ProductDTO>> GetPageProductDTOs(ProductParams productParams)
         {
             var products = await _unitOfWork.Product.GetProducts(productParams);
-            var result = Pagination<ProductDTO>.GetPaginationData(products, _unitOfWork.Product.TotalRow, productParams.CurrentPage, 10);
+            var result = Pagination<ProductDTO>.GetPaginationData(products, _unitOfWork.Product.TotalRow, productParams.CurrentPage, _unitOfWork.Product.PageSize);
             return result;
         }
 
@@ -39,7 +39,7 @@ namespace Store_API.Services
         {
             var result = await _unitOfWork.Product.GetProductSingleDetail(productDetailId);
             if (result == null)
-                throw new Exception($"Product detail with ID {productDetailId} not found");
+                throw new ArgumentException($"Product detail with ID {productDetailId} not found");
             return result;
         }
 
