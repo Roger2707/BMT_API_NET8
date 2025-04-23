@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Rating;
 using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Models.Users;
 using System.Security.Claims;
 
 namespace Store_API.Controllers
@@ -15,11 +13,9 @@ namespace Store_API.Controllers
     public class RatingController : ControllerBase
     {
         private readonly IRatingService _ratingService;
-        private readonly UserManager<User> _userManager;
-        public RatingController(IRatingService ratingService, UserManager<User> userManager)
+        public RatingController(IRatingService ratingService)
         {
             _ratingService = ratingService;
-            _userManager = userManager;
         }
 
         [HttpGet("get-product-rating")]

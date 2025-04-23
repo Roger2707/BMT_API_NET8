@@ -25,6 +25,7 @@ namespace Store_API.Services
 
         public async Task SetRating(RatingDTO ratingDTO)
         {
+            if (ratingDTO.Star < 0.5) return;
             await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
             try
             {

@@ -34,7 +34,6 @@ namespace Store_API.Extensions
             services.AddHttpClient();
             services.AddScoped<EmailSenderService>();
             services.AddScoped<IImageService, ImageService>();
-            services.AddScoped<ICSVService, CSVService>();
             services.AddScoped<ITokenService, TokenService>();
             services.AddSingleton<IRabbitMQService, RabbitMQService>();
             services.AddSingleton<IRedisService, RedisService>();
