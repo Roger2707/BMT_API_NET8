@@ -1,57 +1,56 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Store_API.DTOs.Rating;
+using Store_API.Helpers;
+using Store_API.IService;
 using Store_API.Models.Users;
-using Store_API.Repositories;
+using System.Security.Claims;
 
 namespace Store_API.Controllers
 {
-    [Route("api/[controller]/[action]")]
+    [Route("api/ratings")]
     [ApiController]
+    [Authorize]
     public class RatingController : ControllerBase
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IRatingService _ratingService;
         private readonly UserManager<User> _userManager;
-        public RatingController(IUnitOfWork unitOfWork, UserManager<User> userManager)
+        public RatingController(IRatingService ratingService, UserManager<User> userManager)
         {
-            _unitOfWork = unitOfWork;
+            _ratingService = ratingService;
             _userManager = userManager;
         }
 
-        [HttpGet]
-        [Authorize]
+        [HttpGet("get-product-rating")]
         public async Task<IActionResult> GetProductRate(Guid productId)
         {
-            var product = await _unitOfWork.Product.GetProductDTO(productId);
-            if (product == null) return NotFound();
-            var rating = await _unitOfWork.Rating.GetRating(productId);
-            return Ok(rating);
+            var star = await _ratingService.GetProductRating(productId);
+            return Ok(star);
         }
 
-        [HttpPost]
-        [Authorize]
-        public async Task<IActionResult> SetRating(Guid productId, double star)
+        [HttpGet("get-product-detail-rating")]
+        public async Task<IActionResult> GetProductDetailRate(Guid productDetailId)
         {
-            var product = await _unitOfWork.Product.GetProductDTO(productId);
-            if (product == null) return NotFound();
+            var star = await _ratingService.GetProductDetailRating(productDetailId);
+            return Ok(star);
+        }
 
-            var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
-            int currentUserId = currentUser.Id;
-
-            string error = "";
+        [HttpPost("set-rating")]
+        public async Task<IActionResult> SetRating([FromBody] RatingDTO ratingDTO)
+        {
+            int userId = CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            ratingDTO.UserId = userId;
+            
             try
             {
-                await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.Dapper);
-                await _unitOfWork.Rating.SetRating(currentUserId, productId, star);
-                await _unitOfWork.CommitAsync();
+                await _ratingService.SetRating(ratingDTO);
+                return Ok(new {Title = $"Set Rating: {ratingDTO.ProductDetailId} Successfully !"});
             }
             catch(Exception ex)
             {
-                error = ex.Message;
-                await _unitOfWork.RollbackAsync();
+                return BadRequest(new ProblemDetails { Title = ex.Message });
             }
-            if(error != "") return BadRequest(new ProblemDetails { Title = error });
-            return Ok();
         }
     }
 }

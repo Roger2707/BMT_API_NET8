@@ -1,51 +1,48 @@
 ﻿using Store_API.Data;
+using Store_API.DTOs.Rating;
+using Store_API.Models;
 
 namespace Store_API.Repositories
 {
-    public class RatingRepository : IRatingRepository
+    public class RatingRepository : Repository<Rating>, IRatingRepository
     {
-        private readonly StoreContext _db;
-        private readonly IDapperService _dapperService;
-        public RatingRepository(StoreContext db, IDapperService dapperService)
+        public RatingRepository(StoreContext db, IDapperService dapperService) : base(db, dapperService)
         {
-            _db = db;
-            _dapperService = dapperService;
-        }
-        public async Task<double> GetRating(Guid productId)
-        {
-            string query = @"   SELECT IIF(ROUND(AVG(Star), 2) is NULL, 0, ROUND(AVG(Star), 2)) as Rating 
-                                FROM Ratings 
-                                WHERE ProductId = @ProductId ";
-            var p = new { ProductId = productId };
-            var rating = await _dapperService.QueryFirstOrDefaultAsync<dynamic>(query, p);
-            return rating.Rating;
         }
 
-        public async Task SetRating(int userId, Guid productId, double star)
+        #region GET
+        public async Task<double> GetRatingProduct(Guid productId)
         {
-            string query = @"
-                            DECLARE @IsExisted INT
+            string query = @" SELECT AVG(CAST(Star AS FLOAT)) AS AverageRating FROM Ratings WHERE ProductId = @ProductId ";
+            var star = await _dapperService.QueryFirstOrDefaultAsync<double>(query, new { ProductId = productId });
+            return star;
+        }
 
-                            SELECT @IsExisted = Id FROM Ratings WHERE UserId = @UserId
-                            IF(@IsExisted is NULL)
-	                            BEGIN
-		                            INSERT INTO Ratings VALUES(@Star, @ProductId, @UserId)
-	                            END
-                            ELSE
-	                            BEGIN
-		                            UPDATE Ratings SET Star = @Star WHERE Id = @IsExisted
-	                            END
-                            ";
-            var p = new { ProductId = productId, UserId = userId, Star = star };
+        public async Task<double> GetRatingProductDetail(Guid productDetailId)
+        {
+            string query = @" SELECT AVG(CAST(Star AS FLOAT)) AS AverageRating FROM Ratings WHERE ProductDetailId = @ProductDetailId ";
+            var star = await _dapperService.QueryFirstOrDefaultAsync<double>(query, new { ProductDetailId = productDetailId });
+            return star;
+        }
+        #endregion
 
-            try
+        #region SET
+        public async Task SetRating(RatingDTO ratingDTO)
+        {
+            string query = @" SELECT Id FROM Rating WHERE ProductId = @ProductId AND ProductDetailId = @ProductDetailId AND UserId = @UserId ";
+            var ratingExisted = await _dapperService.QueryFirstOrDefaultAsync<Rating>(query, new { ratingDTO.ProductId, ratingDTO.ProductDetailId, ratingDTO.UserId });
+            if (ratingExisted != null)
             {
-                await _dapperService.Execute(query, p);
+                query = @" UPDATE Rating SET Star = @Star WHERE Id = @Id ";
+                await _dapperService.Execute(query, new { ratingDTO.Star, Id = ratingExisted.Id });
             }
-            catch (Exception ex)
+            else
             {
-                throw new Exception(ex.Message);
+                var id = Guid.NewGuid();
+                query = @" INSERT INTO Rating (Id, UserId, ProductId, ProductDetailId, Star) VALUES (@Id, @UserId, @ProductId, @ProductDetailId, @Star) ";
+                await _dapperService.Execute(query, new { id = id, UserId = ratingDTO.UserId, ProductId = ratingDTO.ProductId, ProductDetailId = ratingDTO.ProductDetailId, Star = ratingDTO.Star });
             }
         }
+        #endregion
     }
 }

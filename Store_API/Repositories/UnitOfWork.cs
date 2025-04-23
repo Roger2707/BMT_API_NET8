@@ -46,10 +46,10 @@ namespace Store_API.Repositories
             UserWarehouse = new UserWarehouseRepository(_db, _dapperService);
             Order = new OrderRepository(_dapperService, _db);
             Payment = new PaymentRepository(_db);
+            Rating = new RatingRepository(_db, _dapperService);
 
             // Handle Later
             Comment = new CommentRepository(_db, _dapperService);
-            Rating = new RatingRepository(_db, _dapperService);
         }
 
         #region Models Repository
