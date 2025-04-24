@@ -695,7 +695,7 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "60424af6-67ce-47b8-a527-0f8d25d7f65b",
+                            ConcurrencyStamp = "be47f8ba-7320-4861-9d85-51a19c1d7a77",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "spadmin@example.com",
                             EmailConfirmed = true,
@@ -703,9 +703,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SPADMIN@EXAMPLE.COM",
                             NormalizedUserName = "SPADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBJwWxTBy2yg53GNkyXbb3v+56JASZNkrOrMylNWub6B3v3J8bqHxRoaav9hNsyvKg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFRukuBaHNiUX6sYai5aPBi0JBqwl5sylldSVhkj7AwPcLOY7JP0pLbyIZN/zCzDBA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "5dafcd62-9b5d-44a9-af4c-befd5b9d42e9",
+                            SecurityStamp = "cddf8fe2-e2d7-4449-92f0-301bdea103a7",
                             TwoFactorEnabled = false,
                             UserName = "spadmin"
                         },
@@ -713,7 +713,7 @@ namespace Store_API.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "9f162c24-4c1e-415b-b9a5-4aff12a10701",
+                            ConcurrencyStamp = "f7e90186-5903-4966-bb67-cfde68521eff",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin1@example.com",
                             EmailConfirmed = true,
@@ -721,9 +721,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN1@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN1",
-                            PasswordHash = "AQAAAAIAAYagAAAAECUygk1QiEgSknnX73DPSEFJ3ElUbg9SfpHJtVqyY39JnmNITF2Dxc1cedemrcKjaQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOYaWT5ReYylcw7nqreiOkuxB42AqpQY+xDX8ewtv3ClLE8+Obo59/ogzoHvmGVSSA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "03707112-c5c7-419f-a940-cd053fbd7534",
+                            SecurityStamp = "d4ccd750-29af-464d-9867-a62917b6333d",
                             TwoFactorEnabled = false,
                             UserName = "admin1"
                         },
@@ -731,7 +731,7 @@ namespace Store_API.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "89088f1d-c611-421f-a763-2e708c4db5c6",
+                            ConcurrencyStamp = "ed351c9e-bbe6-4d2c-8ea9-f23d57cb260a",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin2@example.com",
                             EmailConfirmed = true,
@@ -739,9 +739,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN2@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN2",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJwJsx6KTP/gxcytIDTDeC/RMfhdQmE8IAZAEFv1e2MmlpHjNgU8ipU+hatKrQ59cA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEG68H0hnINL6Rzk6Gj3C4zUOGf7LaNZnqY3w6DYSJvLitvzfDk0loVx7GSIw/Q/Ueg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8857259a-fc9e-40ac-912d-edaad3cc42e6",
+                            SecurityStamp = "ac2e3098-b74f-465a-8a75-69da6242e8a7",
                             TwoFactorEnabled = false,
                             UserName = "admin2"
                         },
@@ -749,7 +749,7 @@ namespace Store_API.Migrations
                         {
                             Id = 4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "47168407-be8a-434e-8fdc-0562003d6f7f",
+                            ConcurrencyStamp = "6d63b31a-1245-4d68-b733-1b79e8373be3",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admi3n@example.com",
                             EmailConfirmed = true,
@@ -757,9 +757,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN3@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN3",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDeKucoeK7TRMRaIRewlaLN7RR9VVXkh+UFaeVECRD0Eh1EBBnRruK5ajRV8QLkv1w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIkuxRaso/WOw3goK+NhoqvVnIHbX/koQ1CU3AnRf1aMOfLpt1dp1u7zm8Q/c6MKFg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "aba78cfc-0a11-4cba-9127-ea48e6be3ead",
+                            SecurityStamp = "8a2ccc98-8322-4814-a73d-1019c82c8025",
                             TwoFactorEnabled = false,
                             UserName = "admin3"
                         });

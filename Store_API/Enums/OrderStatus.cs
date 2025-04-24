@@ -1,4 +1,4 @@
-﻿namespace Store_API.Models.OrderAggregate
+﻿namespace Store_API.Enums
 {
     public enum OrderStatus
     {

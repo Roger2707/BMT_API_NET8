@@ -42,7 +42,6 @@ namespace Store_API.Repositories
                                 , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Shipping', IIF(o.Status = 2, 'Completed', IIF(o.Status = 3, 'Cancelled', 'Refunded')))) as OrderStatus
                                 , o.DeliveryFee
                                 , o.GrandTotal
-                                , o.Id as OrderItemId
 	                            , o.ClientSecret
 
                                 , oi.Id as OrderItemId
@@ -129,7 +128,6 @@ namespace Store_API.Repositories
                                 , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Shipping', IIF(o.Status = 2, 'Completed', IIF(o.Status = 3, 'Cancelled', 'Refunded')))) as OrderStatus
                                 , o.DeliveryFee
                                 , o.GrandTotal
-                                , o.Id as OrderItemId
 	                            , o.ClientSecret
 
                                 , oi.Id as OrderItemId
@@ -170,7 +168,6 @@ namespace Store_API.Repositories
                                 , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Shipping', IIF(o.Status = 2, 'Completed', IIF(o.Status = 3, 'Cancelled', 'Refunded')))) as OrderStatus
                                 , o.DeliveryFee
                                 , o.GrandTotal
-                                , o.Id as OrderItemId
 	                            , o.ClientSecret
 
                                 , oi.Id as OrderItemId
