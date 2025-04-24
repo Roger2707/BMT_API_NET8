@@ -4,7 +4,7 @@ namespace Store_API.DTOs.Orders
 {
     public class OrderUpdateHub
     {
-        public int Id { get; set; }
+        public Guid OrderId { get; set; }
         public OrderStatus OrderStatus { get; set; }
     }
 }

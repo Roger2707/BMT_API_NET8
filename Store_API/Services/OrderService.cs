@@ -1,6 +1,4 @@
-﻿using Store_API.DTOs.Baskets;
-using Store_API.DTOs.Orders;
-using Store_API.Enums;
+﻿using Store_API.DTOs.Orders;
 using Store_API.IService;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
@@ -34,6 +32,7 @@ namespace Store_API.Services
             // 2. Add Order in DB
             var order = new Order
             {
+                Id = orderCreateRequest.OrderId,
                 UserId = orderCreateRequest.UserId,
                 Email = orderCreateRequest.Email,
                 OrderDate = DateTime.Now,
@@ -52,7 +51,7 @@ namespace Store_API.Services
 
         #region Retrieve 
 
-        public async Task<OrderDTO> GetOrder(int orderId)
+        public async Task<OrderDTO> GetOrder(Guid orderId)
         {
             var orderDTO = await _unitOfWork.Order.GetOrder(orderId);
             return orderDTO;

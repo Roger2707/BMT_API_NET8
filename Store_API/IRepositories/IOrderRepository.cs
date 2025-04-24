@@ -6,9 +6,9 @@ namespace Store_API.Repositories
     public interface IOrderRepository
     {
         Task Create(Order order);
-        Task<OrderDTO> GetOrder(int orderId);
+        Task<OrderDTO> GetOrder(Guid orderId);
         Task<IEnumerable<OrderItemDapperRow>> GetOrder(string clientSecret);
         Task<IEnumerable<OrderDTO>> GetOrders(int userId);
-        Task<Order> FirstOrDefaultAsync(int orderId);
+        Task<Order> FirstOrDefaultAsync(Guid orderId);
     }
 }

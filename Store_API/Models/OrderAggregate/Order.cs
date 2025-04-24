@@ -5,7 +5,7 @@ namespace Store_API.Models.OrderAggregate
 {
     public class Order
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public User User { get; set; }

@@ -4,6 +4,7 @@ namespace Store_API.DTOs.Orders
 {
     public class OrderCreateRequest
     {
+        public Guid OrderId { get; set; }
         public int UserId { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }

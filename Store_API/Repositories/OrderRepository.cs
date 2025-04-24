@@ -22,12 +22,12 @@ namespace Store_API.Repositories
             await _db.Orders.AddAsync(order);
         }
 
-        public async Task<Order> FirstOrDefaultAsync(int orderId)
+        public async Task<Order> FirstOrDefaultAsync(Guid orderId)
         {
             return await _db.Orders.Include(o => o.Items).FirstOrDefaultAsync(o => o.Id == orderId);
         }
 
-        public async Task<OrderDTO> GetOrder(int orderId)
+        public async Task<OrderDTO> GetOrder(Guid orderId)
         {
             string query = @"
                             SELECT 

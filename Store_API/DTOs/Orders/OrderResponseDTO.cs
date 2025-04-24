@@ -4,7 +4,7 @@ namespace Store_API.DTOs.Orders
 {
     public class OrderResponseDTO
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public double GrandTotal { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public DateTime CreatedAt { get; set; }

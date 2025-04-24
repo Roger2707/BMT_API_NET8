@@ -84,6 +84,24 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Payments",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    UserAddressId = table.Column<int>(type: "int", nullable: false),
+                    PaymentIntentId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    Amount = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payments", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Ratings",
                 columns: table => new
                 {
@@ -365,8 +383,7 @@ namespace Store_API.Migrations
                 name: "Orders",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     UserAddressId = table.Column<int>(type: "int", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -441,29 +458,6 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payments",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    PaymentIntentId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    Amount = table.Column<double>(type: "float", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    OrderId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Payments", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Payments_Orders_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "BasketItems",
                 columns: table => new
                 {
@@ -496,7 +490,7 @@ namespace Store_API.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ProductDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false),
                     SubTotal = table.Column<double>(type: "float", nullable: false)
@@ -588,10 +582,10 @@ namespace Store_API.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "0eba46da-e116-4431-8e2f-a6761c040790", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAED4vhAgV0XZZcdjEtTpU7w8VZJGSfRciHenagoOFh57aHqJ7ZZFR1R0fvoYD0CdVzQ==", null, false, null, "d3692f20-267a-4c46-a439-2c574b18ee17", false, "spadmin" },
-                    { 2, 0, "fa3b7211-c573-4af3-81bd-96fac63899cd", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEODbcw4Euz8sRS4Jm6VbESwbpzUWEYWfkPXtv8NJ5QtiOvvjDhzZ1bxT4XE1Us1usA==", null, false, null, "4ca0d751-6999-492f-a904-6ef01622e2fb", false, "admin1" },
-                    { 3, 0, "11a5088b-5fad-4278-aad2-28b1f9153955", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEGLMkLGIr8iFlKdIQq1/iDoRcwe50Yk2j8FMewdWHSqY8AXRK61vdsVGso+/DDIIFw==", null, false, null, "cc31559f-ec02-4e07-87c4-05c86d8cec09", false, "admin2" },
-                    { 4, 0, "1d3df6f1-d6b1-4021-a8a8-637bee151c9f", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEBgumHtdT9Nq8LXhoA47kkeIqiCoFaDDQZ35042LeFfOtak9595wVFbILM395ffbUQ==", null, false, null, "a5a0b3af-4daf-4770-9362-cd799f0761f9", false, "admin3" }
+                    { 1, 0, "60424af6-67ce-47b8-a527-0f8d25d7f65b", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEBJwWxTBy2yg53GNkyXbb3v+56JASZNkrOrMylNWub6B3v3J8bqHxRoaav9hNsyvKg==", null, false, null, "5dafcd62-9b5d-44a9-af4c-befd5b9d42e9", false, "spadmin" },
+                    { 2, 0, "9f162c24-4c1e-415b-b9a5-4aff12a10701", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAECUygk1QiEgSknnX73DPSEFJ3ElUbg9SfpHJtVqyY39JnmNITF2Dxc1cedemrcKjaQ==", null, false, null, "03707112-c5c7-419f-a940-cd053fbd7534", false, "admin1" },
+                    { 3, 0, "89088f1d-c611-421f-a763-2e708c4db5c6", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEJwJsx6KTP/gxcytIDTDeC/RMfhdQmE8IAZAEFv1e2MmlpHjNgU8ipU+hatKrQ59cA==", null, false, null, "8857259a-fc9e-40ac-912d-edaad3cc42e6", false, "admin2" },
+                    { 4, 0, "47168407-be8a-434e-8fdc-0562003d6f7f", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEDeKucoeK7TRMRaIRewlaLN7RR9VVXkh+UFaeVECRD0Eh1EBBnRruK5ajRV8QLkv1w==", null, false, null, "aba78cfc-0a11-4cba-9127-ea48e6be3ead", false, "admin3" }
                 });
 
             migrationBuilder.InsertData(
@@ -679,11 +673,6 @@ namespace Store_API.Migrations
                 name: "IX_Orders_UserId",
                 table: "Orders",
                 column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Payments_OrderId",
-                table: "Payments",
-                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProductDetails_ProductId",

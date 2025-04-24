@@ -304,11 +304,9 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.OrderAggregate.Order", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ClientSecret")
                         .HasColumnType("nvarchar(max)");
@@ -351,8 +349,8 @@ namespace Store_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ProductDetailId")
                         .HasColumnType("uniqueidentifier");
@@ -386,18 +384,19 @@ namespace Store_API.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
-
                     b.Property<string>("PaymentIntentId")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.HasKey("Id");
+                    b.Property<int>("UserAddressId")
+                        .HasColumnType("int");
 
-                    b.HasIndex("OrderId");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
 
                     b.ToTable("Payments");
                 });
@@ -696,7 +695,7 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0eba46da-e116-4431-8e2f-a6761c040790",
+                            ConcurrencyStamp = "60424af6-67ce-47b8-a527-0f8d25d7f65b",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "spadmin@example.com",
                             EmailConfirmed = true,
@@ -704,9 +703,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SPADMIN@EXAMPLE.COM",
                             NormalizedUserName = "SPADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAED4vhAgV0XZZcdjEtTpU7w8VZJGSfRciHenagoOFh57aHqJ7ZZFR1R0fvoYD0CdVzQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEBJwWxTBy2yg53GNkyXbb3v+56JASZNkrOrMylNWub6B3v3J8bqHxRoaav9hNsyvKg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "d3692f20-267a-4c46-a439-2c574b18ee17",
+                            SecurityStamp = "5dafcd62-9b5d-44a9-af4c-befd5b9d42e9",
                             TwoFactorEnabled = false,
                             UserName = "spadmin"
                         },
@@ -714,7 +713,7 @@ namespace Store_API.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "fa3b7211-c573-4af3-81bd-96fac63899cd",
+                            ConcurrencyStamp = "9f162c24-4c1e-415b-b9a5-4aff12a10701",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin1@example.com",
                             EmailConfirmed = true,
@@ -722,9 +721,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN1@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEODbcw4Euz8sRS4Jm6VbESwbpzUWEYWfkPXtv8NJ5QtiOvvjDhzZ1bxT4XE1Us1usA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAECUygk1QiEgSknnX73DPSEFJ3ElUbg9SfpHJtVqyY39JnmNITF2Dxc1cedemrcKjaQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "4ca0d751-6999-492f-a904-6ef01622e2fb",
+                            SecurityStamp = "03707112-c5c7-419f-a940-cd053fbd7534",
                             TwoFactorEnabled = false,
                             UserName = "admin1"
                         },
@@ -732,7 +731,7 @@ namespace Store_API.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "11a5088b-5fad-4278-aad2-28b1f9153955",
+                            ConcurrencyStamp = "89088f1d-c611-421f-a763-2e708c4db5c6",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin2@example.com",
                             EmailConfirmed = true,
@@ -740,9 +739,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN2@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN2",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGLMkLGIr8iFlKdIQq1/iDoRcwe50Yk2j8FMewdWHSqY8AXRK61vdsVGso+/DDIIFw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJwJsx6KTP/gxcytIDTDeC/RMfhdQmE8IAZAEFv1e2MmlpHjNgU8ipU+hatKrQ59cA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "cc31559f-ec02-4e07-87c4-05c86d8cec09",
+                            SecurityStamp = "8857259a-fc9e-40ac-912d-edaad3cc42e6",
                             TwoFactorEnabled = false,
                             UserName = "admin2"
                         },
@@ -750,7 +749,7 @@ namespace Store_API.Migrations
                         {
                             Id = 4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "1d3df6f1-d6b1-4021-a8a8-637bee151c9f",
+                            ConcurrencyStamp = "47168407-be8a-434e-8fdc-0562003d6f7f",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admi3n@example.com",
                             EmailConfirmed = true,
@@ -758,9 +757,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN3@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN3",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBgumHtdT9Nq8LXhoA47kkeIqiCoFaDDQZ35042LeFfOtak9595wVFbILM395ffbUQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDeKucoeK7TRMRaIRewlaLN7RR9VVXkh+UFaeVECRD0Eh1EBBnRruK5ajRV8QLkv1w==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "a5a0b3af-4daf-4770-9362-cd799f0761f9",
+                            SecurityStamp = "aba78cfc-0a11-4cba-9127-ea48e6be3ead",
                             TwoFactorEnabled = false,
                             UserName = "admin3"
                         });
@@ -978,17 +977,6 @@ namespace Store_API.Migrations
                     b.Navigation("Order");
 
                     b.Navigation("ProductDetail");
-                });
-
-            modelBuilder.Entity("Store_API.Models.Payment", b =>
-                {
-                    b.HasOne("Store_API.Models.OrderAggregate.Order", "Order")
-                        .WithMany()
-                        .HasForeignKey("OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
                 });
 
             modelBuilder.Entity("Store_API.Models.Product", b =>

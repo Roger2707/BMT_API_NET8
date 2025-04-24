@@ -150,6 +150,7 @@ namespace Store_API.Services
 
         private async Task HandlePaymentIntentSuccess(Event stripeEvent)
         {
+            var orderId = Guid.NewGuid();
             // 1. Handle Stripe webhook event
             var intent = stripeEvent.Data.Object as PaymentIntent;
             if (intent == null) return;
@@ -192,13 +193,14 @@ namespace Store_API.Services
             // 5. Create Order 
             var orderCreateRequest = new OrderCreateRequest
             {
+                OrderId = orderId,
                 UserId = payment.UserId,
                 Username = user.UserName,
                 Email = user.Email,
                 UserAddressId = payment.UserAddressId,
                 BasketDTO = basket,
                 Amount = payment.Amount,
-                ClientSecret = paymentMessage.PaymentIntentId,
+                ClientSecret = intent.ClientSecret,
             };
             await _orderService.Create(orderCreateRequest);
 
@@ -212,7 +214,7 @@ namespace Store_API.Services
             // 6. Send Email
             string content = $@"    
                                     Thank you for shopping at ROGER STORE
-                                    Your ORDER info: {order.Id}
+                                    Your ORDER info: {orderId}
 
                                     {orderItemText}
 
@@ -220,18 +222,18 @@ namespace Store_API.Services
                                                                 [ROGER's Customer Service Team]                                       
                                 ";
 
-            await _emailSenderService.SendEmailAsync(order.Email, "[NEW] 🔥 Your Check out:", content);
+            await _emailSenderService.SendEmailAsync(user.Email, "[NEW] 🔥 Your Check out:", content);
 
             // 7. Signal IR - Send Message To Client
             var orderUpdateMessage = new OrderUpdateHub
             {
-                Id = order.Id,
+                OrderId = orderId,
                 OrderStatus = OrderStatus.Shipping,
             };
             // All Admins is Received
             await _hubContext.Clients.Group("Admins").SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
             // User (Order of login user) is Received
-            await _hubContext.Clients.User(order.UserId.ToString()).SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
+            await _hubContext.Clients.User(user.Id.ToString()).SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
         }
 
         private async Task HandlePaymentIntentFailed(Event stripeEvent)

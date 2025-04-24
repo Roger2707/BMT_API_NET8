@@ -2,7 +2,7 @@
 {
     public class OrderDapperRow
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int UserId { get; set; }
         public string FullName { get; set; }
         public string Email { get; set; }
@@ -35,7 +35,7 @@
 
     public class OrderItemDapperRow
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public DateTime OrderDate { get; set; }
         public string OrderStatus { get; set; }
         public double DeliveryFee { get; set; }

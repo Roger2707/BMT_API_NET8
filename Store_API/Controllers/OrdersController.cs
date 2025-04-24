@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Store_API.DTOs.Orders;
 using Store_API.IService;
 using Store_API.Models.Users;
 
@@ -21,23 +20,8 @@ namespace Store_API.Controllers
         }
 
         [Authorize]
-        [HttpPost("create-order")]
-        public async Task<IActionResult> Create(OrderCreateRequest orderCreateRequest)
-        {
-            try
-            {
-                var orderResponse = await _orderService.Create(orderCreateRequest);
-                return Ok(orderResponse);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
-        }
-
-        [Authorize]
         [HttpGet("get-order-by-id")]
-        public async Task<IActionResult> GetOrder(int orderId)
+        public async Task<IActionResult> GetOrder(Guid orderId)
         {
             var order = await _orderService.GetOrder(orderId);
             if (order == null) return BadRequest(new ProblemDetails { Title = "Order not found" });
