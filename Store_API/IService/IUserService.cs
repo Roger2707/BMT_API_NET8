@@ -9,6 +9,7 @@ namespace Store_API.IService
         #region Retrieve
         Task<List<UserDTO>> GetAll();
         Task<UserDTO> GetUser(string userName);
+        Task<UserDTO> GetUser(int userId);
         #endregion
 
         #region Email Send

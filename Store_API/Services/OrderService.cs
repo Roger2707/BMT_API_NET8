@@ -10,88 +10,42 @@ namespace Store_API.Services
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IPaymentService _paymentService;
-        private readonly IBasketService _basketService;
-        public OrderService(IUnitOfWork unitOfWork, IPaymentService paymentService, IBasketService basketService)
+        public OrderService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _paymentService = paymentService;
-            _basketService = basketService;
         }
 
         #region Create Order
 
-        public async Task<OrderResponseDTO> Create(int userId, string userName, string email, BasketDTO basket, int userAddressId)
+        public async Task Create(OrderCreateRequest orderCreateRequest)
         {
-            await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
-            try
+            // 1. Get Order Items
+            var orderItems = orderCreateRequest.BasketDTO.Items
+                .Where(item => item.Status)
+                .Select(i =>
+                        new OrderItem
+                        {
+                            ProductDetailId = i.ProductDetailId,
+                            Quantity = i.Quantity,
+                            SubTotal = i.DiscountPrice * i.Quantity,
+                        })
+                .ToList();
+
+            // 2. Add Order in DB
+            var order = new Order
             {
-                // 1. Check Quantity Product in Inventory
-                foreach (var item in basket.Items)
-                {
-                    var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
-                    if (stockExist == null || stockExist.Quantity < item.Quantity)
-                        throw new Exception($"Sorry! Product {item.ProductName} is not enoungh quantity in Inventory !");
-                }
+                UserId = orderCreateRequest.UserId,
+                Email = orderCreateRequest.Email,
+                OrderDate = DateTime.Now,
+                Status = OrderStatus.Pending,
+                UserAddressId = orderCreateRequest.UserAddressId,
+                Items = orderItems,
+                GrandTotal = orderCreateRequest.Amount,
+                DeliveryFee = orderCreateRequest.Amount > 1000000 ? 0 : 50000,
+                ClientSecret = orderCreateRequest.ClientSecret,
+            };
 
-                // 2. Get Order Items
-                var orderItems = basket.Items
-                    .Where(item => item.Status)
-                    .Select(i => 
-                            new OrderItem
-                            {
-                                ProductDetailId = i.ProductDetailId,
-                                Quantity = i.Quantity,
-                                SubTotal = i.DiscountPrice * i.Quantity,
-                            })
-                    .ToList();
-
-                // 3. Calc Grand Total
-                double grandTotal = orderItems.Sum(item => item.SubTotal);
-
-                // 4. Add Order in DB
-                var order = new Order
-                {
-                    UserId = userId,
-                    Email = email,
-                    OrderDate = DateTime.Now,
-                    Status = OrderStatus.Pending,
-                    UserAddressId = userAddressId,
-                    Items = orderItems,
-                    GrandTotal = grandTotal,
-                    DeliveryFee = grandTotal > 1000000 ? 0 : 50000,
-                };
-
-                // SaveChange in order to get Id
-                await _unitOfWork.Order.Create(order);
-                await _unitOfWork.SaveChangesAsync();
-
-                // 5. Remove Items in Basket - Sync Redis
-                var items = basket.Items.Where(x => x.Status == true).ToList();
-                await _basketService.RemoveRangeItems(userName, userId, basket.Id);
-
-                // 6. Create PaymentIntent on Stripe (Add Payment in db)
-                var paymentIntent = await _paymentService.CreatePaymentIntentAsync(order.Id, grandTotal);
-                order.ClientSecret = paymentIntent.ClientSecret;
-
-                // 7. Save and Commit -> update database
-                await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.CommitAsync();
-
-                return new OrderResponseDTO
-                {
-                    Id = order.Id,
-                    GrandTotal = order.GrandTotal,
-                    CreatedAt = DateTime.UtcNow,
-                    OrderStatus = OrderStatus.Pending,
-                    ClientSecret = paymentIntent.ClientSecret
-                };
-            }
-            catch (Exception ex)
-            {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
+            await _unitOfWork.Order.Create(order);
         }
 
         #endregion

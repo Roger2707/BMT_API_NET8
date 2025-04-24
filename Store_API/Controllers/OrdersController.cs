@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Store_API.DTOs.Orders;
 using Store_API.IService;
 using Store_API.Models.Users;
 
@@ -11,35 +12,21 @@ namespace Store_API.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
-        private readonly IBasketService _basketService;
         private readonly UserManager<User> _userManager;
 
-        public OrdersController(IOrderService orderService, IBasketService basketService, UserManager<User> userManager)
+        public OrdersController(IOrderService orderService, UserManager<User> userManager)
         {
             _orderService = orderService;
-            _basketService = basketService;
             _userManager = userManager;
         }
 
         [Authorize]
         [HttpPost("create-order")]
-        public async Task<IActionResult> Create(int userAddressId)
+        public async Task<IActionResult> Create(OrderCreateRequest orderCreateRequest)
         {
             try
             {
-                // 1. Check userAddressId
-                if(userAddressId == 0) return BadRequest(new ProblemDetails { Title = "User Address is not found" });
-
-                // 2. Get Basket - Current User 
-                var user = await _userManager.FindByNameAsync(User.Identity.Name);
-                int userId = user.Id;
-                string email = user.Email;
-
-                var basketDTO = await _basketService.GetBasketDTO(userId, User.Identity.Name);
-                if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
-
-                // 3. Order processing
-                var orderResponse = await _orderService.Create(userId, User.Identity.Name, email, basketDTO, userAddressId);
+                var orderResponse = await _orderService.Create(orderCreateRequest);
                 return Ok(orderResponse);
             }
             catch (Exception ex)

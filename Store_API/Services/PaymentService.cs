@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Newtonsoft.Json;
+using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.DTOs.Payments;
 using Store_API.DTOs.Stocks;
@@ -17,16 +18,22 @@ namespace Store_API.Services
     public class PaymentService : IPaymentService
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IUserService _userService;
         private readonly IStockService _stockService;
+        private readonly IBasketService _basketService;
+        private readonly IOrderService _orderService;
+
+        private readonly string _apiKey;
         private readonly IConfiguration _configuration;
         private readonly EmailSenderService _emailSenderService;
+
         private readonly IHubContext<OrderStatusHub> _hubContext;
-        private readonly string _apiKey;
 
         public PaymentService
         (   IUnitOfWork unitOfWork, IStockService stockService
             , IConfiguration configuration, EmailSenderService emailSenderService
-            , IHubContext<OrderStatusHub> hubContext
+            , IHubContext<OrderStatusHub> hubContext, IUserService userService, IBasketService basketService
+            , IOrderService orderService
         )
         {
             _unitOfWork = unitOfWork;
@@ -34,6 +41,9 @@ namespace Store_API.Services
             _configuration = configuration;
             _emailSenderService = emailSenderService;
             _hubContext = hubContext;
+            _userService = userService;
+            _basketService = basketService;
+            _orderService = orderService;
 
             _apiKey = _configuration["Stripe:SecretKey"];
 
@@ -44,41 +54,70 @@ namespace Store_API.Services
 
         #region Payment Methods
 
-        public async Task<PaymentIntent> CreatePaymentIntentAsync(int orderId, double amount)
+        public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, int userAddressId)
         {
-            // 1. Exchange rate (vnd -> usd)
-            decimal exchangeRate = 0.000039m;
-            long amountInCents = (long)(CF.GetDecimal(amount) * exchangeRate * 100);
-            var options = new PaymentIntentCreateOptions
+            await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
+            try
             {
-                Amount = amountInCents,
-                Currency = "usd",
-                Metadata = new Dictionary<string, string>
+                // 1. Check Quantity Product in Inventory
+                foreach (var item in basket.Items)
                 {
-                    { "orderId", orderId.ToString() }  // use for signal IR
-                },
-
-                // ## 3D Secure
-                AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-                {
-                    Enabled = true
+                    var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
+                    if (stockExist == null || stockExist.Quantity < item.Quantity)
+                        throw new Exception($"Sorry! Product {item.ProductName} is not enoungh quantity in Inventory !");
                 }
-            };
 
-            // 2. Create PaymentIntent
-            var service = new PaymentIntentService();
-            var paymentIntent = await service.CreateAsync(options);
+                // 2. Calc Grand Total
+                double grandTotal = basket.Items.Sum(item => item.Quantity * item.DiscountPrice);
 
-            var payment = new Payment
+                // 3. Exchange rate (vnd -> usd)
+                decimal exchangeRate = 0.000039m;
+                long amountInCents = (long)(CF.GetDecimal(grandTotal) * exchangeRate * 100);
+
+                // 4. Create Payment Intent Options
+                var options = new PaymentIntentCreateOptions
+                {
+                    Amount = amountInCents,
+                    Currency = "usd",
+                    //Metadata = new Dictionary<string, string>
+                    //{
+                    //    { "orderId", orderId.ToString() } 
+                    //},
+
+                    // ## 3D Secure - use for SCA (Strong Customer Authentication)
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
+                    {
+                        Enabled = true
+                    }
+                };
+
+                // 5. Create PaymentIntent
+                var service = new PaymentIntentService();
+                var paymentIntent = await service.CreateAsync(options);
+
+                // 6. Create Payment in DB
+                var payment = new Payment
+                {
+                    UserId = basket.UserId,
+                    UserAddressId = userAddressId,
+                    PaymentIntentId = paymentIntent.Id,
+                    Amount = grandTotal,
+                    Status = PaymentStatus.Pending,
+                    CreatedAt = DateTime.UtcNow,
+                };
+                await _unitOfWork.Payment.AddAsync(payment);
+
+                // 7. SaveChanges and Commit 
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+
+                return paymentIntent;
+            }
+            catch (Exception ex)
             {
-                OrderId = orderId,
-                PaymentIntentId = paymentIntent.Id,
-                Amount = amount,
-                Status = PaymentStatus.Pending,
-                CreatedAt = DateTime.UtcNow,
-            };
-            await _unitOfWork.Payment.AddAsync(payment);
-            return paymentIntent;
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }           
         }
 
         public async Task HandleStripeWebhookAsync(Event stripeEvent)
@@ -118,22 +157,21 @@ namespace Store_API.Services
             var paymentMessage = new PaymentProcessingMessage { PaymentIntentId = intent.Id };
             var messageBody = JsonConvert.SerializeObject(paymentMessage);
 
+            // 2. Idempotency check
             var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentMessage.PaymentIntentId);
             if (payment == null)
                 throw new InvalidOperationException($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
 
-            // 2. ✅ Idempotency check
             if (payment.Status == PaymentStatus.Succeeded)
                 return;
 
-            // 3. Find related order
-            var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
-            if (order == null)
-                throw new InvalidOperationException($"Order not found for PaymentIntentId: {paymentMessage.PaymentIntentId}");
+            // 3. Find User / Basket
+            var user = await _userService.GetUser(payment.UserId);
+            var basket = await _unitOfWork.Basket.GetBasketDTORedis(payment.UserId, user.UserName);
 
             // 4. Check Inventory and Update StockTransaction (Export)
             string orderItemText = "";
-            foreach (var item in order.Items)
+            foreach (var item in basket.Items)
             {
                 var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
                 if (stockExist == null || stockExist.Quantity < item.Quantity)
@@ -151,9 +189,25 @@ namespace Store_API.Services
                 orderItemText += $"{item.ProductDetailId} - {item.Quantity} pcs\n";
             }
 
+            // 5. Create Order 
+            var orderCreateRequest = new OrderCreateRequest
+            {
+                UserId = payment.UserId,
+                Username = user.UserName,
+                Email = user.Email,
+                UserAddressId = payment.UserAddressId,
+                BasketDTO = basket,
+                Amount = payment.Amount,
+                ClientSecret = paymentMessage.PaymentIntentId,
+            };
+            await _orderService.Create(orderCreateRequest);
+
+            // 6. Clear Basket - Sync Redis
+            var items = basket.Items.Where(x => x.Status == true).ToList();
+            await _basketService.RemoveRangeItems(user.UserName, payment.UserId, basket.Id);
+
             // 5. Update Status Order and Payment -> Check out 
             payment.Status = PaymentStatus.Succeeded;
-            order.Status = OrderStatus.Shipping;
 
             // 6. Send Email
             string content = $@"    
@@ -186,13 +240,7 @@ namespace Store_API.Services
             if (paymentIntent == null) return;
 
             var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentIntent.Id);
-
-            var order = await _unitOfWork.Order.FirstOrDefaultAsync(payment.OrderId);
-            if (order == null)
-                throw new InvalidOperationException($"Order not found for PaymentIntentId: {paymentIntent.Id}");
-
             payment.Status = PaymentStatus.Failed;
-            order.Status = OrderStatus.Cancelled;
         }
 
         #endregion

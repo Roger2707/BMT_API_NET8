@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Store_API.Helpers;
+using Store_API.IService;
 using Store_API.Repositories;
 using Stripe;
+using System.Security.Claims;
 
 namespace Store_API.Controllers
 {
@@ -10,12 +13,31 @@ namespace Store_API.Controllers
     public class PaymentsController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
+        private readonly IBasketService _basketService;
         private readonly IConfiguration _configuration;
 
-        public PaymentsController(IPaymentService paymentService, IConfiguration configuration)
+        public PaymentsController(IPaymentService paymentService, IBasketService basketService, IConfiguration configuration)
         {
             _paymentService = paymentService;
+            _basketService = basketService;
             _configuration = configuration;
+        }
+
+        [HttpPost("create-client-secret")]
+        public async Task<IActionResult> CreateClientSecrett(int userAddressId)
+        {
+            try
+            {
+                var basketDTO = await _basketService.GetBasketDTO(CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier)), User.Identity.Name);
+                if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
+                var paymentIntent = await _paymentService.CreatePaymentIntentAsync(basketDTO, userAddressId);
+
+                return Ok(new {ClientSecret = paymentIntent.ClientSecret });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
         }
 
         // stripe listen --forward-to localhost:5110/api/payments/webhook

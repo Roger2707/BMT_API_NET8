@@ -35,7 +35,7 @@ namespace Store_API.Repositories
 
         public async Task DeleteBasketItem(Guid basketId)
         {
-            string query = @" DELETE BasketItems WHERE BasketId = @BasketId ";
+            string query = @" DELETE BasketItems WHERE BasketId = @BasketId AND Status = 1 ";
             var p = new { BasketId = basketId };
             await _dapperService.Execute(query, p);
         }

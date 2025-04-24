@@ -148,6 +148,66 @@ namespace Store_API.Services
             return userDTO;
         }
 
+        public async Task<UserDTO> GetUser(int userId)
+        {
+            string query = @" 
+                                SELECT 
+                                    u.Id
+                                    , FullName
+                                    , UserName
+                                    , Email
+                                    , Dob
+                                    , PhoneNumber
+                                    , ImageUrl
+                                    , u.PublicId
+                                    , ISNULL(b.Id, NULL) as BasketId
+                                    , ua.Id as AddressId
+                                    , ua.City
+                                    , ua.District
+                                    , ua.Ward
+                                    , ua.StreetAddress
+                                    , ua.PostalCode
+                                    , ua.Country
+                                FROM AspNetUsers u
+                                LEFT JOIN Baskets b ON b.UserId = u.Id
+                                LEFT JOIN UserAddresses ua ON ua.UserId = u.Id
+                                WHERE u.Id = @UserId
+                                ";
+
+            var user = await _dapperService.QueryAsync<UserDapperRow>(query, new { UserId = userId });
+            if (user == null) return null;
+
+            var token = await _tokenService.GenerateToken(new User { Id = user[0].Id, Email = user[0].Email, UserName = user[0].UserName });
+            var userDTO = user
+                .GroupBy(g => new { g.Id, g.UserName, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PublicId, g.PhoneNumber, g.BasketId })
+                .Select(u => new UserDTO
+                {
+                    Id = u.Key.Id,
+                    UserName = u.Key.UserName,
+                    FullName = u.Key.FullName,
+                    Email = u.Key.Email,
+                    ImageUrl = u.Key.ImageUrl,
+                    Dob = u.Key.Dob,
+                    PublicId = u.Key.PublicId,
+                    PhoneNumber = u.Key.PhoneNumber,
+                    BasketId = u.Key.BasketId,
+                    Token = token,
+                    UserAddresses = u.Select(a => new UserAddressDTO
+                    {
+                        Id = a.AddressId,
+                        City = a.City,
+                        District = a.District,
+                        Ward = a.Ward,
+                        StreetAddress = a.StreetAddress,
+                        PostalCode = a.PostalCode,
+                        Country = a.Country
+                    }).ToList()
+                })
+                .FirstOrDefault();
+
+            return userDTO;
+        }
+
         #endregion 
 
         #region Sign Up
