@@ -24,9 +24,9 @@ namespace Store_API.Extensions
             services.AddScoped<IStockService, StockService>();
             services.AddScoped<IBasketService, BasketService>();
             services.AddScoped<IInventoryAuthorization, InventoryAuthorizationService>();
-
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPaymentService, PaymentService>();
+            services.AddScoped<IRatingService, RatingService>();
 
             // Others
             services.AddHttpClient();

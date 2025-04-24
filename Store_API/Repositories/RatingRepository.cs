@@ -14,7 +14,7 @@ namespace Store_API.Repositories
         #region GET
         public async Task<double> GetRatingProduct(Guid productId)
         {
-            string query = @" SELECT AVG(CAST(Star AS FLOAT)) AS AverageRating FROM Ratings WHERE ProductId = @ProductId ";
+            string query = @" SELECT ISNULL(AVG(CAST(Star AS FLOAT)), 0) AS AverageRating FROM Ratings WHERE ProductId = @ProductId ";
             var star = await _dapperService.QueryFirstOrDefaultAsync<double>(query, new { ProductId = productId });
             return star;
         }
@@ -30,18 +30,17 @@ namespace Store_API.Repositories
         #region SET
         public async Task SetRating(RatingDTO ratingDTO)
         {
-            string query = @" SELECT Id FROM Rating WHERE ProductId = @ProductId AND ProductDetailId = @ProductDetailId AND UserId = @UserId ";
+            string query = @" SELECT Id FROM Ratings WHERE ProductId = @ProductId AND ProductDetailId = @ProductDetailId AND UserId = @UserId ";
             var ratingExisted = await _dapperService.QueryFirstOrDefaultAsync<Rating>(query, new { ratingDTO.ProductId, ratingDTO.ProductDetailId, ratingDTO.UserId });
             if (ratingExisted != null)
             {
-                query = @" UPDATE Rating SET Star = @Star WHERE Id = @Id ";
+                query = @" UPDATE Ratings SET Star = @Star WHERE Id = @Id ";
                 await _dapperService.Execute(query, new { ratingDTO.Star, Id = ratingExisted.Id });
             }
             else
             {
-                var id = Guid.NewGuid();
-                query = @" INSERT INTO Rating (Id, UserId, ProductId, ProductDetailId, Star) VALUES (@Id, @UserId, @ProductId, @ProductDetailId, @Star) ";
-                await _dapperService.Execute(query, new { id = id, UserId = ratingDTO.UserId, ProductId = ratingDTO.ProductId, ProductDetailId = ratingDTO.ProductDetailId, Star = ratingDTO.Star });
+                query = @" INSERT INTO Ratings (UserId, ProductId, ProductDetailId, Star) VALUES (@UserId, @ProductId, @ProductDetailId, @Star) ";
+                await _dapperService.Execute(query, new { UserId = ratingDTO.UserId, ProductId = ratingDTO.ProductId, ProductDetailId = ratingDTO.ProductDetailId, Star = ratingDTO.Star });
             }
         }
         #endregion

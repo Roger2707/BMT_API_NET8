@@ -7,7 +7,6 @@ namespace Store_API.Services
     public class RatingService : IRatingService
     {
         private readonly IUnitOfWork _unitOfWork;
-
         public RatingService(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
@@ -15,7 +14,7 @@ namespace Store_API.Services
 
         public async Task<double> GetProductDetailRating(Guid productDetailId)
         {
-            return await _unitOfWork.Rating.GetRatingProductDetail(productDetailId);  
+            return await _unitOfWork.Rating.GetRatingProductDetail(productDetailId);
         }
 
         public async Task<double> GetProductRating(Guid productId)
