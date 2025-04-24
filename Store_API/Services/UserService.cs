@@ -500,6 +500,7 @@ namespace Store_API.Services
                 }));
 
                 await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();    
                 return model.UserName;
             }
             catch(Exception ex)

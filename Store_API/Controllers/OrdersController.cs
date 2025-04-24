@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Models.Users;
+using System.Security.Claims;
 
 namespace Store_API.Controllers
 {
@@ -11,12 +11,10 @@ namespace Store_API.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
-        private readonly UserManager<User> _userManager;
 
-        public OrdersController(IOrderService orderService, UserManager<User> userManager)
+        public OrdersController(IOrderService orderService)
         {
             _orderService = orderService;
-            _userManager = userManager;
         }
 
         [Authorize]
@@ -41,8 +39,7 @@ namespace Store_API.Controllers
         [HttpGet("get-orders-of-user")]
         public async Task<IActionResult> GetOrders()
         {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            var orders = await _orderService.GetOrders(user.Id);
+            var orders = await _orderService.GetOrders(CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier)));
             return Ok(orders);
         }
     }
