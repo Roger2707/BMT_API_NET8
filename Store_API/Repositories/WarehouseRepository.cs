@@ -1,6 +1,7 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs.Warehouse;
 using Store_API.IRepositories;
+using Store_API.IService;
 using Store_API.Models.Inventory;
 
 namespace Store_API.Repositories

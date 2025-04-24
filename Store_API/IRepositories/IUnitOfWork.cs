@@ -16,7 +16,6 @@ namespace Store_API.Repositories
         public IBrandRepository Brand { get; }
         public IBasketRepository Basket { get; }
         public IOrderRepository Order { get; }
-        public ICommentRepository Comment { get; }
         public IRatingRepository Rating { get; }
         public IPromotionRepository Promotion { get; }
         public IUserAddressRepository UserAddress { get; }

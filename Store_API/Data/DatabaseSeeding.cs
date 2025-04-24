@@ -533,32 +533,47 @@ namespace Store_API.Data
                 );
             }
 
-            // 12. Seed User Address
-            //if (!context.UserAddresses.Any())
-            //{
-            //    await context.AddRangeAsync(
-            //        new UserAddress
-            //        {
-            //            UserId = 1,
-            //            City = "Ho Chi Minh City",
-            //            District = "District 1",
-            //            Ward = "Ben Nghe",
-            //            StreetAddress = "123 Nguyen Hue",
-            //            Country = "Vietnam",
-            //            PostalCode = "700000",
-            //        },
-            //        new UserAddress
-            //        {
-            //            UserId = 1,
-            //            City = "Vung Tau City",
-            //            District = "District NULL",
-            //            Ward = "VT",
-            //            StreetAddress = "Hoang Hoa Tham",
-            //            Country = "Vietnam",
-            //            PostalCode = "690000",
-            //        }
-            //    );
-            //}
+            // 12. Seed Rating
+            if (!context.Ratings.Any() && context.Users.Any() && context.Products.Any() && context.ProductDetails.Any())
+            {
+                await context.AddRangeAsync(
+                    // 99 Pro
+                    new Rating
+                    {
+                        Id = 1,
+                        UserId = 2,
+                        ProductId = Guid.Parse("F47AC10B-58CC-4372-A567-0E02B2C3D479"),
+                        ProductDetailId = Guid.Parse("3FA85F64-5717-4562-B3FC-2C963F66AFA6"),
+                        Star = 4,
+                    },
+                    new Rating
+                    {
+                        Id = 2,
+                        UserId = 2,
+                        ProductId = Guid.Parse("F47AC10B-58CC-4372-A567-0E02B2C3D479"),
+                        ProductDetailId = Guid.Parse("E2C8FF1C-2DB0-4A02-9A2A-7B8D05EEB6D4"),
+                        Star = 4.5,
+                    },
+                    // Z Strike
+                    new Rating
+                    {
+                        Id = 3,
+                        UserId = 4,
+                        ProductId = Guid.Parse("6F9619FF-8B86-D011-B42D-00CF4FC964FF"),
+                        ProductDetailId = Guid.Parse("5F3C3A57-1F41-4E32-9C7A-12D4686DBF8B"),
+                        Star = 4.8,
+                    },
+                    // Ryuga Metalic
+                    new Rating
+                    {
+                        Id = 4,
+                        UserId = 3,
+                        ProductId = Guid.Parse("123E4567-E89B-12D3-A456-426614174000"),
+                        ProductDetailId = Guid.Parse("6A4E5F76-3C84-4F4E-BB76-61768C5D3E7D"),
+                        Star = 4.5,
+                    }
+                );
+            }
 
             // Save changes to the database
             context.SaveChanges();

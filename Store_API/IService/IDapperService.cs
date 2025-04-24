@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
 
-namespace Store_API.Data
+namespace Store_API.IService
 {
     public interface IDapperService
     {

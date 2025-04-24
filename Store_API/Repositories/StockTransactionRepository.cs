@@ -2,6 +2,7 @@
 using Store_API.DTOs.Stocks;
 using Store_API.Helpers;
 using Store_API.IRepositories;
+using Store_API.IService;
 using Store_API.Models.Inventory;
 
 namespace Store_API.Repositories

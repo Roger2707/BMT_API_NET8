@@ -8,9 +8,13 @@
 
   <ItemGroup>
     <Compile Remove="Middleware\**" />
+    <Compile Remove="wwwroot\**" />
     <Content Remove="Middleware\**" />
+    <Content Remove="wwwroot\**" />
     <EmbeddedResource Remove="Middleware\**" />
+    <EmbeddedResource Remove="wwwroot\**" />
     <None Remove="Middleware\**" />
+    <None Remove="wwwroot\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,7 +48,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
     <Folder Include="Sql\" />
   </ItemGroup>
 

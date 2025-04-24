@@ -1,6 +1,4 @@
-﻿using Store_API.Models.Users;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace Store_API.Models
 {
@@ -12,5 +10,6 @@ namespace Store_API.Models
         public Guid ProductId { get; set; }
         public Guid ProductDetailId { get; set; }
         public int UserId { get; set; }
+
     }
 }

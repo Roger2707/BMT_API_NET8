@@ -1,4 +1,4 @@
-﻿namespace Store_API.Cache_Layer
+﻿namespace Store_API.IService
 {
     public interface IRedisService
     {

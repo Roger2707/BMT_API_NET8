@@ -1,6 +1,7 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
+using Store_API.IService;
 using System.Linq.Expressions;
 
 namespace Store_API.Repositories

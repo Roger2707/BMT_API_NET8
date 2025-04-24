@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Newtonsoft.Json;
-using Store_API.Data;
 using Store_API.DTOs.Accounts;
 using Store_API.Helpers;
 using Store_API.IService;

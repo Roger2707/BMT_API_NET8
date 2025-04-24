@@ -1,6 +1,4 @@
-﻿using Store_API.Cache_Layer;
-using Store_API.Data;
-using Store_API.IRepositories;
+﻿using Store_API.IRepositories;
 using Store_API.IService;
 using Store_API.Repositories;
 using Store_API.Services;

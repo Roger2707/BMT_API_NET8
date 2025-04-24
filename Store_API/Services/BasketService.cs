@@ -1,5 +1,4 @@
-﻿using Store_API.Cache_Layer;
-using Store_API.DTOs.Baskets;
+﻿using Store_API.DTOs.Baskets;
 using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Repositories;

@@ -1,7 +1,8 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
+using Store_API.IService;
 
-namespace Store_API.Data
+namespace Store_API.Services
 {
     public class DapperService : IDapperService
     {
@@ -47,7 +48,7 @@ namespace Store_API.Data
         {
             var connection = await EnsureConnectionAsync();
             return (await connection.QueryAsync<TResult>(query, p, _transaction)).ToList();
-        }    
+        }
 
         public async Task<TResult> QueryFirstOrDefaultAsync<TResult>(string query, object p = null)
         {

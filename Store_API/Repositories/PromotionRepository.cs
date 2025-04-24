@@ -1,5 +1,6 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs.Promotions;
+using Store_API.IService;
 using Store_API.Models;
 
 namespace Store_API.Repositories

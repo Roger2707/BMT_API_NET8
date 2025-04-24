@@ -1,7 +1,8 @@
 ﻿using StackExchange.Redis;
+using Store_API.IService;
 using System.Text.Json;
 
-namespace Store_API.Cache_Layer
+namespace Store_API.Services
 {
     public class RedisService : IRedisService
     {

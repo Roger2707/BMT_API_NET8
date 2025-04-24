@@ -5,6 +5,7 @@ using Store_API.Enums;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore;
+using Store_API.IService;
 
 namespace Store_API.Repositories
 {
@@ -47,9 +48,6 @@ namespace Store_API.Repositories
             Order = new OrderRepository(_dapperService, _db);
             Payment = new PaymentRepository(_db);
             Rating = new RatingRepository(_db, _dapperService);
-
-            // Handle Later
-            Comment = new CommentRepository(_db, _dapperService);
         }
 
         #region Models Repository
@@ -57,7 +55,6 @@ namespace Store_API.Repositories
         public IProductDetailRepository ProductDetail { get; private set; }
         public ICategoryRepository Category { get; private set; }
         public IBrandRepository Brand { get; private set; }
-        public ICommentRepository Comment { get; private set; }
         public IRatingRepository Rating { get; private set; }
         public IPromotionRepository Promotion { get; private set; }
         public IUserAddressRepository UserAddress { get; private set; }
@@ -96,10 +93,7 @@ namespace Store_API.Repositories
 
         public async Task SaveChangesAsync()
         {
-            if (_currentType == TransactionType.EntityFramework || _currentType == TransactionType.Both)
-            {
-                await _db.SaveChangesAsync(); 
-            }
+            await _db.SaveChangesAsync(); 
         }
 
         public async Task CommitAsync()
