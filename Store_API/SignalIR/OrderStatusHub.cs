@@ -1,18 +1,22 @@
 ﻿using Microsoft.AspNetCore.SignalR;
-using Store_API.DTOs.Orders;
 
 namespace Store_API.SignalIR
 {
     public class OrderStatusHub : Hub
     {
-        //public async Task SendOrderUpdateToAdmin(OrderUpdateHub message)
-        //{
-        //    await Clients.Group("Admins").SendAsync("ReceiveOrderUpdate", message);
-        //}
+        public override Task OnConnectedAsync()
+        {
+            return base.OnConnectedAsync();
+        }
 
-        //public async Task SendOrderUpdateToUser(OrderUpdateHub message)
-        //{
-        //    await Clients.User(userId).SendAsync("ReceiveOrderUpdate", message);
-        //}
+        public async Task JoinGroup(string clientSecret)
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, clientSecret);
+        }
+
+        public async Task LeaveGroup(string clientSecret)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, clientSecret);
+        }
     }
 }

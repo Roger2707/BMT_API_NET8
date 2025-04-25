@@ -39,11 +39,11 @@ namespace Store_API.Services
             _stockService = stockService;
             _configuration = configuration;
             _emailSenderService = emailSenderService;
-            _hubContext = hubContext;
             _userService = userService;
             _basketService = basketService;
             _orderService = orderService;
 
+            _hubContext = hubContext;
             _apiKey = _configuration["Stripe:SecretKey"];
 
             if (string.IsNullOrEmpty(_apiKey)) throw new Exception("Stripe API Key is missing from configuration.");
@@ -103,6 +103,7 @@ namespace Store_API.Services
                     Amount = grandTotal,
                     Status = PaymentStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
+                    OrderId = Guid.Empty
                 };
                 await _unitOfWork.Payment.AddAsync(payment);
 
@@ -162,7 +163,7 @@ namespace Store_API.Services
             if (payment == null)
                 throw new InvalidOperationException($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
 
-            if (payment.Status == PaymentStatus.Succeeded)
+            if (payment.Status == PaymentStatus.Success)
                 return;
 
             // 3. Find User / Basket
@@ -207,13 +208,14 @@ namespace Store_API.Services
             var items = basket.Items.Where(x => x.Status == true).ToList();
             await _basketService.RemoveRangeItems(user.UserName, payment.UserId, basket.Id);
 
-            // 5. Update Status Order and Payment -> Check out 
-            payment.Status = PaymentStatus.Succeeded;
+            // 5. Update Status Payment, Add OrderId
+            payment.Status = PaymentStatus.Success;
+            payment.OrderId = orderId;
 
             // 6. Send Email
             string content = $@"    
                                     Thank you for shopping at ROGER STORE
-                                    Your ORDER info: {orderId}
+                                    Your ORDER ID: {orderId}
 
                                     {orderItemText}
 
@@ -223,16 +225,15 @@ namespace Store_API.Services
 
             await _emailSenderService.SendEmailAsync(user.Email, "[NEW] 🔥 Your Check out:", content);
 
-            // 7. Signal IR - Send Message To Client
-            var orderUpdateMessage = new OrderUpdateHub
-            {
-                OrderId = orderId,
-                OrderStatus = OrderStatus.Shipping,
-            };
-            // All Admins is Received
-            await _hubContext.Clients.Group("Admins").SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
-            // User (Order of login user) is Received
-            await _hubContext.Clients.User(user.Id.ToString()).SendAsync("ReceiveOrderUpdate", orderUpdateMessage);
+            // 7.Notify client via SignalR
+            await _hubContext
+                .Clients
+                .Group(intent.ClientSecret)
+                .SendAsync("OrderCreated", new
+                {
+                    OrderId = orderId,
+                    Status = OrderStatus.Pending,
+                });
         }
 
         private async Task HandlePaymentIntentFailed(Event stripeEvent)
