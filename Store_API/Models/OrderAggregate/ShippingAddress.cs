@@ -3,7 +3,7 @@
 namespace Store_API.Models.OrderAggregate
 {
     [Owned]
-    public class ShippingAdress
+    public class ShippingAddress
     {
         public string City { get; set; }
         public string District { get; set; }

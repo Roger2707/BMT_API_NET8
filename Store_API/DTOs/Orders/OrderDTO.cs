@@ -12,7 +12,7 @@ namespace Store_API.DTOs.Orders
         public DateTime OrderDate { get; set; }
         public string Status { get; set; }
         public double DeliveryFee { get; set; }
-        public ShippingAdress ShippingAdress { get; set; }
+        public ShippingAddress ShippingAdress { get; set; }
         public List<OrderItemDTO> Items { get; set; }
         public double GrandTotal { get; set; }
         public string ClientSecret { get; set; }

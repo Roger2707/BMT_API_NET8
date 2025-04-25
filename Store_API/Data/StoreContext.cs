@@ -168,6 +168,36 @@ namespace Store_API.Data
                 .HasOne(pt => pt.Technology)
                 .WithMany(t => t.Products)
                 .HasForeignKey(pt => pt.TechnologyId);
+
+            // Config Order Owned ShippingAddress
+            builder.Entity<Order>()
+                .OwnsOne(o => o.ShippingAddress, sa =>
+                {
+                    sa.WithOwner();
+                    sa.Property(p => p.City).HasColumnName("City");
+                    sa.Property(p => p.District).HasColumnName("District");
+                    sa.Property(p => p.Ward).HasColumnName("Ward");
+                    sa.Property(p => p.StreetAddress).HasColumnName("StreetAddress");
+                    sa.Property(p => p.PostalCode).HasColumnName("PostalCode");
+                    sa.Property(p => p.Country).HasColumnName("Country");
+                })
+                .Navigation(x => x.ShippingAddress)
+                .IsRequired();
+
+            // Config UserAddress Owned ShippingAddress
+            builder.Entity<UserAddress>()
+                .OwnsOne(o => o.ShippingAddress, sa =>
+                {
+                    sa.WithOwner();
+                    sa.Property(p => p.City).HasColumnName("City");
+                    sa.Property(p => p.District).HasColumnName("District");
+                    sa.Property(p => p.Ward).HasColumnName("Ward");
+                    sa.Property(p => p.StreetAddress).HasColumnName("StreetAddress");
+                    sa.Property(p => p.PostalCode).HasColumnName("PostalCode");
+                    sa.Property(p => p.Country).HasColumnName("Country");
+                })
+                .Navigation(x => x.ShippingAddress)
+                .IsRequired();
         }
     }
 }

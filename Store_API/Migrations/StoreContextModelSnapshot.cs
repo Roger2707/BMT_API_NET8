@@ -690,7 +690,7 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "633e8286-7e05-4760-9a5c-556ea50098c8",
+                            ConcurrencyStamp = "3db8e6a6-3132-429e-9dde-476bb94ba4de",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "spadmin@example.com",
                             EmailConfirmed = true,
@@ -698,9 +698,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SPADMIN@EXAMPLE.COM",
                             NormalizedUserName = "SPADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEOUXdY8LEz30ylF7POk0DV2IWpbtRr0M0VRgvHbrNZMtDONgt4T+5G7Ohyda3Myz+w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAQfkk7KIInBjjK0eUOlTAdENqXzdhkm8qmMFhmfDpXELJRfiA4JSZuGNNIpzjzctA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "b9a24ccc-a38c-493b-ba93-ec4f35f75eca",
+                            SecurityStamp = "12bb631d-6fee-481a-bb29-c302818102d4",
                             TwoFactorEnabled = false,
                             UserName = "spadmin"
                         },
@@ -708,7 +708,7 @@ namespace Store_API.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "de5c3274-e42e-4751-8bb0-466eee55ca54",
+                            ConcurrencyStamp = "225f692f-21c6-41ea-9fd2-57b77e26faa5",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin1@example.com",
                             EmailConfirmed = true,
@@ -716,9 +716,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN1@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHssOBwNNRP5cZ54umrA7elNsE8sBNuFqZE4y/Wjp0yQ+mD+CzFjoWdeKeW11rrNLQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEFBWuHrx8pfMjoyf9bIIq4Emyuesgd4hD3SPKCIP7DMG+JHLkcJ2Y9hNr0eKizSL3A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "054211c2-f1d1-4289-93dd-d231f4b0782e",
+                            SecurityStamp = "2b561a3d-dbd6-49f5-ab91-8eaa05a2c20d",
                             TwoFactorEnabled = false,
                             UserName = "admin1"
                         },
@@ -726,7 +726,7 @@ namespace Store_API.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "c1260f9e-94e3-4c9c-a6fb-acbdaaba267a",
+                            ConcurrencyStamp = "1d99855c-535c-48b6-ba58-728e9a49387a",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin2@example.com",
                             EmailConfirmed = true,
@@ -734,9 +734,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN2@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN2",
-                            PasswordHash = "AQAAAAIAAYagAAAAEO1WuZ9pabQH6NDAQjOoq/cH3jq+2KrKe+yVjOYD+AnzezdvNQbJaCMB135y6Thhbg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENyXaWLHGosQQVYwXfn0fPyWEUHP3UO1uDtKQIx0b8svvBTxPCTqMhzZCI2LaiIsbg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "1b75e123-4306-40df-915c-e0765849fe40",
+                            SecurityStamp = "782b02c8-bd5a-4cc3-9a6a-2b5628339a40",
                             TwoFactorEnabled = false,
                             UserName = "admin2"
                         },
@@ -744,7 +744,7 @@ namespace Store_API.Migrations
                         {
                             Id = 4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "a9c9b78e-1fdf-46e4-b854-ccf687b95307",
+                            ConcurrencyStamp = "a60e5788-8d69-45c5-adae-1f2408bf4b87",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admi3n@example.com",
                             EmailConfirmed = true,
@@ -752,9 +752,9 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN3@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN3",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMaXlmO2uDfaAhcggFbdniLLI0FpNmHU6fgK0Z4CuS891lwHDsIgLRtA6IM8Tnh60g==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEGx9czhPC4FGPNivlLdCHdL8ywed1Ct6LPAb246MVwy9QqCa7XNOK12K50bROBZtsw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "a7daf7a3-6229-49ac-9d95-4e58db91eeda",
+                            SecurityStamp = "13c02c5b-c93b-4d05-8843-2b7bb2f6f76c",
                             TwoFactorEnabled = false,
                             UserName = "admin3"
                         });
@@ -926,28 +926,34 @@ namespace Store_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("Store_API.Models.OrderAggregate.ShippingAdress", "ShippingAdress", b1 =>
+                    b.OwnsOne("Store_API.Models.OrderAggregate.ShippingAddress", "ShippingAddress", b1 =>
                         {
                             b1.Property<Guid>("OrderId")
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("City")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("City");
 
                             b1.Property<string>("Country")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Country");
 
                             b1.Property<string>("District")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("District");
 
                             b1.Property<string>("PostalCode")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("PostalCode");
 
                             b1.Property<string>("StreetAddress")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("StreetAddress");
 
                             b1.Property<string>("Ward")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Ward");
 
                             b1.HasKey("OrderId");
 
@@ -957,7 +963,8 @@ namespace Store_API.Migrations
                                 .HasForeignKey("OrderId");
                         });
 
-                    b.Navigation("ShippingAdress");
+                    b.Navigation("ShippingAddress")
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -1057,28 +1064,34 @@ namespace Store_API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.OwnsOne("Store_API.Models.OrderAggregate.ShippingAdress", "ShippingAddress", b1 =>
+                    b.OwnsOne("Store_API.Models.OrderAggregate.ShippingAddress", "ShippingAddress", b1 =>
                         {
                             b1.Property<int>("UserAddressId")
                                 .HasColumnType("int");
 
                             b1.Property<string>("City")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("City");
 
                             b1.Property<string>("Country")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Country");
 
                             b1.Property<string>("District")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("District");
 
                             b1.Property<string>("PostalCode")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("PostalCode");
 
                             b1.Property<string>("StreetAddress")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("StreetAddress");
 
                             b1.Property<string>("Ward")
-                                .HasColumnType("nvarchar(max)");
+                                .HasColumnType("nvarchar(max)")
+                                .HasColumnName("Ward");
 
                             b1.HasKey("UserAddressId");
 
@@ -1088,7 +1101,8 @@ namespace Store_API.Migrations
                                 .HasForeignKey("UserAddressId");
                         });
 
-                    b.Navigation("ShippingAddress");
+                    b.Navigation("ShippingAddress")
+                        .IsRequired();
 
                     b.Navigation("User");
                 });

@@ -277,12 +277,12 @@ namespace Store_API.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    ShippingAdress_City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAdress_District = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAdress_Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAdress_StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAdress_PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAdress_Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
@@ -308,12 +308,12 @@ namespace Store_API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    ShippingAddress_City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAddress_District = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAddress_Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAddress_StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAddress_PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ShippingAddress_Country = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -581,10 +581,10 @@ namespace Store_API.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "633e8286-7e05-4760-9a5c-556ea50098c8", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEOUXdY8LEz30ylF7POk0DV2IWpbtRr0M0VRgvHbrNZMtDONgt4T+5G7Ohyda3Myz+w==", null, false, null, "b9a24ccc-a38c-493b-ba93-ec4f35f75eca", false, "spadmin" },
-                    { 2, 0, "de5c3274-e42e-4751-8bb0-466eee55ca54", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEHssOBwNNRP5cZ54umrA7elNsE8sBNuFqZE4y/Wjp0yQ+mD+CzFjoWdeKeW11rrNLQ==", null, false, null, "054211c2-f1d1-4289-93dd-d231f4b0782e", false, "admin1" },
-                    { 3, 0, "c1260f9e-94e3-4c9c-a6fb-acbdaaba267a", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEO1WuZ9pabQH6NDAQjOoq/cH3jq+2KrKe+yVjOYD+AnzezdvNQbJaCMB135y6Thhbg==", null, false, null, "1b75e123-4306-40df-915c-e0765849fe40", false, "admin2" },
-                    { 4, 0, "a9c9b78e-1fdf-46e4-b854-ccf687b95307", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEMaXlmO2uDfaAhcggFbdniLLI0FpNmHU6fgK0Z4CuS891lwHDsIgLRtA6IM8Tnh60g==", null, false, null, "a7daf7a3-6229-49ac-9d95-4e58db91eeda", false, "admin3" }
+                    { 1, 0, "3db8e6a6-3132-429e-9dde-476bb94ba4de", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEAQfkk7KIInBjjK0eUOlTAdENqXzdhkm8qmMFhmfDpXELJRfiA4JSZuGNNIpzjzctA==", null, false, null, "12bb631d-6fee-481a-bb29-c302818102d4", false, "spadmin" },
+                    { 2, 0, "225f692f-21c6-41ea-9fd2-57b77e26faa5", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEFBWuHrx8pfMjoyf9bIIq4Emyuesgd4hD3SPKCIP7DMG+JHLkcJ2Y9hNr0eKizSL3A==", null, false, null, "2b561a3d-dbd6-49f5-ab91-8eaa05a2c20d", false, "admin1" },
+                    { 3, 0, "1d99855c-535c-48b6-ba58-728e9a49387a", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAENyXaWLHGosQQVYwXfn0fPyWEUHP3UO1uDtKQIx0b8svvBTxPCTqMhzZCI2LaiIsbg==", null, false, null, "782b02c8-bd5a-4cc3-9a6a-2b5628339a40", false, "admin2" },
+                    { 4, 0, "a60e5788-8d69-45c5-adae-1f2408bf4b87", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEGx9czhPC4FGPNivlLdCHdL8ywed1Ct6LPAb246MVwy9QqCa7XNOK12K50bROBZtsw==", null, false, null, "13c02c5b-c93b-4d05-8843-2b7bb2f6f76c", false, "admin3" }
                 });
 
             migrationBuilder.InsertData(

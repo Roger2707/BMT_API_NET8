@@ -10,7 +10,7 @@ namespace Store_API.Models.OrderAggregate
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public User User { get; set; }
-        public ShippingAdress ShippingAdress { get; set; }
+        public ShippingAddress ShippingAddress { get; set; }
         public string Email { get; set; }
 
         public DateTime OrderDate { get; set; } = DateTime.Now;

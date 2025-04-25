@@ -25,7 +25,7 @@ namespace Store_API.Controllers
         }
 
         [HttpPost("create-client-secret")]
-        public async Task<IActionResult> CreateClientSecret([FromBody] ShippingAdress shippingAddress, bool isSaveAddress)
+        public async Task<IActionResult> CreateClientSecret([FromBody] ShippingAddress shippingAddress, bool isSaveAddress)
         {
             try
             {

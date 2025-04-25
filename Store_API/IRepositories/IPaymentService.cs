@@ -6,7 +6,7 @@ namespace Store_API.Repositories
 {
     public interface IPaymentService
     {
-        Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAdress shippingAddress, bool isSaveAddress);
+        Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAddress shippingAddress, bool isSaveAddress);
         Task HandleStripeWebhookAsync(Event stripeEvent);
     }
 }

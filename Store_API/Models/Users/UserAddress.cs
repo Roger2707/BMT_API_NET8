@@ -6,10 +6,9 @@ namespace Store_API.Models.Users
     public class UserAddress
     {
         public int Id { get; set; }
-
         public int UserId { get; set; }
         [ForeignKey("UserId")]
         public User User { get; set; }
-        public ShippingAdress ShippingAddress { get; set; }
+        public ShippingAddress ShippingAddress { get; set; }
     }
 }

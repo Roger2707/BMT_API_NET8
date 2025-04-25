@@ -54,7 +54,7 @@ namespace Store_API.Services
 
         #region Payment Methods
 
-        public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAdress shippingAddress, bool isSaveAddress)
+        public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAddress shippingAddress, bool isSaveAddress)
         {
             await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
             try
@@ -201,7 +201,7 @@ namespace Store_API.Services
                 UserId = payment.UserId,
                 Username = user.UserName,
                 Email = user.Email,
-                ShippingAdress = JsonConvert.DeserializeObject<ShippingAdress>(shippingAdressJson),
+                ShippingAdress = JsonConvert.DeserializeObject<ShippingAddress>(shippingAdressJson),
                 BasketDTO = basket,
                 Amount = payment.Amount,
                 ClientSecret = paymentIntent.ClientSecret,
@@ -219,7 +219,7 @@ namespace Store_API.Services
                 await _unitOfWork.UserAddress.AddAsync(new Models.Users.UserAddress
                 {
                     UserId = payment.UserId,
-                    ShippingAddress = JsonConvert.DeserializeObject<ShippingAdress>(shippingAdressJson),
+                    ShippingAddress = JsonConvert.DeserializeObject<ShippingAddress>(shippingAdressJson),
                 });
             }
 

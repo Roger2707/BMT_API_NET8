@@ -106,7 +106,7 @@ namespace Store_API.Repositories
                             ClientSecret = g.Key.ClientSecret,
                             GrandTotal = g.Key.GrandTotal,
 
-                            ShippingAdress = new ShippingAdress
+                            ShippingAdress = new ShippingAddress
                             {
                                 City = g.Key.City,
                                 District = g.Key.District,
@@ -243,7 +243,7 @@ namespace Store_API.Repositories
                             ClientSecret = g.Key.ClientSecret,
                             GrandTotal = g.Key.GrandTotal,
 
-                            ShippingAdress = new ShippingAdress
+                            ShippingAdress = new ShippingAddress
                             {
                                 City = g.Key.City,
                                 District = g.Key.District,

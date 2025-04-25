@@ -491,7 +491,7 @@ namespace Store_API.Services
                 await _unitOfWork.UserAddress.AddRangeAsync(model.UserAddresses.Select(e => new UserAddress
                 {
                     UserId = user.Id,
-                    ShippingAddress = new ShippingAdress
+                    ShippingAddress = new ShippingAddress
                     {
                         City = e.City,
                         District = e.District,
