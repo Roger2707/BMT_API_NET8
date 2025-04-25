@@ -47,25 +47,23 @@ namespace Store_API.Repositories
                                 , oi.Id as OrderItemId
                                 , oi.ProductDetailId
                                 , p.Name as ProductName
-                                , '' as ProductImageUrl
+                                , p.ImageUrl as ProductImageUrl
                                 , oi.Quantity
                                 , oi.SubTotal
 
-                                , u.Id as UserAddressId
-                                , u.City
-                                , u.District
-                                , u.Ward
-                                , u.PostalCode
-                                , u.StreetAddress
-                                , u.Country 
+                                , o.City
+                                , o.District
+                                , o.Ward
+                                , o.PostalCode
+                                , o.StreetAddress
+                                , o.Country 
 	
                             FROM Orders o
 
-                            LEFT JOIN OrderItems oi ON oi.OrderId = o.Id
-                            LEFT JOIN ProductDetails pd ON pd.Id = oi.ProductDetailId
-                            LEFT JOIN Products p ON p.Id = pd.ProductId
-                            LEFT JOIN UserAddresses u ON u.UserId = o.UserId 
-                            LEFT JOIN AspNetUsers au ON au.Id = u.UserId
+                            INNER JOIN OrderItems oi ON oi.OrderId = o.Id
+                            INNER JOIN ProductDetails pd ON pd.Id = oi.ProductDetailId
+                            INNER JOIN Products p ON p.Id = pd.ProductId
+                            INNER JOIN AspNetUsers au ON au.Id = u.UserId
 
                             WHERE o.Id = @Id
                            "
@@ -73,15 +71,29 @@ namespace Store_API.Repositories
 
             var result = await _dapperService.QueryAsync<OrderDapperRow>(query, new { Id = orderId });
             if (result.Count == 0) return null;
-            var orderGroup = 
+            var orderGroup =
                 result
-                    .GroupBy(o => new 
-                            { o.Id, o.UserId, o.FullName, o.Email, o.PhoneNumber, o.OrderDate
-                                , o.DeliveryFee, o.OrderStatus, o.GrandTotal, o.ClientSecret
-                                , o.UserAddressId, o.City, o.District, o.Ward, o.StreetAddress, o.PostalCode, o.Country 
-                            })
-                    .Select(g => 
-                        new OrderDTO 
+                    .GroupBy(o => new
+                    {
+                        o.Id,
+                        o.UserId,
+                        o.FullName,
+                        o.Email,
+                        o.PhoneNumber,
+                        o.OrderDate,
+                        o.DeliveryFee,
+                        o.OrderStatus,
+                        o.GrandTotal,
+                        o.ClientSecret,
+                        o.City,
+                        o.District,
+                        o.Ward,
+                        o.StreetAddress,
+                        o.PostalCode,
+                        o.Country
+                    })
+                    .Select(g =>
+                        new OrderDTO
                         {
                             Id = g.Key.Id,
                             UserId = g.Key.UserId,
@@ -94,9 +106,8 @@ namespace Store_API.Repositories
                             ClientSecret = g.Key.ClientSecret,
                             GrandTotal = g.Key.GrandTotal,
 
-                            UserAddress = new UserAddress
+                            ShippingAdress = new ShippingAdress
                             {
-                                Id = g.Key.UserAddressId,
                                 City = g.Key.City,
                                 District = g.Key.District,
                                 Ward = g.Key.Ward,
@@ -177,21 +188,19 @@ namespace Store_API.Repositories
                                 , oi.Quantity
                                 , oi.SubTotal
 
-                                , u.Id as UserAddressId
-                                , u.City
-                                , u.District
-                                , u.Ward
-                                , u.PostalCode
-                                , u.StreetAddress
-                                , u.Country 
+                                , o.City
+                                , o.District
+                                , o.Ward
+                                , o.PostalCode
+                                , o.StreetAddress
+                                , o.Country 
 	
                             FROM Orders o
 
-                            LEFT JOIN OrderItems oi ON oi.OrderId = o.Id
-                            LEFT JOIN ProductDetails pd ON pd.Id = oi.ProductDetailId
-                            LEFT JOIN Products p ON p.Id = pd.ProductId
-                            LEFT JOIN UserAddresses u ON u.UserId = o.UserId 
-                            LEFT JOIN AspNetUsers au ON au.Id = u.UserId
+                            INNER JOIN OrderItems oi ON oi.OrderId = o.Id
+                            INNER JOIN ProductDetails pd ON pd.Id = oi.ProductDetailId
+                            INNER JOIN Products p ON p.Id = pd.ProductId
+                            INNER JOIN AspNetUsers au ON au.Id = u.UserId
 
                             WHERE au.Id = @Id
                            "
@@ -208,14 +217,11 @@ namespace Store_API.Repositories
                         o.FullName,
                         o.Email,
                         o.PhoneNumber,
-                        o.OrderDate
-                                ,
+                        o.OrderDate,
                         o.DeliveryFee,
                         o.OrderStatus,
                         o.GrandTotal,
-                        o.ClientSecret
-                                ,
-                        o.UserAddressId,
+                        o.ClientSecret,
                         o.City,
                         o.District,
                         o.Ward,
@@ -237,9 +243,8 @@ namespace Store_API.Repositories
                             ClientSecret = g.Key.ClientSecret,
                             GrandTotal = g.Key.GrandTotal,
 
-                            UserAddress = new UserAddress
+                            ShippingAdress = new ShippingAdress
                             {
-                                Id = g.Key.UserAddressId,
                                 City = g.Key.City,
                                 District = g.Key.District,
                                 Ward = g.Key.Ward,

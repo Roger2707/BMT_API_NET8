@@ -90,7 +90,7 @@ namespace Store_API.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<int>(type: "int", nullable: false),
-                    UserAddressId = table.Column<int>(type: "int", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PaymentIntentId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Amount = table.Column<double>(type: "float", nullable: false),
@@ -272,18 +272,48 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ShippingAdress_City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAdress_District = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAdress_Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAdress_StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAdress_PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAdress_Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    DeliveryFee = table.Column<double>(type: "float", nullable: false),
+                    GrandTotal = table.Column<double>(type: "float", nullable: false),
+                    ClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserAddresses",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    City = table.Column<string>(type: "nvarchar(100)", nullable: true),
-                    District = table.Column<string>(type: "nvarchar(100)", nullable: true),
-                    Ward = table.Column<string>(type: "nvarchar(100)", nullable: true),
-                    StreetAddress = table.Column<string>(type: "nvarchar(100)", nullable: true),
-                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: false)
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    ShippingAddress_City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAddress_District = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAddress_Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAddress_StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAddress_PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ShippingAddress_Country = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -377,37 +407,6 @@ namespace Store_API.Migrations
                         principalTable: "Warehouses",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    UserAddressId = table.Column<int>(type: "int", nullable: false),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    DeliveryFee = table.Column<double>(type: "float", nullable: false),
-                    GrandTotal = table.Column<double>(type: "float", nullable: false),
-                    ClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Orders_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Orders_UserAddresses_UserAddressId",
-                        column: x => x.UserAddressId,
-                        principalTable: "UserAddresses",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -582,10 +581,10 @@ namespace Store_API.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "8d921130-5946-46fd-a087-c672d506563c", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEB1qhXCEQeTKiyelCfSd0vw9Xb8MMMfcya9GLgWNegFikffYvD2i+G9zAA5XhYRu2g==", null, false, null, "bf5f8778-38df-40d4-9e38-1cac48b35a35", false, "spadmin" },
-                    { 2, 0, "e758a2c3-c8ee-4e11-a317-d33390568be1", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEEpDSvoh7vufGm7yAiSO6aLJGHI1AQdsf6lBfpqg5KIkMuHZ7tZb+u3zwZqIpjkZOg==", null, false, null, "c0a0ce07-034e-4e3c-8bf1-411d7893e0dc", false, "admin1" },
-                    { 3, 0, "40301ee9-859b-4139-bc82-cea9e73c3590", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEMEVduNgGWOn3l5JLt4J36hY4d7se3KQFWh7jtdsD6AKkawq9Xei0wd1SA3bdQgRAA==", null, false, null, "d3e331f4-b768-450f-88be-c6bf38ce0b67", false, "admin2" },
-                    { 4, 0, "0ab54f37-da1e-4a2c-b9a4-9d735693592e", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEFWi1mREQxZ0IQ3rCaAu//WpPXwGyUBtxuCs6L57qVVSquxY5Ak0wVzHkBfIOpmcSA==", null, false, null, "823241ef-46e3-40bc-b10d-64890cefc314", false, "admin3" }
+                    { 1, 0, "633e8286-7e05-4760-9a5c-556ea50098c8", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEOUXdY8LEz30ylF7POk0DV2IWpbtRr0M0VRgvHbrNZMtDONgt4T+5G7Ohyda3Myz+w==", null, false, null, "b9a24ccc-a38c-493b-ba93-ec4f35f75eca", false, "spadmin" },
+                    { 2, 0, "de5c3274-e42e-4751-8bb0-466eee55ca54", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEHssOBwNNRP5cZ54umrA7elNsE8sBNuFqZE4y/Wjp0yQ+mD+CzFjoWdeKeW11rrNLQ==", null, false, null, "054211c2-f1d1-4289-93dd-d231f4b0782e", false, "admin1" },
+                    { 3, 0, "c1260f9e-94e3-4c9c-a6fb-acbdaaba267a", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEO1WuZ9pabQH6NDAQjOoq/cH3jq+2KrKe+yVjOYD+AnzezdvNQbJaCMB135y6Thhbg==", null, false, null, "1b75e123-4306-40df-915c-e0765849fe40", false, "admin2" },
+                    { 4, 0, "a9c9b78e-1fdf-46e4-b854-ccf687b95307", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEMaXlmO2uDfaAhcggFbdniLLI0FpNmHU6fgK0Z4CuS891lwHDsIgLRtA6IM8Tnh60g==", null, false, null, "a7daf7a3-6229-49ac-9d95-4e58db91eeda", false, "admin3" }
                 });
 
             migrationBuilder.InsertData(
@@ -663,11 +662,6 @@ namespace Store_API.Migrations
                 name: "IX_OrderItems_ProductDetailId",
                 table: "OrderItems",
                 column: "ProductDetailId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_UserAddressId",
-                table: "Orders",
-                column: "UserAddressId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_UserId",
@@ -783,6 +777,9 @@ namespace Store_API.Migrations
                 name: "StockTransactions");
 
             migrationBuilder.DropTable(
+                name: "UserAddresses");
+
+            migrationBuilder.DropTable(
                 name: "UserWarehouses");
 
             migrationBuilder.DropTable(
@@ -804,13 +801,10 @@ namespace Store_API.Migrations
                 name: "Warehouses");
 
             migrationBuilder.DropTable(
-                name: "UserAddresses");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Products");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Brands");

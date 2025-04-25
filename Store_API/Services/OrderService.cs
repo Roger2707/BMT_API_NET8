@@ -38,7 +38,7 @@ namespace Store_API.Services
                 Email = orderCreateRequest.Email,
                 OrderDate = DateTime.Now,
                 Status = OrderStatus.Pending,
-                UserAddressId = orderCreateRequest.UserAddressId,
+                ShippingAdress = orderCreateRequest.ShippingAdress,
                 Items = orderItems,
                 GrandTotal = orderCreateRequest.Amount,
                 DeliveryFee = orderCreateRequest.Amount > 1000000 ? 0 : 50000,

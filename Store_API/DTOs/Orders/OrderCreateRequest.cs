@@ -1,4 +1,5 @@
 ﻿using Store_API.DTOs.Baskets;
+using Store_API.Models.OrderAggregate;
 
 namespace Store_API.DTOs.Orders
 {
@@ -8,7 +9,7 @@ namespace Store_API.DTOs.Orders
         public int UserId { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
-        public int UserAddressId { get; set; }
+        public ShippingAdress ShippingAdress { get; set; }
         public BasketDTO BasketDTO { get; set; }
         public double Amount { get; set; }
         public string ClientSecret { get; set; }

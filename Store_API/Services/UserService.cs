@@ -9,6 +9,7 @@ using Store_API.DTOs.User;
 using Google.Apis.Auth;
 using Store_API.Models.Users;
 using Store_API.Enums;
+using Store_API.Models.OrderAggregate;
 
 namespace Store_API.Services
 {
@@ -480,8 +481,7 @@ namespace Store_API.Services
                     user.PublicId = model.ImageUrl.ToString();
                 }
                 
-                // Details
-                // Remove all -> Add again
+                // User Shipping Adress
                 var userAddresses = await _unitOfWork.UserAddress.GetAllAsync(e => e.UserId == user.Id);
                 if(userAddresses != null && userAddresses.Any())
                 {
@@ -491,12 +491,15 @@ namespace Store_API.Services
                 await _unitOfWork.UserAddress.AddRangeAsync(model.UserAddresses.Select(e => new UserAddress
                 {
                     UserId = user.Id,
-                    City = e.City,
-                    District = e.District,
-                    Ward = e.Ward,
-                    PostalCode = e.PostalCode,
-                    StreetAddress = e.StreetAddress,
-                    Country = e.Country,
+                    ShippingAddress = new ShippingAdress
+                    {
+                        City = e.City,
+                        District = e.District,
+                        Ward = e.Ward,
+                        PostalCode = e.PostalCode,
+                        StreetAddress = e.StreetAddress,
+                        Country = e.Country,
+                    }
                 }));
 
                 await _unitOfWork.SaveChangesAsync();

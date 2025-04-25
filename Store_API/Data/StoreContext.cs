@@ -148,13 +148,6 @@ namespace Store_API.Data
                 .HasForeignKey(o => o.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            // Order - Address (N-1)
-            builder.Entity<Order>()
-                .HasOne(o => o.UserAddress)
-                .WithMany()
-                .HasForeignKey(o => o.UserAddressId)
-                .OnDelete(DeleteBehavior.Restrict);
-
             // Config Relation Product (1 -> n) ProductDetail
             builder.Entity<Product>()
                 .HasMany(p => p.Details)

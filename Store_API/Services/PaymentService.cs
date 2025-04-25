@@ -8,6 +8,7 @@ using Store_API.Enums;
 using Store_API.Helpers;
 using Store_API.IService;
 using Store_API.Models;
+using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 using Store_API.SignalIR;
 using Stripe;
@@ -53,7 +54,7 @@ namespace Store_API.Services
 
         #region Payment Methods
 
-        public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, int userAddressId)
+        public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAdress shippingAddress, bool isSaveAddress)
         {
             await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
             try
@@ -78,15 +79,18 @@ namespace Store_API.Services
                 {
                     Amount = amountInCents,
                     Currency = "usd",
-                    //Metadata = new Dictionary<string, string>
-                    //{
-                    //    { "orderId", orderId.ToString() } 
-                    //},
 
                     // ## 3D Secure - use for SCA (Strong Customer Authentication)
                     AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
                     {
                         Enabled = true
+                    },
+
+                    // Shipping Adress
+                    Metadata = new Dictionary<string, string>
+                    {
+                        { "ShippingAdress", JsonConvert.SerializeObject(shippingAddress) },
+                        { "IsSaveAdress", isSaveAddress ? "yes" : "no" }
                     }
                 };
 
@@ -98,7 +102,6 @@ namespace Store_API.Services
                 var payment = new Payment
                 {
                     UserId = basket.UserId,
-                    UserAddressId = userAddressId,
                     PaymentIntentId = paymentIntent.Id,
                     Amount = grandTotal,
                     Status = PaymentStatus.Pending,
@@ -152,10 +155,10 @@ namespace Store_API.Services
         {
             var orderId = Guid.NewGuid();
             // 1. Handle Stripe webhook event
-            var intent = stripeEvent.Data.Object as PaymentIntent;
-            if (intent == null) return;
+            var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
+            if (paymentIntent == null) return;
 
-            var paymentMessage = new PaymentProcessingMessage { PaymentIntentId = intent.Id };
+            var paymentMessage = new PaymentProcessingMessage { PaymentIntentId = paymentIntent.Id };
             var messageBody = JsonConvert.SerializeObject(paymentMessage);
 
             // 2. Idempotency check
@@ -190,17 +193,18 @@ namespace Store_API.Services
                 orderItemText += $"{item.ProductDetailId} - {item.Quantity} pcs\n";
             }
 
-            // 5. Create Order 
+            // 5. Create Order
+            var shippingAdressJson = paymentIntent.Metadata["ShippingAdress"];
             var orderCreateRequest = new OrderCreateRequest
             {
                 OrderId = orderId,
                 UserId = payment.UserId,
                 Username = user.UserName,
                 Email = user.Email,
-                UserAddressId = payment.UserAddressId,
+                ShippingAdress = JsonConvert.DeserializeObject<ShippingAdress>(shippingAdressJson),
                 BasketDTO = basket,
                 Amount = payment.Amount,
-                ClientSecret = intent.ClientSecret,
+                ClientSecret = paymentIntent.ClientSecret,
             };
             await _orderService.Create(orderCreateRequest);
 
@@ -208,27 +212,38 @@ namespace Store_API.Services
             var items = basket.Items.Where(x => x.Status == true).ToList();
             await _basketService.RemoveRangeItems(user.UserName, payment.UserId, basket.Id);
 
-            // 5. Update Status Payment, Add OrderId
+            // 7. Check Save Address
+            var isSaveAddress = paymentIntent.Metadata["IsSaveAdress"] == "yes" ? true : false;
+            if(isSaveAddress)
+            {
+                await _unitOfWork.UserAddress.AddAsync(new Models.Users.UserAddress
+                {
+                    UserId = payment.UserId,
+                    ShippingAddress = JsonConvert.DeserializeObject<ShippingAdress>(shippingAdressJson),
+                });
+            }
+
+            // 8. Update Status Payment, Add OrderId
             payment.Status = PaymentStatus.Success;
             payment.OrderId = orderId;
 
-            // 6. Send Email
-            string content = $@"    
-                                    Thank you for shopping at ROGER STORE
-                                    Your ORDER ID: {orderId}
+            // 9. Send Email
+            string content = $@" 
+                                Thank you for shopping at ROGER STORE
+                                Your ORDER ID: {orderId}
 
-                                    {orderItemText}
+                                {orderItemText}
 
-                                    Hope you 'll have a good day. Thank you!
-                                                                [ROGER's Customer Service Team]                                       
+                                Hope you 'll have a good day. Thank you!
+                                                            [ROGER's Customer Service Team]                                       
                                 ";
 
-            await _emailSenderService.SendEmailAsync(user.Email, "[NEW] 🔥 Your Check out:", content);
+            await _emailSenderService.SendEmailAsync(user.Email, "[HOT] 🔥 ORDER SUCCESS:", content);
 
-            // 7.Notify client via SignalR
+            // 10.Notify client via SignalR
             await _hubContext
                 .Clients
-                .Group(intent.ClientSecret)
+                .Group(paymentIntent.ClientSecret)
                 .SendAsync("OrderCreated", new
                 {
                     OrderId = orderId,
