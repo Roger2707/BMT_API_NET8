@@ -54,7 +54,7 @@ namespace Store_API.Services
 
         #region Payment Methods
 
-        public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAddress shippingAddress, bool isSaveAddress)
+        public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAddressDTO shippingAddress)
         {
             await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
             try
@@ -90,7 +90,6 @@ namespace Store_API.Services
                     Metadata = new Dictionary<string, string>
                     {
                         { "ShippingAdress", JsonConvert.SerializeObject(shippingAddress) },
-                        { "IsSaveAdress", isSaveAddress ? "yes" : "no" }
                     }
                 };
 
@@ -194,14 +193,23 @@ namespace Store_API.Services
             }
 
             // 5. Create Order
-            var shippingAdressJson = paymentIntent.Metadata["ShippingAdress"];
+            var shippingAddressDTO = JsonConvert.DeserializeObject<ShippingAddressDTO>(paymentIntent.Metadata["ShippingAdress"]);
+            var shippingAddress = new ShippingAddress
+            {
+                City = shippingAddressDTO.City,
+                District = shippingAddressDTO.District,
+                Ward = shippingAddressDTO.Ward,
+                StreetAddress = shippingAddressDTO.StreetAddress,
+                PostalCode = shippingAddressDTO.PostalCode,
+                Country = shippingAddressDTO.Country,
+            };
             var orderCreateRequest = new OrderCreateRequest
             {
                 OrderId = orderId,
                 UserId = payment.UserId,
                 Username = user.UserName,
                 Email = user.Email,
-                ShippingAdress = JsonConvert.DeserializeObject<ShippingAddress>(shippingAdressJson),
+                ShippingAdress = shippingAddress,
                 BasketDTO = basket,
                 Amount = payment.Amount,
                 ClientSecret = paymentIntent.ClientSecret,
@@ -219,7 +227,7 @@ namespace Store_API.Services
                 await _unitOfWork.UserAddress.AddAsync(new Models.Users.UserAddress
                 {
                     UserId = payment.UserId,
-                    ShippingAddress = JsonConvert.DeserializeObject<ShippingAddress>(shippingAdressJson),
+                    ShippingAddress = shippingAddress,
                 });
             }
 

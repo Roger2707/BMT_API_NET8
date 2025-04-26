@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Store_API.DTOs.Orders;
 using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 using Stripe;
 using System.Security.Claims;
@@ -25,13 +25,13 @@ namespace Store_API.Controllers
         }
 
         [HttpPost("create-client-secret")]
-        public async Task<IActionResult> CreateClientSecret([FromBody] ShippingAddress shippingAddress, bool isSaveAddress)
+        public async Task<IActionResult> CreateClientSecret([FromBody] ShippingAddressDTO shippingAddressDTO)
         {
             try
             {
                 var basketDTO = await _basketService.GetBasketDTO(CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier)), User.Identity.Name);
                 if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
-                var paymentIntent = await _paymentService.CreatePaymentIntentAsync(basketDTO, shippingAddress, isSaveAddress);
+                var paymentIntent = await _paymentService.CreatePaymentIntentAsync(basketDTO, shippingAddressDTO);
 
                 return Ok(new {ClientSecret = paymentIntent.ClientSecret });
             }
