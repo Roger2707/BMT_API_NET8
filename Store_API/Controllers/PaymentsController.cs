@@ -33,7 +33,7 @@ namespace Store_API.Controllers
                 if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
                 var paymentIntent = await _paymentService.CreatePaymentIntentAsync(basketDTO, shippingAddressDTO);
 
-                return Ok(new {ClientSecret = paymentIntent.ClientSecret });
+                return Ok(new { ClientSecret = paymentIntent.ClientSecret });
             }
             catch (Exception ex)
             {
