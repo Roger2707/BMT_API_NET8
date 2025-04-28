@@ -43,7 +43,7 @@ namespace Store_API.Services
                 UserId = orderCreateRequest.UserId,
                 Email = orderCreateRequest.Email,
                 OrderDate = DateTime.Now,
-                Status = OrderStatus.Pending,
+                Status = OrderStatus.Paid,
                 ShippingAddress = orderCreateRequest.ShippingAdress,
                 Items = orderItems,
                 GrandTotal = orderCreateRequest.Amount,

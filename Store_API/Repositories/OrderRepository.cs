@@ -37,7 +37,7 @@ namespace Store_API.Repositories
                                 , au.PhoneNumber
 
                                 , o.OrderDate
-                                , IIF(o.Status = 0, 'Pending', IIF(o.Status = 1, 'Shipping', IIF(o.Status = 2, 'Completed', IIF(o.Status = 3, 'Cancelled', 'Refunded')))) as OrderStatus
+                                , IIF(o.Status = 0, 'Paid', IIF(o.Status = 1, 'Cancelled', 'Refunded')) as OrderStatus
                                 , o.DeliveryFee
                                 , o.GrandTotal
 	                            , o.ClientSecret

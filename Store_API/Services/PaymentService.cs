@@ -22,6 +22,7 @@ namespace Store_API.Services
         private readonly IStockService _stockService;
         private readonly IBasketService _basketService;
         private readonly IOrderService _orderService;
+        private readonly IShippingOrderService _shippingOrderService;
 
         private readonly string _apiKey;
         private readonly IConfiguration _configuration;
@@ -33,7 +34,7 @@ namespace Store_API.Services
         (   IUnitOfWork unitOfWork, IStockService stockService
             , IConfiguration configuration, EmailSenderService emailSenderService
             , IHubContext<OrderStatusHub> hubContext, IUserService userService, IBasketService basketService
-            , IOrderService orderService
+            , IOrderService orderService, IShippingOrderService shippingOrderService
         )
         {
             _unitOfWork = unitOfWork;
@@ -43,6 +44,7 @@ namespace Store_API.Services
             _userService = userService;
             _basketService = basketService;
             _orderService = orderService;
+            _shippingOrderService = shippingOrderService;
 
             _hubContext = hubContext;
             _apiKey = _configuration["Stripe:SecretKey"];
@@ -209,6 +211,7 @@ namespace Store_API.Services
                 UserId = payment.UserId,
                 Username = user.UserName,
                 Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
                 ShippingAdress = shippingAddress,
                 BasketDTO = basket,
                 Amount = payment.Amount,
@@ -255,8 +258,11 @@ namespace Store_API.Services
                 .SendAsync("OrderCreated", new
                 {
                     OrderId = orderId,
-                    Status = OrderStatus.Pending,
+                    Status = OrderStatus.Paid,
                 });
+
+            // 11. Automatic Call Shipping Order
+            var shippingOrderCode = await _shippingOrderService.CreateShippingOrder(orderCreateRequest, orderItemText);
         }
 
         private async Task HandlePaymentIntentFailed(Event stripeEvent)

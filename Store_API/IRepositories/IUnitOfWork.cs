@@ -25,5 +25,6 @@ namespace Store_API.Repositories
         public IStockRepository Stock { get; }
         public IStockTransactionRepository StockTransaction { get; }
         public IUserWarehouseRepository UserWarehouse { get; }
+        public IShippingOrderRepository ShippingOrder { get; }
     }
 }

@@ -34,6 +34,7 @@ namespace Store_API.Data
         public DbSet<StockTransaction> StockTransactions { get; set; }
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<UserWarehouse> UserWarehouses { get; set; }
+        public DbSet<ShippingOrder> ShippingOrders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

@@ -1,5 +1,4 @@
-﻿using Store_API.IRepositories;
-using Store_API.IService;
+﻿using Store_API.IService;
 using Store_API.Repositories;
 using Store_API.Services;
 
@@ -27,6 +26,7 @@ namespace Store_API.Extensions
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IRatingService, RatingService>();
+            services.AddScoped<IShippingOrderService, ShippingOrderService>();
 
             // Others
             services.AddHttpClient();
