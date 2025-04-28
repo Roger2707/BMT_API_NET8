@@ -238,7 +238,10 @@ namespace Store_API.Services
             payment.Status = PaymentStatus.Success;
             payment.OrderId = orderId;
 
-            // 9. Send Email
+            // 9. Automatic Call Shipping Order
+            var shippingOrderCode = await _shippingOrderService.CreateShippingOrder(orderCreateRequest, orderItemText);
+
+            // 10. Send Email
             string content = $@" 
                                 Thank you for shopping at ROGER STORE
                                 Your ORDER ID: {orderId}
@@ -251,7 +254,7 @@ namespace Store_API.Services
 
             await _emailSenderService.SendEmailAsync(user.Email, "[HOT] 🔥 ORDER SUCCESS:", content);
 
-            // 10.Notify client via SignalR
+            // 11.Notify client via SignalR
             await _hubContext
                 .Clients
                 .Group(paymentIntent.ClientSecret)
@@ -260,9 +263,6 @@ namespace Store_API.Services
                     OrderId = orderId,
                     Status = OrderStatus.Paid,
                 });
-
-            // 11. Automatic Call Shipping Order
-            var shippingOrderCode = await _shippingOrderService.CreateShippingOrder(orderCreateRequest, orderItemText);
         }
 
         private async Task HandlePaymentIntentFailed(Event stripeEvent)
