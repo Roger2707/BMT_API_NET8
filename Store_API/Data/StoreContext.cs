@@ -5,7 +5,6 @@ using Store_API.Models;
 using Store_API.Models.Inventory;
 using Store_API.Models.OrderAggregate;
 using Store_API.Models.Users;
-using System.Reflection.Emit;
 
 namespace Store_API.Data
 {
@@ -182,6 +181,19 @@ namespace Store_API.Data
                     sa.Property(p => p.Country).HasColumnName("Country");
                 })
                 .Navigation(x => x.ShippingAddress)
+                .IsRequired();
+
+            // Config Order Item Owned ProductOrderItem
+            builder.Entity<OrderItem>()
+                .OwnsOne(o => o.ProductOrderItem, sa =>
+                {
+                    sa.WithOwner();
+                    sa.Property(p => p.ProductDetailId).HasColumnName("ProductDetailId");
+                    sa.Property(p => p.ProductName).HasColumnName("ProductName");
+                    sa.Property(p => p.ProductImageUrl).HasColumnName("ProductImageUrl");
+                    sa.Property(p => p.ProductPrice).HasColumnName("ProductPrice");
+                })
+                .Navigation(x => x.ProductOrderItem)
                 .IsRequired();
 
             // Config UserAddress Owned ShippingAddress

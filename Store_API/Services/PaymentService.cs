@@ -221,7 +221,7 @@ namespace Store_API.Services
             await _basketService.RemoveRangeItems(user.UserName, payment.UserId, basket.Id);
 
             // 7. Check Save Address
-            var isSaveAddress = paymentIntent.Metadata["IsSaveAdress"] == "yes" ? true : false;
+            var isSaveAddress = shippingAddressDTO.IsSaveAddress;
             if(isSaveAddress)
             {
                 await _unitOfWork.UserAddress.AddAsync(new Models.Users.UserAddress

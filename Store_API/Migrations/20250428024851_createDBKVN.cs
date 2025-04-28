@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Store_API.Migrations
 {
     /// <inheritdoc />
-    public partial class createNewDB : Migration
+    public partial class createDBKVN : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -410,6 +410,31 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "OrderItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProductImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProductPrice = table.Column<double>(type: "float", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    SubTotal = table.Column<double>(type: "float", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ProductDetails",
                 columns: table => new
                 {
@@ -477,34 +502,6 @@ namespace Store_API.Migrations
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_BasketItems_ProductDetails_ProductDetailId",
-                        column: x => x.ProductDetailId,
-                        principalTable: "ProductDetails",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "OrderItems",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    OrderId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Quantity = table.Column<int>(type: "int", nullable: false),
-                    SubTotal = table.Column<double>(type: "float", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_OrderItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrderItems_Orders_OrderId",
-                        column: x => x.OrderId,
-                        principalTable: "Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_OrderItems_ProductDetails_ProductDetailId",
                         column: x => x.ProductDetailId,
                         principalTable: "ProductDetails",
                         principalColumn: "Id",
@@ -581,10 +578,10 @@ namespace Store_API.Migrations
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
                 values: new object[,]
                 {
-                    { 1, 0, "3db8e6a6-3132-429e-9dde-476bb94ba4de", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEAQfkk7KIInBjjK0eUOlTAdENqXzdhkm8qmMFhmfDpXELJRfiA4JSZuGNNIpzjzctA==", null, false, null, "12bb631d-6fee-481a-bb29-c302818102d4", false, "spadmin" },
-                    { 2, 0, "225f692f-21c6-41ea-9fd2-57b77e26faa5", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEFBWuHrx8pfMjoyf9bIIq4Emyuesgd4hD3SPKCIP7DMG+JHLkcJ2Y9hNr0eKizSL3A==", null, false, null, "2b561a3d-dbd6-49f5-ab91-8eaa05a2c20d", false, "admin1" },
-                    { 3, 0, "1d99855c-535c-48b6-ba58-728e9a49387a", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAENyXaWLHGosQQVYwXfn0fPyWEUHP3UO1uDtKQIx0b8svvBTxPCTqMhzZCI2LaiIsbg==", null, false, null, "782b02c8-bd5a-4cc3-9a6a-2b5628339a40", false, "admin2" },
-                    { 4, 0, "a60e5788-8d69-45c5-adae-1f2408bf4b87", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEGx9czhPC4FGPNivlLdCHdL8ywed1Ct6LPAb246MVwy9QqCa7XNOK12K50bROBZtsw==", null, false, null, "13c02c5b-c93b-4d05-8843-2b7bb2f6f76c", false, "admin3" }
+                    { 1, 0, "38c51ac4-27b7-4cca-93c8-b2f2f2933a1b", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEO3hAL2Uf+SRIjvxBGUyBl4O65gIevlhlhw7JS1rItG1m3IOLy/n1cgyJ23IOISwwg==", null, false, null, "1c7d8b7b-4591-4ed4-a444-eb1131757e45", false, "spadmin" },
+                    { 2, 0, "62821565-3d55-4080-ada9-24cb3ef86fbd", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAENKPmwPK56G6q3Bfc9p//lma3mtjKRzvZDCqK4XpL2kdkVJaAPdrKSeu0sjwmLaBaw==", null, false, null, "601485fc-b066-43f8-b30f-400ce5a6e963", false, "admin1" },
+                    { 3, 0, "76a2a047-23de-4cfd-8104-2b2dc1b7aa41", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAEAsuTj/EOyluAxWR2/cxD5D0PvcHIx3IYlPvI3vyfpqGystF+2bWpjT0pdoZCcGB8A==", null, false, null, "1cf0887a-9b73-4822-87f9-04fb6bab32e8", false, "admin2" },
+                    { 4, 0, "8c051ff8-af5d-4410-bb96-e8e629b241e9", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEPRE73VtqJXcMtpYRvK/z6/qvr+9AN3biMGXtWzwPpex3u3T6blhhKcqdxuDjVAZvQ==", null, false, null, "89f7f96c-14b1-4b65-aae0-292384df688b", false, "admin3" }
                 });
 
             migrationBuilder.InsertData(
@@ -657,11 +654,6 @@ namespace Store_API.Migrations
                 name: "IX_OrderItems_OrderId",
                 table: "OrderItems",
                 column: "OrderId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderItems_ProductDetailId",
-                table: "OrderItems",
-                column: "ProductDetailId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_UserId",

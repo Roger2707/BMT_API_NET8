@@ -24,7 +24,13 @@ namespace Store_API.Services
                 .Select(i =>
                         new OrderItem
                         {
-                            ProductDetailId = i.ProductDetailId,
+                            ProductOrderItem = new ProductOrderItem
+                            {
+                                ProductDetailId = i.ProductDetailId,
+                                ProductName = i.ProductName,
+                                ProductImageUrl = i.ProductFirstImage,
+                                ProductPrice = i.DiscountPrice,
+                            },
                             Quantity = i.Quantity,
                             SubTotal = i.DiscountPrice * i.Quantity,
                         })
@@ -51,18 +57,6 @@ namespace Store_API.Services
         #endregion
 
         #region Retrieve 
-
-        public async Task<OrderDTO> GetOrder(Guid orderId)
-        {
-            var orderDTO = await _unitOfWork.Order.GetOrder(orderId);
-            return orderDTO;
-        }
-
-        public async Task<IEnumerable<OrderItemDapperRow>> GetOrder(string clientSecret)
-        {
-            var orderDTO = await _unitOfWork.Order.GetOrder(clientSecret);
-            return orderDTO;
-        }
 
         public async Task<IEnumerable<OrderDTO>> GetOrders(int userId)
         {

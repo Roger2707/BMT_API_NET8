@@ -32,22 +32,4 @@
         // Grand Total
         public double GrandTotal { get; set; }
     }
-
-    public class OrderItemDapperRow
-    {
-        public Guid Id { get; set; }
-        public DateTime OrderDate { get; set; }
-        public string OrderStatus { get; set; }
-        public double DeliveryFee { get; set; }
-        public string ClientSecret { get; set; }
-
-        public int OrderItemId { get; set; }
-        public Guid ProductDetailId { get; set; }
-        public string ProductName { get; set; }
-        public string ProductImageUrl { get; set; }
-        public int Quantity { get; set; }
-        public double SubTotal { get; set; }
-
-        public double GrandTotal { get; set; }
-    }
 }
