@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Store_API.DTOs.Products
+﻿namespace Store_API.DTOs.Products
 {
     public class ProductParams
     {

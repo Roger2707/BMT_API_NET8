@@ -16,10 +16,10 @@ namespace Store_API.Services
 
         #region Retrieve Data
 
-        public async Task<Pagination<ProductDTO>> GetPageProductDTOs(ProductParams productParams)
+        public async Task<Pagination<ProductDetailDisplayDTO>> GetPageProductDTOs(ProductParams productParams)
         {
             var products = await _unitOfWork.Product.GetProducts(productParams);
-            var result = Pagination<ProductDTO>.GetPaginationData(products, _unitOfWork.Product.TotalRow, productParams.CurrentPage, _unitOfWork.Product.PageSize);
+            var result = Pagination<ProductDetailDisplayDTO>.GetPaginationData(products, _unitOfWork.Product.TotalRow, productParams.CurrentPage, _unitOfWork.Product.PageSize);
             return result;
         }
 

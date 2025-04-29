@@ -17,88 +17,63 @@ namespace Store_API.Repositories
         }
 
         #region Retrieve Data
-        public async Task<List<ProductDTO>> GetProducts(ProductParams productParams)
+        public async Task<List<ProductDetailDisplayDTO>> GetProducts(ProductParams productParams)
         {
             string query = @" 
-                WITH ProductFiltered AS (
-                    SELECT 
-                        product.Id
-                        , product.Name
-                        , product.Description
-                        , product.ImageUrl
-                        , product.PublicId
-                        , product.CategoryId
-                        , product.BrandId
-                        , product.Created
-                        , category.Name as CategoryName
-                        , brand.Name as BrandName
-                        , brand.Country as BrandCountry
-                        , ROW_NUMBER() OVER (ORDER BY product.Id) AS RowNum
-                    FROM Products product
-                    INNER JOIN Categories category ON category.Id = product.CategoryId
-                    INNER JOIN Brands brand ON brand.Id = product.BrandId
-                    WHERE 1 = 1 -- conditions
-                )
-                SELECT 
-                    filtered.*
-                    , detail.Id as DetailId
-                    , detail.Price
-                    , detail.Color
-                    , detail.ExtraName
-                    , detail.Status
-                    , IIF(promotion.PercentageDiscount IS NULL, detail.Price, detail.Price - (detail.Price * promotion.PercentageDiscount / 100.0)) as DiscountPrice
-                    , (SELECT COUNT(1) AS TotalRow FROM ProductFiltered) as TotalRow
-                    , ISNULL((SELECT AVG(Star) as Star FROM Ratings WHERE ProductId = filtered.Id), 0) as Stars
+                              WITH ProductFiltered AS
+                            (
+                                SELECT 
+                                    product.Id as ProductId
+                                    , detail.Id as ProductDetailId
+                                    , product.Name as ProductName
+                                    , detail.Color
+                                    , detail.Price
+                                    , ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent
+                                    , IIF(promotion.PercentageDiscount is NULL
+                                        , detail.Price
+                                        , detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) 
+                                    as DiscountPrice
+                                    , ImageUrl
+                                    , product.CategoryId
+		                            , category.Name as CategoryName
+                                    , product.BrandId
+		                            , brand.Name as BrandName
+		                            , brand.Country as BrandCountry
+		                            , product.Created
+                                    , ISNULL((SELECT AVG(Star) as Star FROM Ratings WHERE ProductDetailId = detail.Id), 0) as Stars
+                                    , ROW_NUMBER() OVER(ORDER BY product.Name) as RowNum
 
-                FROM ProductFiltered filtered
-                INNER JOIN ProductDetails detail ON detail.ProductId = filtered.Id
-                LEFT JOIN Promotions promotion 
-                    ON promotion.CategoryId = filtered.CategoryId
-                    AND promotion.BrandId = filtered.BrandId
-                    AND promotion.EndDate >= GETDATE()
+                                FROM Products as product
 
-                WHERE detail.Status = 1 AND filtered.RowNum BETWEEN (@PageNumber - 1) * @PageSize + 1 AND @PageNumber * @PageSize
-                -- orderBy
+                                INNER JOIN ProductDetails as detail ON detail.ProductId = product.Id
+	                            INNER JOIN Categories category ON category.Id = product.CategoryId
+	                            INNER JOIN Brands brand ON brand.Id = product.BrandId
+                                LEFT JOIN Promotions as promotion 
+                                    ON product.CategoryId = promotion.CategoryId 
+                                        AND product.BrandId = promotion.BrandId 
+                                        AND promotion.EndDate >= GETDATE()
+
+                                WHERE detail.Status = 1 
+                                -- conditions
+                            )
+
+                            SELECT 
+                                filtered.*
+                                , (SELECT COUNT(1) FROM ProductFiltered) as TotalRow
+                            FROM ProductFiltered filtered
+                            WHERE filtered.RowNum BETWEEN (@PageNumber - 1) * @PageSize + 1 AND @PageNumber * @PageSize
+                            -- orderBy
                     ";
 
             string where = GetConditionString(productParams);
             string orderBy = GetOrderByString(productParams.OrderBy);
             query = query.Replace("-- conditions", where);
             query = query.Replace("-- orderBy", orderBy);
-            var result = await _dapperService.QueryAsync<ProductDapperRow>(query, new { PageSize = PageSize, PageNumber = productParams.CurrentPage });
+            var result = await _dapperService.QueryAsync<ProductDetailDisplayDTO>(query, new { PageSize = PageSize, PageNumber = productParams.CurrentPage });
 
-            if (result.Count == 0) return null;
-
-            var products = result
-                .GroupBy(g => new { g.Id, g.Name, g.Description, g.ImageUrl, g.Created, g.CategoryId, g.CategoryName, g.BrandId, g.BrandName, g.BrandCountry, g.TotalRow, g.Stars })
-                .Select(s => new ProductDTO
-                {
-                    Id = s.Key.Id,
-                    Name = s.Key.Name,
-                    Description = s.Key.Description,
-                    ImageUrl = s.Key.ImageUrl,
-                    Created = s.Key.Created,
-                    CategoryId = s.Key.CategoryId,
-                    CategoryName = s.Key.CategoryName,
-                    BrandId = s.Key.BrandId,
-                    BrandName = s.Key.BrandName,
-                    BrandCountry = s.Key.BrandCountry,
-                    Stars = s.Key.Stars,
-                    Details = s.Select(d => new ProductDetailDTO
-                    {
-                        Id = d.DetailId,
-                        ProductId = s.Key.Id,
-                        Color = d.Color,
-                        Price = CF.GetDouble(d.Price),
-                        DiscountPrice = CF.GetDouble(d.DiscountPrice),
-                        Status = CF.GetInt(d.Status) == 1 ? "Active" : "Non - Active",
-                        ExtraName = d.ExtraName
-                    }).ToList()
-
-                })
-                .ToList();
+            if (result.Count == 0) return null;    
             TotalRow = CF.GetInt(result[0].TotalRow);
-            return products;
+            return result;
         }
 
         public async Task<ProductDTO> GetProductDTO(Guid id)
@@ -303,10 +278,10 @@ namespace Store_API.Repositories
             {
                 case "":
                 case null:
-                    orderBy = " ORDER BY Name ";
+                    orderBy = " ORDER BY ProductName ";
                     break;
                 case "nameDesc":
-                    orderBy = " ORDER BY Name DESC ";
+                    orderBy = " ORDER BY ProductName DESC ";
                     break;
                 case "priceAsc":
                     orderBy = " ORDER BY Price ASC ";

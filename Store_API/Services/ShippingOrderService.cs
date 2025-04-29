@@ -66,16 +66,14 @@ namespace Store_API.Services
 
             _http.DefaultRequestHeaders.Clear();
             _http.DefaultRequestHeaders.Add("Token", ghnToken);
-            _http.DefaultRequestHeaders.Add("ShopId", shopId);
+            _http.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/json");
 
-            //
-            var jsonData = JsonConvert.SerializeObject(request);
-            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            var response = await _http.PostAsJsonAsync(apiUrl, content);
+
+            var response = await _http.PostAsJsonAsync(apiUrl, request);
             if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
-                throw new InvalidOperationException($"GHN API error: {response.StatusCode}, {errorContent}");
+                throw new HttpRequestException($"GHN API error: {response.StatusCode}, {errorContent}");
             }
 
             var data = await response.Content.ReadFromJsonAsync<dynamic>();

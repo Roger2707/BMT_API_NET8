@@ -7,7 +7,7 @@ namespace Store_API.Repositories
     {
         public int TotalRow { get; set; }
         public int PageSize { get; set; }
-        Task<List<ProductDTO>> GetProducts(ProductParams productParams);
+        Task<List<ProductDetailDisplayDTO>> GetProducts(ProductParams productParams);
         Task<ProductDTO> GetProductDTO(Guid id);
         Task<IEnumerable<ProductSingleDetailDTO>> GetProductDetails(ProductSearch search);
         Task<ProductSingleDetailDTO> GetProductSingleDetail(Guid productDetailId);
