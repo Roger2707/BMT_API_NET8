@@ -239,7 +239,7 @@ namespace Store_API.Services
             payment.OrderId = orderId;
 
             // 9. Automatic Call Shipping Order
-            var shippingOrderCode = await _shippingOrderService.CreateShippingOrder(orderCreateRequest, orderItemText);
+            //var shippingOrderCode = await _shippingOrderService.CreateShippingOrder(orderCreateRequest, orderItemText);
 
             // 10. Send Email
             string content = $@" 

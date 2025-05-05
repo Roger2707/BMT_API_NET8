@@ -58,7 +58,8 @@ namespace Store_API.Data
                     Email = "spadmin@example.com",
                     NormalizedEmail = "SPADMIN@EXAMPLE.COM",
                     EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString()
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    Provider = "System",
                 },
                 new User
                 {
@@ -69,7 +70,8 @@ namespace Store_API.Data
                     Email = "admin1@example.com",
                     NormalizedEmail = "ADMIN1@EXAMPLE.COM",
                     EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString()
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    Provider = "System",
                 },
                 new User
                 {
@@ -80,7 +82,8 @@ namespace Store_API.Data
                     Email = "admin2@example.com",
                     NormalizedEmail = "ADMIN2@EXAMPLE.COM",
                     EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString()
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    Provider = "System",
                 },
                 new User
                 {
@@ -91,7 +94,8 @@ namespace Store_API.Data
                     Email = "admi3n@example.com",
                     NormalizedEmail = "ADMIN3@EXAMPLE.COM",
                     EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString()
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    Provider = "System",
                 }
             };
 

@@ -101,6 +101,7 @@ namespace Store_API.Services
                                     , PhoneNumber
                                     , ImageUrl
                                     , u.PublicId
+                                    , u.Provider
                                     , ISNULL(b.Id, NULL) as BasketId
                                     , ua.Id as AddressId
                                     , ua.City
@@ -120,7 +121,7 @@ namespace Store_API.Services
 
             var token = await _tokenService.GenerateToken(new User { Id = user[0].Id, Email = user[0].Email, UserName = user[0].UserName });
             var userDTO = user
-                .GroupBy(g => new { g.Id, g.UserName, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PublicId, g.PhoneNumber, g.BasketId})
+                .GroupBy(g => new { g.Id, g.UserName, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PublicId, g.PhoneNumber, g.BasketId, g.Provider})
                 .Select(u => new UserDTO
                 {
                     Id = u.Key.Id,
@@ -132,6 +133,7 @@ namespace Store_API.Services
                     PublicId = u.Key.PublicId,
                     PhoneNumber = u.Key.PhoneNumber,
                     BasketId = u.Key.BasketId,
+                    Provider = u.Key.Provider,
                     Token = token,
                     UserAddresses = u.Select(a => new UserAddressDTO
                     {
@@ -161,6 +163,7 @@ namespace Store_API.Services
                                     , PhoneNumber
                                     , ImageUrl
                                     , u.PublicId
+                                    , u.Provider
                                     , ISNULL(b.Id, NULL) as BasketId
                                     , ua.Id as AddressId
                                     , ua.City
@@ -180,7 +183,7 @@ namespace Store_API.Services
 
             var token = await _tokenService.GenerateToken(new User { Id = user[0].Id, Email = user[0].Email, UserName = user[0].UserName });
             var userDTO = user
-                .GroupBy(g => new { g.Id, g.UserName, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PublicId, g.PhoneNumber, g.BasketId })
+                .GroupBy(g => new { g.Id, g.UserName, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PublicId, g.PhoneNumber, g.BasketId, g.Provider })
                 .Select(u => new UserDTO
                 {
                     Id = u.Key.Id,
@@ -191,6 +194,7 @@ namespace Store_API.Services
                     Dob = u.Key.Dob,
                     PublicId = u.Key.PublicId,
                     PhoneNumber = u.Key.PhoneNumber,
+                    Provider = u.Key.Provider,
                     BasketId = u.Key.BasketId,
                     Token = token,
                     UserAddresses = u.Select(a => new UserAddressDTO
@@ -230,6 +234,7 @@ namespace Store_API.Services
                 UserName = request.Username,
                 PhoneNumber = request.PhoneNumber,
                 PasswordHash = password,
+                Provider = "System",
             };
 
             var result = await _userManager.CreateAsync(user, password);
@@ -299,7 +304,7 @@ namespace Store_API.Services
                 var email = info.Principal.FindFirstValue(ClaimTypes.Email);
                 var fullName = info.Principal.FindFirstValue(ClaimTypes.Name);
 
-                var user = new User { UserName = email, Email = email, FullName = fullName };
+                var user = new User { UserName = email, Email = email, FullName = fullName, Provider = "Google" };
 
                 var createResult = await _userManager.CreateAsync(user);
 

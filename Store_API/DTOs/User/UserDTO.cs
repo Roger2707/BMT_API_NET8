@@ -14,6 +14,7 @@ namespace Store_API.DTOs.Accounts
         public string? ImageUrl { get; set; }
         public string? PublicId { get; set; }
         public string RoleName { get; set; }
+        public string Provider { get; set; }
         public Guid BasketId { get; set; }
         public IEnumerable<UserAddressDTO>? UserAddresses { get; set; }
     }
