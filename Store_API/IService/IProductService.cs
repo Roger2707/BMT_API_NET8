@@ -6,6 +6,7 @@ namespace Store_API.IService
     public interface IProductService
     {
         Task<Pagination<ProductDetailDisplayDTO>> GetPageProductDTOs(ProductParams productParams);
+        Task<List<ProductDetailDisplayDTO>> GetProductsBestSeller();
         Task<ProductDTO> GetProductDTO(Guid productId);
         Task<IEnumerable<ProductSingleDetailDTO>> GetProductSingleDetails(ProductSearch search);
         Task<ProductSingleDetailDTO> GetProductSingleDetail(Guid productDetailId);

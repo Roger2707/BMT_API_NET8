@@ -43,6 +43,12 @@ namespace Store_API.Services
             return result;
         }
 
+        public async Task<List<ProductDetailDisplayDTO>> GetProductsBestSeller()
+        {
+            var bestSellers = await _unitOfWork.Product.GetProductsBestSeller();
+            return bestSellers;
+        }
+
         #endregion
 
         #region CRUD Operations
@@ -87,7 +93,6 @@ namespace Store_API.Services
                 await _unitOfWork.RollbackAsync();
                 throw;
             }
-            return Guid.Empty;
         }
 
         public async Task<Guid> UpdateProduct(ProductUpsertDTO model)

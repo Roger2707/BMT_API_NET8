@@ -85,6 +85,46 @@ namespace Store_API.Repositories
             return result;
         }
 
+        public async Task<List<ProductDetailDisplayDTO>> GetProductsBestSeller()
+        {
+            string query = @" 
+                            SELECT TOP 3
+                                product.Id as ProductId,
+                                detail.Id as ProductDetailId,
+                                product.Name as ProductName,
+                                detail.Color,
+                                detail.Price,
+                                ISNULL(promotion.PercentageDiscount, 0) as DiscountPercent,
+                                IIF(promotion.PercentageDiscount is NULL,
+                                    detail.Price,
+                                    detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) as DiscountPrice,
+                                ImageUrl,
+                                product.CategoryId,
+                                category.Name as CategoryName,
+                                product.BrandId,
+                                brand.Name as BrandName,
+                                brand.Country as BrandCountry,
+                                product.Created,
+                                ISNULL((SELECT AVG(Star) FROM Ratings WHERE ProductDetailId = detail.Id), 0) as Stars,
+                                ROW_NUMBER() OVER (PARTITION BY product.Id ORDER BY detail.Price DESC) as rn
+                            FROM Products AS product
+                            INNER JOIN ProductDetails AS detail ON detail.ProductId = product.Id
+                            INNER JOIN Categories category ON category.Id = product.CategoryId
+                            INNER JOIN Brands brand ON brand.Id = product.BrandId
+                            LEFT JOIN Promotions AS promotion 
+                                ON product.CategoryId = promotion.CategoryId 
+                                AND product.BrandId = promotion.BrandId 
+                                AND promotion.EndDate >= GETDATE()
+                            WHERE detail.Status = 1 
+                            ORDER BY Stars DESC
+                    ";
+
+            var result = await _dapperService.QueryAsync<ProductDetailDisplayDTO>(query);
+            if (result.Count == 0) return null;
+            TotalRow = CF.GetInt(result[0].TotalRow);
+            return result;
+        }
+
         public async Task<ProductDTO> GetProductDTO(Guid id)
         {
             string query = @" 

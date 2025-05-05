@@ -30,6 +30,20 @@ namespace Store_API.Controllers
             }
         }
 
+        [HttpGet("get-products-best-seller")]
+        public async Task<IActionResult> GetProductsBestSeller()
+        {
+            try
+            {
+                var result = await _productService.GetProductsBestSeller();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ProblemDetails { Title = ex.Message });
+            }
+        }
+
         [HttpGet("get-product-dto", Name = "get-product-detail-dto")]
         public async Task<IActionResult> GetProductDTO([FromQuery] Guid id)
         {
