@@ -4,7 +4,7 @@ using Store_API.IService;
 using Store_API.Repositories;
 using System.Security.Claims;
 
-namespace Store_API.Authorization
+namespace Store_API.AuthorizationsHandler
 {
     public class WarehouseAccessHandler : AuthorizationHandler<WarehouseAccessRequirement>
     {

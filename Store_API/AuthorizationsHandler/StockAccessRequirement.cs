@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 
-namespace Store_API.Authorization
+namespace Store_API.AuthorizationsHandler
 {
     public class StockAccessRequirement : IAuthorizationRequirement
     {

@@ -90,7 +90,6 @@ builder.Services.Configure<DataProtectionTokenProviderOptions>(options => {
 });
 
 builder.Services
-    //.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddAuthentication(options =>
     {
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -126,35 +125,6 @@ builder.Services.AddHostedService<BasketBackgroundService>();
 #endregion 
 
 #region Connect Redis 
-
-//var sshConfig = new SshConfig
-//{
-//    SshHost = "ec2-47-129-101-54.ap-southeast-1.compute.amazonaws.com",
-//    SshPort = 22,
-//    SshUsername = "ec2-user",
-//    SshKeyFile = @"A:\Personal\EConmmercial\jump-ssh-keypair.pem",
-//    LocalPort = 6379,
-//    RemoteHost = "master.redisvalkeynoncluster.ohpidg.apse1.cache.amazonaws.com",
-//    RemotePort = 6379
-//};
-
-//builder.Services.AddSingleton(sshConfig);
-//builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
-//{
-//    var sshManager = new SshTunnelManager(sp.GetRequiredService<SshConfig>());
-//    sshManager.StartTunnel();
-
-//    var configuration = new ConfigurationOptions
-//    {
-//        EndPoints = { "localhost:6379" },
-//        AbortOnConnectFail = false,
-//    };
-
-//    Console.WriteLine("🔄 Connecting Redis...");
-//    var connection = ConnectionMultiplexer.Connect(configuration);
-//    Console.WriteLine("✅ Connected Redis Successfully !!");
-//    return connection;
-//});
 
 var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString");
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));

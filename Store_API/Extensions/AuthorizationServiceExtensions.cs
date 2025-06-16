@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
-using Store_API.Authorization;
+using Store_API.AuthorizationsHandler;
 
 namespace Store_API.Extensions
 {

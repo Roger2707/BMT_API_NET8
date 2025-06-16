@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Policy;
 using System.Text.Json;
 
-namespace Store_API.Authorization
+namespace Store_API.AuthorizationsHandler
 {
     public class AuthorizationFailureHandler : IAuthorizationMiddlewareResultHandler
     {

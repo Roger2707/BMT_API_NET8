@@ -9,6 +9,8 @@ namespace Store_API.SignalIR
             return base.OnConnectedAsync();
         }
 
+        #region Join and Leave Group: will be invoked from the client side
+
         public async Task JoinGroup(string clientSecret)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, clientSecret);
@@ -18,5 +20,7 @@ namespace Store_API.SignalIR
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, clientSecret);
         }
+
+        #endregion
     }
 }

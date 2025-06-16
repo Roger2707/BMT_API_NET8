@@ -136,7 +136,7 @@ namespace Store_API.Services
                 else if(stripeEvent.Type == Events.PaymentIntentPaymentFailed)
                 {
                     await HandlePaymentIntentFailed(stripeEvent);
-                }
+                }  
 
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
@@ -175,12 +175,11 @@ namespace Store_API.Services
             var basket = await _unitOfWork.Basket.GetBasketDTORedis(payment.UserId, user.UserName);
 
             // 4. Check Inventory and Update StockTransaction (Export)
-            string orderItemText = "";
             foreach (var item in basket.Items)
             {
                 var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
                 if (stockExist == null || stockExist.Quantity < item.Quantity)
-                    throw new InvalidOperationException($"Sorry! Product is not enoungh quantity in Inventory !");
+                    throw new ArgumentException($"Sorry! Product is not enoungh quantity in Inventory !");
 
                 var stockUpsertDTO = new StockUpsertDTO
                 {
@@ -189,9 +188,6 @@ namespace Store_API.Services
                     Quantity = item.Quantity,
                 };
                 await _stockService.ExportStock(stockUpsertDTO);
-
-                // 4.1 Add to order item text for email
-                orderItemText += $"{item.ProductDetailId} - {item.Quantity} pcs\n";
             }
 
             // 5. Create Order
@@ -242,6 +238,9 @@ namespace Store_API.Services
             //var shippingOrderCode = await _shippingOrderService.CreateShippingOrder(orderCreateRequest, orderItemText);
 
             // 10. Send Email
+            var orderItemText = string.Join("\n", 
+                basket.Items.Select(item => $"{item.ProductDetailId} - {item.Quantity} pcs"));
+
             string content = $@" 
                                 Thank you for shopping at ROGER STORE
                                 Your ORDER ID: {orderId}

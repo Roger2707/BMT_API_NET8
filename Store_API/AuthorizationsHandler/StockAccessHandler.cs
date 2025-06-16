@@ -4,7 +4,7 @@ using Store_API.IService;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace Store_API.Authorization
+namespace Store_API.AuthorizationsHandler
 {
     public class StockAccessHandler : AuthorizationHandler<StockAccessRequirement>
     {
