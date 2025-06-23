@@ -9,7 +9,8 @@ using System.Text;
 using Store_API.Extensions;
 using Store_API.Models.Users;
 using Store_API.Services;
-using Store_API.SignalIR;
+using Store_API.SignalR;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -106,6 +107,23 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
                 .GetBytes(builder.Configuration["JWTSettings:TokenKey"]))
         };
+
+        // SignalR read access token from query string
+        opt.Events = new JwtBearerEvents
+        {
+           OnMessageReceived = context =>
+           {
+           var accessToken = context.Request.Query["access_token"];
+           var path = context.HttpContext.Request.Path;
+
+           if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/ordersHub"))
+           {
+               context.Token = accessToken;
+           }
+
+           return Task.CompletedTask;
+           }
+        };
     })
     .AddGoogle(options =>
     {
@@ -131,7 +149,7 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Conn
 
 #endregion 
 
-#region Signal IR
+#region SignalR
 
 builder.Services.AddSignalR(options =>
 {
@@ -173,7 +191,7 @@ app.MapControllers();
 
 #endregion 
 
-app.MapHub<OrderStatusHub>("/orderStatusHub");
+app.MapHub<OrdersHub>("/ordersHub");
 
 #region Seed Data
 

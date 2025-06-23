@@ -10,7 +10,6 @@ using Store_API.IService;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
-using Store_API.SignalIR;
 using Stripe;
 
 namespace Store_API.Services
@@ -22,19 +21,15 @@ namespace Store_API.Services
         private readonly IStockService _stockService;
         private readonly IBasketService _basketService;
         private readonly IOrderService _orderService;
-        private readonly IShippingOrderService _shippingOrderService;
 
         private readonly string _apiKey;
         private readonly IConfiguration _configuration;
         private readonly EmailSenderService _emailSenderService;
 
-        private readonly IHubContext<OrderStatusHub> _hubContext;
-
         public PaymentService
         (   IUnitOfWork unitOfWork, IStockService stockService
             , IConfiguration configuration, EmailSenderService emailSenderService
-            , IHubContext<OrderStatusHub> hubContext, IUserService userService, IBasketService basketService
-            , IOrderService orderService, IShippingOrderService shippingOrderService
+            , IUserService userService, IBasketService basketService, IOrderService orderService
         )
         {
             _unitOfWork = unitOfWork;
@@ -44,9 +39,6 @@ namespace Store_API.Services
             _userService = userService;
             _basketService = basketService;
             _orderService = orderService;
-            _shippingOrderService = shippingOrderService;
-
-            _hubContext = hubContext;
             _apiKey = _configuration["Stripe:SecretKey"];
 
             if (string.IsNullOrEmpty(_apiKey)) throw new Exception("Stripe API Key is missing from configuration.");
@@ -234,10 +226,7 @@ namespace Store_API.Services
             payment.Status = PaymentStatus.Success;
             payment.OrderId = orderId;
 
-            // 9. Automatic Call Shipping Order
-            //var shippingOrderCode = await _shippingOrderService.CreateShippingOrder(orderCreateRequest, orderItemText);
-
-            // 10. Send Email
+            // 9. Send Email
             var orderItemText = string.Join("\n", 
                 basket.Items.Select(item => $"{item.ProductDetailId} - {item.Quantity} pcs"));
 
@@ -248,20 +237,10 @@ namespace Store_API.Services
                                 {orderItemText}
 
                                 Hope you 'll have a good day. Thank you!
-                                                            [ROGER's Customer Service Team]                                       
+                                                            [ROGER BMT's Customer Service Team]                                       
                                 ";
 
-            await _emailSenderService.SendEmailAsync(user.Email, "[HOT] 🔥 ORDER SUCCESS:", content);
-
-            // 11.Notify client via SignalR
-            await _hubContext
-                .Clients
-                .Group(paymentIntent.ClientSecret)
-                .SendAsync("OrderCreated", new
-                {
-                    OrderId = orderId,
-                    Status = OrderStatus.Paid,
-                });
+            await _emailSenderService.SendEmailAsync(user.Email, "[🔥🔥🔥] ORDER SUCCESS:", content);
         }
 
         private async Task HandlePaymentIntentFailed(Event stripeEvent)

@@ -1,17 +1,22 @@
-﻿using Store_API.DTOs.Orders;
+﻿using Microsoft.AspNetCore.SignalR;
+using Store_API.DTOs.Orders;
 using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Models.OrderAggregate;
+using Store_API.Models.Users;
 using Store_API.Repositories;
+using Store_API.SignalR;
 
 namespace Store_API.Services
 {
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-        public OrderService(IUnitOfWork unitOfWork)
+        private readonly IHubContext<OrdersHub> _hubContext;
+        public OrderService(IUnitOfWork unitOfWork, IHubContext<OrdersHub> hubContext)
         {
             _unitOfWork = unitOfWork;
+            _hubContext = hubContext;
         }
 
         #region Create Order
@@ -43,7 +48,7 @@ namespace Store_API.Services
                 UserId = orderCreateRequest.UserId,
                 Email = orderCreateRequest.Email,
                 OrderDate = DateTime.Now,
-                Status = OrderStatus.Paid,
+                Status = OrderStatus.Created,
                 ShippingAddress = orderCreateRequest.ShippingAdress,
                 Items = orderItems,
                 GrandTotal = orderCreateRequest.Amount,
@@ -54,6 +59,22 @@ namespace Store_API.Services
             await _unitOfWork.Order.Create(order);
         }
 
+        public async Task UpdateOrderStatus(Guid orderId, OrderStatus status)
+        {
+            await _unitOfWork.Order.UpdateOrderStatus(orderId, status);
+            await _unitOfWork.SaveChangesAsync();
+
+            await _hubContext
+                .Clients
+                .Group(orderId.ToString())
+                .SendAsync("OrderUpdateStatus", new
+                {
+                    OrderId = orderId,
+                    OrderStatus = status,
+                    Notification = $"Your Order {orderId} has changed status to {status.ToString()}"
+                });
+        }
+
         #endregion
 
         #region Retrieve 
@@ -61,6 +82,12 @@ namespace Store_API.Services
         public async Task<IEnumerable<OrderDTO>> GetOrders(int userId)
         {
             var orders = await _unitOfWork.Order.GetOrders(userId);
+            return orders;
+        }
+
+        public async Task<IEnumerable<OrderDTO>> GetOrders()
+        {
+            var orders = await _unitOfWork.Order.GetOrders();
             return orders;
         }
 

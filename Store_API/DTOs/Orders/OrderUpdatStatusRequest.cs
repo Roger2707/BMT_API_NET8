@@ -2,7 +2,7 @@
 
 namespace Store_API.DTOs.Orders
 {
-    public class OrderUpdateHub
+    public class OrderUpdatStatusRequest
     {
         public Guid OrderId { get; set; }
         public OrderStatus OrderStatus { get; set; }

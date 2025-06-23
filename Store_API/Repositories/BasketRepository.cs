@@ -106,6 +106,7 @@ namespace Store_API.Repositories
         {
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException("Username cannot be empty", nameof(username));
+
             string query = @"
                 SELECT 
                     basket.Id
