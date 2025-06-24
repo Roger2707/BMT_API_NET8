@@ -1,5 +1,4 @@
 ﻿using Store_API.DTOs.Orders;
-using Store_API.Enums;
 using Store_API.Models.OrderAggregate;
 
 namespace Store_API.Repositories

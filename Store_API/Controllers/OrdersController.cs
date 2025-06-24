@@ -39,8 +39,7 @@ namespace Store_API.Controllers
         {
             try
             {
-                var userId = CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                await _orderService.UpdateOrderStatus(request, userId);
+                await _orderService.UpdateOrderStatus(request);
                 return Ok();
             }
             catch (Exception ex)

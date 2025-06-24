@@ -58,11 +58,11 @@ namespace Store_API.Services
             await _unitOfWork.Order.Create(order);
         }
 
-        public async Task UpdateOrderStatus(OrderUpdatStatusRequest request, int userId)
+        public async Task UpdateOrderStatus(OrderUpdatStatusRequest request)
         {
             await _unitOfWork.Order.UpdateOrderStatus(request);
             await _unitOfWork.SaveChangesAsync();
-
+            int userId = (await _unitOfWork.Order.FirstOrDefaultAsync(request.OrderId)).UserId;
             await _hubContext
                 .Clients
                 .Group($"user_{userId}")
@@ -75,7 +75,7 @@ namespace Store_API.Services
 
         #endregion
 
-        #region Retrieve 
+        #region Retrieve
 
         public async Task<IEnumerable<OrderDTO>> GetOrders(int userId)
         {
