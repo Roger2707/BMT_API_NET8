@@ -2,7 +2,7 @@
 using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Models.Inventory;
-using Store_API.Repositories;
+using Store_API.IRepositories;
 
 namespace Store_API.Services
 {

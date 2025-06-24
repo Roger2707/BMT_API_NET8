@@ -3,7 +3,7 @@ using Store_API.DTOs.Orders;
 using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Models.OrderAggregate;
-using Store_API.Repositories;
+using Store_API.IRepositories;
 using Store_API.SignalR;
 
 namespace Store_API.Services

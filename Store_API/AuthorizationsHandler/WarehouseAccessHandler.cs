@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Store_API.Helpers;
 using Store_API.IService;
-using Store_API.Repositories;
+using Store_API.IRepositories;
 using System.Security.Claims;
 
 namespace Store_API.AuthorizationsHandler

@@ -1,8 +1,7 @@
 ﻿using Store_API.DTOs.Brands;
-using Store_API.DTOs.Categories;
+using Store_API.IRepositories;
 using Store_API.IService;
 using Store_API.Models;
-using Store_API.Repositories;
 
 namespace Store_API.Services
 {

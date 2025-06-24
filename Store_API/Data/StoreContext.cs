@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Store_API.Models;
 using Store_API.Models.Inventory;
 using Store_API.Models.OrderAggregate;
 using Store_API.Models.Users;
+using System.Reflection.Emit;
 
 namespace Store_API.Data
 {
@@ -35,18 +37,14 @@ namespace Store_API.Data
         public DbSet<Warehouse> Warehouses { get; set; }
         public DbSet<UserWarehouse> UserWarehouses { get; set; }
         public DbSet<ShippingOrder> ShippingOrders { get; set; }
+        public DbSet<StockHold> StockHolds { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
-            // Config 1 User => 1 Basket
-            builder.Entity<User>()
-                .HasOne(u => u.Basket)
-                .WithOne(u => u.User)
-                .HasForeignKey<Basket>(b => b.UserId);
+            #region Seeding Users
 
-            // Seed Users
             var seedUsers = new List<User>()
             {
                 new User
@@ -112,7 +110,10 @@ namespace Store_API.Data
                     new { Id = 3, Name = "Customer", NormalizedName = "CUSTOMER" }
             );
 
-            // Seed User - Role
+            #endregion
+
+            #region Seeding User-Role
+
             var userUserRoles = new List<IdentityUserRole<int>>
             {
                 new IdentityUserRole<int>
@@ -137,6 +138,16 @@ namespace Store_API.Data
                 },
             };
             builder.Entity<IdentityUserRole<int>>().HasData(userUserRoles);
+
+            #endregion
+
+            #region Config Relations 
+
+            // Config 1 User => 1 Basket
+            builder.Entity<User>()
+                .HasOne(u => u.Basket)
+                .WithOne(u => u.User)
+                .HasForeignKey<Basket>(b => b.UserId);
 
             // User - Address (1-N)
             builder.Entity<UserAddress>()
@@ -215,6 +226,16 @@ namespace Store_API.Data
                 })
                 .Navigation(x => x.ShippingAddress)
                 .IsRequired();
+
+            #endregion
+
+            #region Outbox Pattern
+
+            builder.AddInboxStateEntity();
+            builder.AddOutboxMessageEntity();
+            builder.AddOutboxStateEntity();
+
+            #endregion
         }
     }
 }

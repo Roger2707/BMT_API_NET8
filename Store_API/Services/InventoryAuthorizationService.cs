@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Store_API.Models.Users;
 using Store_API.IService;
-using Store_API.Repositories;
+using Store_API.IRepositories;
 
 namespace Store_API.Services
 {

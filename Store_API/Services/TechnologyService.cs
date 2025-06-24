@@ -1,6 +1,6 @@
 ﻿using Store_API.DTOs.Technologies;
 using Store_API.IService;
-using Store_API.Repositories;
+using Store_API.IRepositories;
 
 namespace Store_API.Services
 {

@@ -1,10 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Net.Mail;
 using System.Net;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
-using System.Text;
-
 namespace Store_API.Services
 {
     public class EmailSenderService : IEmailSender
