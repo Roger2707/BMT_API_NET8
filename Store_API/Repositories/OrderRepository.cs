@@ -1,11 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Extensions;
 using Store_API.Data;
 using Store_API.DTOs.Orders;
-using Store_API.Enums;
+using Store_API.IRepositories;
 using Store_API.IService;
 using Store_API.Models.OrderAggregate;
-using Store_API.Models.Users;
 namespace Store_API.Repositories
 {
     public class OrderRepository : IOrderRepository

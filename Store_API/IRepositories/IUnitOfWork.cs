@@ -1,7 +1,6 @@
 ﻿using Store_API.Enums;
-using Store_API.IRepositories;
 
-namespace Store_API.Repositories
+namespace Store_API.IRepositories
 {
     public interface IUnitOfWork
     {
@@ -26,5 +25,6 @@ namespace Store_API.Repositories
         public IStockTransactionRepository StockTransaction { get; }
         public IUserWarehouseRepository UserWarehouse { get; }
         public IShippingOrderRepository ShippingOrder { get; }
+        public IStockHoldRepository StockHold { get; }
     }
 }

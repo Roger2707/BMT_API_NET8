@@ -49,6 +49,7 @@ namespace Store_API.Repositories
             Payment = new PaymentRepository(_db);
             Rating = new RatingRepository(_db, _dapperService);
             ShippingOrder = new ShippingOrderRepository(_db, _dapperService);
+            StockHold = new StockHoldRepository(_db, _dapperService);
         }
 
         #region Models Repository
@@ -68,6 +69,7 @@ namespace Store_API.Repositories
         public IStockTransactionRepository StockTransaction { get; private set; }
         public IUserWarehouseRepository UserWarehouse { get; private set; }
         public IShippingOrderRepository ShippingOrder { get; private set; }
+        public IStockHoldRepository StockHold { get; private set; }
 
         #endregion
 

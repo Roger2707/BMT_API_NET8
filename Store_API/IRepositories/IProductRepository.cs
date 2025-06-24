@@ -1,7 +1,7 @@
 ﻿using Store_API.DTOs.Products;
 using Store_API.Models;
 
-namespace Store_API.Repositories
+namespace Store_API.IRepositories
 {
     public interface IProductRepository : IRepository<Product>
     {

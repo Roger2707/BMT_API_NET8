@@ -11,6 +11,8 @@ using Store_API.Models.Users;
 using Store_API.Services;
 using Store_API.SignalR;
 using Microsoft.Extensions.Options;
+using MassTransit;
+using Store_API.Consumers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -135,6 +137,33 @@ builder.Services.AddAuthorizationServices();
 
 #endregion 
 
+#region MassTransit
+
+builder.Services.AddMassTransit(x =>
+{
+    // ensure to add the outbox after savechange success
+    x.AddEntityFrameworkOutbox<StoreContext>(o =>
+    {
+        // if process rabbitMQ server is downed, retry every 10 seconds
+        o.QueryDelay = TimeSpan.FromSeconds(10);
+        o.UseSqlServer();
+
+        // when savechange success, no add to message queue immediately, add outbox first
+        o.UseBusOutbox();
+    });
+
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.ReceiveEndpoint("stock-hold-created", e =>
+        {
+            e.ConfigureConsumer<StockHoldCreatedConsumer>(context);
+        });
+        cfg.ConfigureEndpoints(context);
+    });
+});
+
+#endregion
+
 #region Services
 
 builder.Services.AddApplicationServices();
@@ -142,7 +171,7 @@ builder.Services.AddHostedService<BasketBackgroundService>();
 
 #endregion 
 
-#region Connect Redis 
+#region Redis 
 
 var redisConnectionString = builder.Configuration.GetValue<string>("Redis:ConnectionString");
 builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(redisConnectionString));

@@ -1,6 +1,7 @@
 ﻿using StackExchange.Redis;
 using Store_API.DTOs.Baskets;
 using Store_API.Extensions;
+using Store_API.IRepositories;
 using Store_API.IService;
 using System.Text.Json;
 

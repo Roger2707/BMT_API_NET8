@@ -1,7 +1,7 @@
 ﻿using Store_API.DTOs.Orders;
 using Store_API.Models.OrderAggregate;
 
-namespace Store_API.Repositories
+namespace Store_API.IRepositories
 {
     public interface IOrderRepository
     {

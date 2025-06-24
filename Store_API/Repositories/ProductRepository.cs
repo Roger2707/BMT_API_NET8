@@ -1,6 +1,7 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs.Products;
 using Store_API.Helpers;
+using Store_API.IRepositories;
 using Store_API.IService;
 using Store_API.Models;
 

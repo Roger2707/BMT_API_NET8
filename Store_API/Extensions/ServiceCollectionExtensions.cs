@@ -1,4 +1,5 @@
-﻿using Store_API.IService;
+﻿using Store_API.IRepositories;
+using Store_API.IService;
 using Store_API.Repositories;
 using Store_API.Services;
 

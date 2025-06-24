@@ -1,6 +1,6 @@
 ﻿using Store_API.DTOs.Baskets;
 
-namespace Store_API.Repositories
+namespace Store_API.IRepositories
 {
     public interface IBasketRepository
     {
