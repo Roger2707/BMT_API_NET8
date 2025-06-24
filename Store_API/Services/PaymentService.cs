@@ -10,6 +10,8 @@ using Store_API.Models;
 using Store_API.Models.OrderAggregate;
 using Store_API.Repositories;
 using Stripe;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Store_API.Services
 {
@@ -45,7 +47,22 @@ namespace Store_API.Services
                 StripeConfiguration.ApiKey = _apiKey;
         }
 
-        #region Payment Methods
+        #region CRUD PaymentItent
+
+        public string GenerateCartHash(IEnumerable<BasketItemDTO> cartItems)
+        {
+            // 1. Sort
+            var sortedItems = cartItems.OrderBy(i => i.ProductDetailId);
+            // 2. Concat string
+            var rawString = string.Join(";", sortedItems.Select(i => $"{i.ProductDetailId}-{i.Quantity}-{i.DiscountPrice:F2}"));
+            // 3. Generate SHA256 hash
+            using var sha256 = SHA256.Create();
+            var bytes = Encoding.UTF8.GetBytes(rawString);
+            var hashBytes = sha256.ComputeHash(bytes);
+            //4 Convert to hex string
+            var hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
+            return hash;
+        }
 
         public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAddressDTO shippingAddress)
         {
@@ -59,15 +76,48 @@ namespace Store_API.Services
                     if (stockExist == null || stockExist.Quantity < item.Quantity)
                         throw new Exception($"Sorry! Product {item.ProductName} is not enoungh quantity in Inventory !");
                 }
+                var stripeService = new PaymentIntentService();
 
                 // 2. Calc Grand Total
                 double grandTotal = basket.Items.Sum(item => item.Quantity * item.DiscountPrice);
 
-                // 3. Exchange rate (vnd -> usd)
+                // 3. Create BasketHash
+                string basketHash = GenerateCartHash(basket.Items);
+
+                // 4. Check existed PaymentIntent
+                var existingPayment = await _unitOfWork.Payment.GetLatestPendingPaymentAsync(basket.UserId);
+                if (existingPayment != null)
+                {
+                    var existingStripeIntent = await stripeService.GetAsync(existingPayment.PaymentIntentId);
+
+                    if (existingPayment.BasketHash == basketHash && existingStripeIntent.Status == "requires_payment_method")
+                    {
+                        await _unitOfWork.CommitAsync();
+                        return existingStripeIntent;
+                    }
+
+                    if (existingStripeIntent.Status == "succeeded")
+                    {
+                        await _unitOfWork.CommitAsync();
+                        throw new Exception("An existing payment was already completed for a different cart.");
+                    }
+
+                    if (existingStripeIntent.Status == "requires_payment_method" || existingStripeIntent.Status == "requires_confirmation")
+                    {
+                        try
+                        {
+                            await stripeService.CancelAsync(existingPayment.PaymentIntentId);
+                        }
+                        catch { }
+                        _unitOfWork.Payment.Delete(existingPayment);
+                    }
+                }
+
+                // 5. Exchange rate (vnd -> usd)
                 decimal exchangeRate = 0.000039m;
                 long amountInCents = (long)(CF.GetDecimal(grandTotal) * exchangeRate * 100);
 
-                // 4. Create Payment Intent Options
+                // 6. Create Payment Intent Options
                 var options = new PaymentIntentCreateOptions
                 {
                     Amount = amountInCents,
@@ -86,23 +136,24 @@ namespace Store_API.Services
                     }
                 };
 
-                // 5. Create PaymentIntent
-                var service = new PaymentIntentService();
-                var paymentIntent = await service.CreateAsync(options);
+                // 7. Create PaymentIntent
+                var paymentIntent = await stripeService.CreateAsync(options);
 
-                // 6. Create Payment in DB
+                // 8. Create Payment in DB
                 var payment = new Payment
                 {
                     UserId = basket.UserId,
                     PaymentIntentId = paymentIntent.Id,
+                    ClientSecret = paymentIntent.ClientSecret,
                     Amount = grandTotal,
+                    BasketHash = basketHash,
                     Status = PaymentStatus.Pending,
                     CreatedAt = DateTime.UtcNow,
                     OrderId = Guid.Empty
                 };
                 await _unitOfWork.Payment.AddAsync(payment);
 
-                // 7. SaveChanges and Commit 
+                // 9. SaveChanges and Commit 
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
 
@@ -115,6 +166,10 @@ namespace Store_API.Services
             }           
         }
 
+        #endregion
+
+        #region Stripe Payment Intent Events
+
         public async Task HandleStripeWebhookAsync(Event stripeEvent)
         {
             await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
@@ -124,24 +179,20 @@ namespace Store_API.Services
                 {
                     await HandlePaymentIntentSuccess(stripeEvent);
                 }
-                else if(stripeEvent.Type == Events.PaymentIntentPaymentFailed)
+                else if (stripeEvent.Type == Events.PaymentIntentPaymentFailed)
                 {
                     await HandlePaymentIntentFailed(stripeEvent);
-                }  
+                }
 
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
                 throw;
             }
         }
-
-        #endregion
-
-        #region Stripe Payment Intent Events
 
         private async Task HandlePaymentIntentSuccess(Event stripeEvent)
         {

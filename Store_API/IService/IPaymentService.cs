@@ -2,7 +2,7 @@
 using Store_API.DTOs.Orders;
 using Stripe;
 
-namespace Store_API.Repositories
+namespace Store_API.IService
 {
     public interface IPaymentService
     {
