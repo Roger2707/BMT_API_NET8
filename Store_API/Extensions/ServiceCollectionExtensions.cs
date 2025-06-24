@@ -33,7 +33,6 @@ namespace Store_API.Extensions
             services.AddScoped<EmailSenderService>();
             services.AddScoped<IImageService, ImageService>();
             services.AddScoped<ITokenService, TokenService>();
-            services.AddSingleton<IRabbitMQService, RabbitMQService>();
             services.AddSingleton<IRedisService, RedisService>();
         }
     }

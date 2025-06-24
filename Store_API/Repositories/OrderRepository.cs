@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
 using Store_API.Data;
 using Store_API.DTOs.Orders;
 using Store_API.Enums;
@@ -24,12 +25,12 @@ namespace Store_API.Repositories
             await _db.Orders.AddAsync(order);
         }
 
-        public async Task UpdateOrderStatus(Guid orderId, OrderStatus status)
+        public async Task UpdateOrderStatus(OrderUpdatStatusRequest request)
         {
-            var order  = await _db.Orders.FirstOrDefaultAsync(o => o.Id == orderId);
+            var order  = await _db.Orders.FirstOrDefaultAsync(o => o.Id == request.OrderId);
             if(order == null) throw new Exception("Order not found");
 
-            order.Status = status;
+            order.Status = request.OrderStatus;
         }
 
         #endregion
@@ -53,7 +54,7 @@ namespace Store_API.Repositories
                                 , au.PhoneNumber
 
                                 , o.OrderDate
-                                , IIF(o.Status = 0, 'Paid', IIF(o.Status = 1, 'Cancelled', 'Refunded')) as OrderStatus
+                                , o.Status as OrderStatus
                                 , o.DeliveryFee
                                 , o.GrandTotal
 	                            , o.ClientSecret
@@ -111,7 +112,7 @@ namespace Store_API.Repositories
                             Email = g.Key.Email,
                             PhoneNumber = g.Key.PhoneNumber,
                             OrderDate = g.Key.OrderDate,
-                            Status = g.Key.OrderStatus,
+                            Status = g.Key.OrderStatus.ToString(),
                             DeliveryFee = g.Key.DeliveryFee,
                             ClientSecret = g.Key.ClientSecret,
                             GrandTotal = g.Key.GrandTotal,
@@ -152,7 +153,7 @@ namespace Store_API.Repositories
                                 , au.PhoneNumber
 
                                 , o.OrderDate
-                                , IIF(o.Status = 0, 'Paid', IIF(o.Status = 1, 'Cancelled', 'Refunded')) as OrderStatus
+                                , o.Status as OrderStatus
                                 , o.DeliveryFee
                                 , o.GrandTotal
 	                            , o.ClientSecret
@@ -212,7 +213,7 @@ namespace Store_API.Repositories
                             Email = g.Key.Email,
                             PhoneNumber = g.Key.PhoneNumber,
                             OrderDate = g.Key.OrderDate,
-                            Status = g.Key.OrderStatus,
+                            Status = g.Key.OrderStatus.ToString(),
                             DeliveryFee = g.Key.DeliveryFee,
                             ClientSecret = g.Key.ClientSecret,
                             GrandTotal = g.Key.GrandTotal,

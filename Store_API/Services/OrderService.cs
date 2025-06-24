@@ -3,7 +3,6 @@ using Store_API.DTOs.Orders;
 using Store_API.Enums;
 using Store_API.IService;
 using Store_API.Models.OrderAggregate;
-using Store_API.Models.Users;
 using Store_API.Repositories;
 using Store_API.SignalR;
 
@@ -19,7 +18,7 @@ namespace Store_API.Services
             _hubContext = hubContext;
         }
 
-        #region Create Order
+        #region Create + Notification
 
         public async Task Create(OrderCreateRequest orderCreateRequest)
         {
@@ -59,19 +58,18 @@ namespace Store_API.Services
             await _unitOfWork.Order.Create(order);
         }
 
-        public async Task UpdateOrderStatus(Guid orderId, OrderStatus status)
+        public async Task UpdateOrderStatus(OrderUpdatStatusRequest request, int userId)
         {
-            await _unitOfWork.Order.UpdateOrderStatus(orderId, status);
+            await _unitOfWork.Order.UpdateOrderStatus(request);
             await _unitOfWork.SaveChangesAsync();
 
             await _hubContext
                 .Clients
-                .Group(orderId.ToString())
+                .Group($"user_{userId}")
                 .SendAsync("OrderUpdateStatus", new
                 {
-                    OrderId = orderId,
-                    OrderStatus = status,
-                    Notification = $"Your Order {orderId} has changed status to {status.ToString()}"
+                    OrderId = request.OrderId.ToString(),
+                    OrderStatus = request.OrderStatus
                 });
         }
 

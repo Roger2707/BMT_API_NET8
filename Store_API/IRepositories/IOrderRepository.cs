@@ -7,7 +7,7 @@ namespace Store_API.Repositories
     public interface IOrderRepository
     {
         Task Create(Order order);
-        Task UpdateOrderStatus(Guid orderId, OrderStatus status);
+        Task UpdateOrderStatus(OrderUpdatStatusRequest request);
         Task<IEnumerable<OrderDTO>> GetOrders();
         Task<IEnumerable<OrderDTO>> GetOrders(int userId);
         Task<Order> FirstOrDefaultAsync(Guid orderId);

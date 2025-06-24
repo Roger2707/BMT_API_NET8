@@ -35,11 +35,12 @@ namespace Store_API.Controllers
         }
 
         [HttpPost("update-order-status")]
-        public async Task<IActionResult> UpdateOrderStatus([FromBody] OrderUpdatStatusRequest orderUpdate)
+        public async Task<IActionResult> UpdateOrderStatus([FromBody] OrderUpdatStatusRequest request)
         {
             try
             {
-                await _orderService.UpdateOrderStatus(orderUpdate.OrderId, orderUpdate.OrderStatus);
+                var userId = CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                await _orderService.UpdateOrderStatus(request, userId);
                 return Ok();
             }
             catch (Exception ex)

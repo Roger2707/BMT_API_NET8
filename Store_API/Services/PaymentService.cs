@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.DTOs.Payments;
