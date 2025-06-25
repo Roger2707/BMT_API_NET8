@@ -80,7 +80,7 @@ namespace Store_API.Services
 
         #endregion
 
-        #region CRUD Operations (Action Implement on Redis)
+        #region CRUD Operations (Implement on Redis Server)
 
         public async Task UpsertBasket(BasketUpsertDTO basketUpsertDTO)
         {

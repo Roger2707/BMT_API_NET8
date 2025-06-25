@@ -35,6 +35,7 @@ namespace Store_API.Services
             return result;
         }
 
+        // one product can have many detail - this method returns a single detail by id
         public async Task<ProductSingleDetailDTO> GetProductSingleDetail(Guid productDetailId)
         {
             var result = await _unitOfWork.Product.GetProductSingleDetail(productDetailId);

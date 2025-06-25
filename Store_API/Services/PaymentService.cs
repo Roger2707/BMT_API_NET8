@@ -4,7 +4,6 @@ using Store_API.Contracts;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.DTOs.Payments;
-using Store_API.DTOs.Stocks;
 using Store_API.Enums;
 using Store_API.Helpers;
 using Store_API.IRepositories;
@@ -21,7 +20,6 @@ namespace Store_API.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserService _userService;
-        private readonly IStockService _stockService;
         private readonly IBasketService _basketService;
         private readonly IOrderService _orderService;
 
@@ -31,14 +29,11 @@ namespace Store_API.Services
         private readonly IPublishEndpoint _publishEndpoint;
 
         public PaymentService
-        (   IUnitOfWork unitOfWork, IStockService stockService
-            , IConfiguration configuration, EmailSenderService emailSenderService
-            , IUserService userService, IBasketService basketService, IOrderService orderService
-            , IPublishEndpoint publishEndpoint
+        (   IUnitOfWork unitOfWork, IConfiguration configuration, EmailSenderService emailSenderService
+            , IUserService userService, IBasketService basketService, IOrderService orderService, IPublishEndpoint publishEndpoint
         )
         {
             _unitOfWork = unitOfWork;
-            _stockService = stockService;
             _configuration = configuration;
             _emailSenderService = emailSenderService;
             _userService = userService;
