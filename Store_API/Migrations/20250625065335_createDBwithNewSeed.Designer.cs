@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250624095840_createOutboxAndSeatHoldDB")]
-    partial class createOutboxAndSeatHoldDB
+    [Migration("20250625065335_createDBwithNewSeed")]
+    partial class createDBwithNewSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -377,6 +377,26 @@ namespace Store_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Brands");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            Country = "Japan",
+                            Name = "Yonex"
+                        },
+                        new
+                        {
+                            Id = new Guid("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d"),
+                            Country = "Taiwan",
+                            Name = "Victor"
+                        },
+                        new
+                        {
+                            Id = new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"),
+                            Country = "China",
+                            Name = "Lining"
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Category", b =>
@@ -391,6 +411,33 @@ namespace Store_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Name = "Racket"
+                        },
+                        new
+                        {
+                            Id = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                            Name = "Shoes"
+                        },
+                        new
+                        {
+                            Id = new Guid("8a0ef9d4-79bb-418f-9e12-8f5f6df62049"),
+                            Name = "Clothes"
+                        },
+                        new
+                        {
+                            Id = new Guid("c1dcf6b8-4c24-493c-a828-7b1e4cc26a6b"),
+                            Name = "Items"
+                        },
+                        new
+                        {
+                            Id = new Guid("af0b3a7a-5898-43cf-8f98-d0c5712ec5f3"),
+                            Name = "Others"
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Inventory.Stock", b =>
@@ -418,6 +465,56 @@ namespace Store_API.Migrations
                     b.HasIndex("WarehouseId");
 
                     b.ToTable("Stocks");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("99999999-1111-1111-1111-111111111111"),
+                            ProductDetailId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            Quantity = 10,
+                            Updated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-1111-1111-8888-111111111111"),
+                            ProductDetailId = new Guid("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
+                            Quantity = 15,
+                            Updated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            WarehouseId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-1111-7777-1111-111111111111"),
+                            ProductDetailId = new Guid("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
+                            Quantity = 18,
+                            Updated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            WarehouseId = new Guid("33333333-3333-3333-3333-333333333333")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-6666-1111-1111-111111111111"),
+                            ProductDetailId = new Guid("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"),
+                            Quantity = 20,
+                            Updated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-1111-5555-8888-111111111111"),
+                            ProductDetailId = new Guid("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                            Quantity = 3,
+                            Updated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-1111-5555-8888-111111111158"),
+                            ProductDetailId = new Guid("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                            Quantity = 2,
+                            Updated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            WarehouseId = new Guid("22222222-2222-2222-2222-222222222222")
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Inventory.StockHold", b =>
@@ -432,11 +529,11 @@ namespace Store_API.Migrations
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsConfirmed")
-                        .HasColumnType("bit");
-
                     b.Property<string>("PaymentIntentId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
@@ -496,6 +593,89 @@ namespace Store_API.Migrations
                     b.HasIndex("WarehouseId");
 
                     b.ToTable("StockTransactions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("99999999-1111-3333-2222-111111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            Quantity = 8,
+                            TransactionType = 1,
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-1111-3333-4545-111111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            Quantity = 3,
+                            TransactionType = 1,
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999999-2222-3333-4545-111111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            Quantity = 1,
+                            TransactionType = 0,
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("88888888-1111-3333-2222-111111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
+                            Quantity = 15,
+                            TransactionType = 1,
+                            WarehouseId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999333-befa-3333-4545-111111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
+                            Quantity = 18,
+                            TransactionType = 1,
+                            WarehouseId = new Guid("33333333-3333-3333-3333-333333333333")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999875-abef-3333-8217-111111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"),
+                            Quantity = 20,
+                            TransactionType = 1,
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999875-abcd-aaaa-8217-111111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                            Quantity = 4,
+                            TransactionType = 1,
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999875-abcd-aaaa-8217-222111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                            Quantity = 2,
+                            TransactionType = 1,
+                            WarehouseId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            Id = new Guid("99999875-abcd-aaaa-8217-111111111988"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            ProductDetailId = new Guid("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                            Quantity = 1,
+                            TransactionType = 0,
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Inventory.Warehouse", b =>
@@ -519,6 +699,32 @@ namespace Store_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Warehouses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsSuperAdminOnly = false,
+                            Location = "Ho Chi Minh City",
+                            Name = "HCM Warehouse"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsSuperAdminOnly = false,
+                            Location = "Thu Duc City",
+                            Name = "Thu Duc Warehouse"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            IsSuperAdminOnly = false,
+                            Location = "Vung Tau City",
+                            Name = "HHT Warehouse"
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.OrderAggregate.Order", b =>
@@ -710,6 +916,195 @@ namespace Store_API.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Attack - Dominate - Conquers",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
+                            Name = "Astrox 99 Pro (Ver.2021)",
+                            PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0"
+                        },
+                        new
+                        {
+                            Id = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Two Faces - Expolosive Attack - Solid Hard Defend",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828714/products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828716/products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828717/products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828718/products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828719/products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828720/products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj.jpg",
+                            Name = "Duora Z Strike (Ver.2017)",
+                            PublicId = "products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak,products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya,products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1,products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf,products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely,products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj"
+                        },
+                        new
+                        {
+                            Id = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Controls - Focus - Feel",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828775/products/arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828777/products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828778/products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828779/products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu.jpg",
+                            Name = "ArcSaber 11 Pro (Ver.2021)",
+                            PublicId = "arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re,products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx,products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv,products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly,products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp,products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu"
+                        },
+                        new
+                        {
+                            Id = new Guid("550e8400-e29b-41d4-a716-446655440000"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Racket Choosing by The Olympic Champion (2020) Viktor Axelsen",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp",
+                            Name = "Axtrox 100ZZ (Ver.Kurenai)",
+                            PublicId = "ldpbvqnabfaq7o2uggia"
+                        },
+                        new
+                        {
+                            Id = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "King Double - Speed - Power",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735830149/products/nanoflare 1000z/yj14npg3jorqi1dhbygd.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830150/products/nanoflare 1000z/ptbxakwyi6dtxsedhog4.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830151/products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830152/products/nanoflare 1000z/syrhneosnjsnoyuwwdte.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830153/products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830154/products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt.jpg",
+                            Name = "Nanoflare 1000Z",
+                            PublicId = "products/nanoflare 1000z/yj14npg3jorqi1dhbygd,products/nanoflare 1000z/ptbxakwyi6dtxsedhog4,products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts,products/nanoflare 1000z/syrhneosnjsnoyuwwdte,products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs,products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt"
+                        },
+                        new
+                        {
+                            Id = new Guid("123e4567-e89b-12d3-a456-426614174000"),
+                            BrandId = new Guid("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "All England Champ (2021) Racket Chosen",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152504/bobdvzdutlsnhkgd3csa.webp",
+                            Name = "Thuskter Ryuga Metalic (Ver.2023)",
+                            PublicId = "bobdvzdutlsnhkgd3csa"
+                        },
+                        new
+                        {
+                            Id = new Guid("9b9f0b80-4f3d-11ec-81d3-0242ac130003"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "New Shape - New Tech - New Feelings",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152808/erovfedlbzb0xkzqglbj.jpg",
+                            Name = "Axtrox 88D Pro (Ver.2024)",
+                            PublicId = "erovfedlbzb0xkzqglbj"
+                        },
+                        new
+                        {
+                            Id = new Guid("00112233-4455-6677-8899-aabbccddeeff"),
+                            BrandId = new Guid("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Speed - Control - Attack",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153834/rweggufmgnga3zjklf2f.jpg",
+                            Name = "Brave Sword 12 (Ver.55th 2024)",
+                            PublicId = "rweggufmgnga3zjklf2f"
+                        },
+                        new
+                        {
+                            Id = new Guid("b3e2f5f0-7e44-4e06-b69e-8f87be0c30f7"),
+                            BrandId = new Guid("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Speed - Control - Attack",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153808/cy4dqkjmsqakqxsqonl5.jpg",
+                            Name = "Thuskter Falcon White (Ver. Limited TYZ)",
+                            PublicId = "cy4dqkjmsqakqxsqonl5"
+                        },
+                        new
+                        {
+                            Id = new Guid("cb3b0e7d-5ad3-4ec7-9b9a-4f06efb27c03"),
+                            BrandId = new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Chosen By World Champion 2021 - Loh Kean Yew",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153857/algdodmsmknzhilm9wds.webp",
+                            Name = "Axforce 90",
+                            PublicId = "algdodmsmknzhilm9wds"
+                        },
+                        new
+                        {
+                            Id = new Guid("e029d3c5-b6b3-4e31-bada-1e6b7d5af7c8"),
+                            BrandId = new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Modern Technologies - Powerful Attack",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927477/products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi.jpg",
+                            Name = "Axforce 100 (Ver.Kirin)",
+                            PublicId = "products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi"
+                        },
+                        new
+                        {
+                            Id = new Guid("8a97f9a6-221d-4f5b-bc37-6e5cb7a979b6"),
+                            BrandId = new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Blow White Attack",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153705/w9s0ruep5gxnelaunfgq.jpg",
+                            Name = "Techtonic 9",
+                            PublicId = "w9s0ruep5gxnelaunfgq"
+                        },
+                        new
+                        {
+                            Id = new Guid("dd36bf61-fc77-4cfb-82e1-6b2ff6f9b1d4"),
+                            BrandId = new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Chosen by The World Champion (2014, 2015), The OLP Champion (2016) - Chen Long",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153773/cetkfwcafc8xliwnim9n.jpg",
+                            Name = "Flame N55",
+                            PublicId = "cetkfwcafc8xliwnim9n"
+                        },
+                        new
+                        {
+                            Id = new Guid("a2cf7e92-29fd-4d61-90b3-d3f2f8a7e9c6"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Smooth - Jump - Reach the win",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153525/bpjcwixbyweafni7t5sz.jpg",
+                            Name = "Comfort Z",
+                            PublicId = "bpjcwixbyweafni7t5sz"
+                        },
+                        new
+                        {
+                            Id = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "The upgrade of Comfort Z Version",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
+                            Name = "Comfort Z3",
+                            PublicId = "bpjcwixbyweafni7t5sz"
+                        },
+                        new
+                        {
+                            Id = new Guid("4d21b8e5-8a14-4b37-b84b-3d1c2e2e5f76"),
+                            BrandId = new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"),
+                            CategoryId = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Smooth - Jump - Reach the win",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734926089/products/hxlh389m9vsug2zumawz.jpg",
+                            Name = "Accelarate Booster (Ver.2022)",
+                            PublicId = "products/hxlh389m9vsug2zumawz"
+                        },
+                        new
+                        {
+                            Id = new Guid("2f8c6a10-5633-4b91-90a1-7c924df78e68"),
+                            BrandId = new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"),
+                            CategoryId = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
+                            Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Speed - Jump - Dominate",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153621/dn25ivc2gpbcytdfqfim.webp",
+                            Name = "Accelarate Advanced (Ver.2024)",
+                            PublicId = "dn25ivc2gpbcytdfqfim"
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.ProductDetail", b =>
@@ -738,6 +1133,215 @@ namespace Store_API.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductDetails");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            Color = "#880808",
+                            ExtraName = "Red Tiger",
+                            Price = 4200000.0,
+                            ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
+                            Color = "#fff",
+                            ExtraName = "White Tiger",
+                            Price = 4300000.0,
+                            ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
+                            Color = "#fff",
+                            ExtraName = "Chou Tien Chen Signature!",
+                            Price = 4150000.0,
+                            ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("7a3f4036-942f-4f8a-a823-0f3c5c791e20"),
+                            Color = "#880808",
+                            ExtraName = "",
+                            Price = 4250000.0,
+                            ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("c9b74e77-dc8b-4c4e-96c9-d6b2e8adf2cf"),
+                            Color = "#4169E1",
+                            ExtraName = "Navy Blue",
+                            Price = 4500000.0,
+                            ProductId = new Guid("550e8400-e29b-41d4-a716-446655440000"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"),
+                            Color = "#880808",
+                            ExtraName = "Ver.Kurenai",
+                            Price = 4450000.0,
+                            ProductId = new Guid("550e8400-e29b-41d4-a716-446655440000"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("2e8c3bc1-23e5-4df9-822c-2f7d9dd4f5f3"),
+                            Color = "#FDDA0D",
+                            ExtraName = "The Yellow Flash",
+                            Price = 4350000.0,
+                            ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
+                            Color = "#880808",
+                            ExtraName = "Limited Edition (2025)",
+                            Price = 15000000.0,
+                            ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("6a4e5f76-3c84-4f4e-bb76-61768c5d3e7d"),
+                            Color = "#FF5733",
+                            ExtraName = "Lee Zii Ja Chosen",
+                            Price = 3600000.0,
+                            ProductId = new Guid("123e4567-e89b-12d3-a456-426614174000"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("d55b3f65-68b2-4c5e-85ae-8f2a3bfb6b8f"),
+                            Color = "#7393B3",
+                            ExtraName = "",
+                            Price = 4200000.0,
+                            ProductId = new Guid("9b9f0b80-4f3d-11ec-81d3-0242ac130003"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("e4d849aa-7683-47e5-9f45-2e4894a3ddf4"),
+                            Color = "#4169E1",
+                            ExtraName = "",
+                            Price = 2800000.0,
+                            ProductId = new Guid("00112233-4455-6677-8899-aabbccddeeff"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("3b6e123a-f75c-4de5-86a5-d2b5e8b6c9d2"),
+                            Color = "#fff",
+                            ExtraName = "",
+                            Price = 2700000.0,
+                            ProductId = new Guid("b3e2f5f0-7e44-4e06-b69e-8f87be0c30f7"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("0c462b3e-61c9-4e34-bab2-7d82c4c5e8e1"),
+                            Color = "#880808",
+                            ExtraName = "Ver.Tiger Max",
+                            Price = 3850000.0,
+                            ProductId = new Guid("cb3b0e7d-5ad3-4ec7-9b9a-4f06efb27c03"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("8b7f69d4-459c-45c8-bf38-9f5b214a9d7e"),
+                            Color = "#4169E1",
+                            ExtraName = "Ver.Dragon Max",
+                            Price = 3880000.0,
+                            ProductId = new Guid("cb3b0e7d-5ad3-4ec7-9b9a-4f06efb27c03"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("a2e987b6-fdbc-4d9a-a86b-6f9cb4e7f236"),
+                            Color = "#880808",
+                            ExtraName = "Ver.Kirin",
+                            Price = 4250000.0,
+                            ProductId = new Guid("e029d3c5-b6b3-4e31-bada-1e6b7d5af7c8"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("13c87621-8b94-4515-90d4-35f5f8a4b23e"),
+                            Color = "#fff",
+                            ExtraName = "",
+                            Price = 3300000.0,
+                            ProductId = new Guid("8a97f9a6-221d-4f5b-bc37-6e5cb7a979b6"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("2fa0f68b-efc9-4a92-b4c3-8f62c4d8e5a1"),
+                            Color = "#880808",
+                            ExtraName = "Chen Long Edition (Rio 2016)",
+                            Price = 5000000.0,
+                            ProductId = new Guid("dd36bf61-fc77-4cfb-82e1-6b2ff6f9b1d4"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("5d479eab-b8c6-4df1-99f7-df3a7b2e6f87"),
+                            Color = "#333",
+                            ExtraName = "",
+                            Price = 2200000.0,
+                            ProductId = new Guid("a2cf7e92-29fd-4d61-90b3-d3f2f8a7e9c6"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("7f1b9d38-3b5d-474f-832b-85c7c5d2a9b4"),
+                            Color = "#880808",
+                            ExtraName = "Ver.Red",
+                            Price = 2850000.0,
+                            ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("b9f376e1-6a5d-4b34-9a1c-3f9e8a7b2d5c"),
+                            Color = "#4169E1",
+                            ExtraName = "Ver.Blue",
+                            Price = 2830000.0,
+                            ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("41d3f8b7-c1e2-456f-a9c8-72b3d2e5f9a4"),
+                            Color = "#FF69B4",
+                            ExtraName = "Ver.Pink",
+                            Price = 2800000.0,
+                            ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("9d5a72c4-1f87-4b3a-b7e8-d4c5f9a2e3b6"),
+                            Color = "#4169E1",
+                            ExtraName = "",
+                            Price = 1500000.0,
+                            ProductId = new Guid("4d21b8e5-8a14-4b37-b84b-3d1c2e2e5f76"),
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("63e7c5d2-9b4f-4f38-b7d1-85f9a3e2c4d8"),
+                            Color = "#fff",
+                            ExtraName = "",
+                            Price = 1700000.0,
+                            ProductId = new Guid("2f8c6a10-5633-4b91-90a1-7c924df78e68"),
+                            Status = 1
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.ProductTechnology", b =>
@@ -756,6 +1360,98 @@ namespace Store_API.Migrations
                     b.HasIndex("TechnologyId");
 
                     b.ToTable("ProductTechnologies");
+
+                    b.HasData(
+                        new
+                        {
+                            ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6561)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6569)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6571)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6573)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6575)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6691)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6695)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6697)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6699)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6702)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6704)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6706)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6720)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6722)
+                        },
+                        new
+                        {
+                            ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
+                            Created = new DateTime(2025, 6, 25, 6, 53, 33, 807, DateTimeKind.Utc).AddTicks(6724)
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Promotion", b =>
@@ -786,6 +1482,17 @@ namespace Store_API.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Promotions");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3e5d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            BrandId = new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"),
+                            CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            EndDate = new DateTime(9999, 12, 31, 23, 59, 59, 999, DateTimeKind.Unspecified).AddTicks(9999),
+                            PercentageDiscount = 15.0,
+                            StartDate = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Rating", b =>
@@ -811,6 +1518,40 @@ namespace Store_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Ratings");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ProductDetailId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            Star = 4.0,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ProductDetailId = new Guid("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
+                            ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            Star = 4.5,
+                            UserId = 2
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ProductDetailId = new Guid("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
+                            ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
+                            Star = 4.7999999999999998,
+                            UserId = 4
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ProductDetailId = new Guid("6a4e5f76-3c84-4f4e-bb76-61768c5d3e7d"),
+                            ProductId = new Guid("123e4567-e89b-12d3-a456-426614174000"),
+                            Star = 4.5,
+                            UserId = 3
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Technology", b =>
@@ -834,6 +1575,78 @@ namespace Store_API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Technologies");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800437/technologies/tech1_qoof2s.jpg",
+                            Name = "ENHANCED ARCSABER FRAME"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800437/technologies/tech2_nhiopm.jpg",
+                            Name = "CONTROL-ASSIST BUMPER"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800436/technologies/tech3_olpj1g.png",
+                            Name = "POCKETING BOOSTER"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735800436/technologies/tech3_olpj1g.png",
+                            Name = "ISOMETRIC PLUS"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech5_axkpsh.webp",
+                            Name = "DUAL OPTIMUM SYSTEM"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801836/tech6_foheeo.webp",
+                            Name = "ISOMETRIC "
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech7_qfd4za.webp",
+                            Name = "AERO-BOX FRAME"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801835/tech8_mqshpr.webp",
+                            Name = "NEW Built-in T-Joint"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801836/tech9_jfuxth.jpg",
+                            Name = "ROTATIONAL GENARATOR SYSTEM"
+                        },
+                        new
+                        {
+                            Id = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0"),
+                            Description = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735801837/tech10_myratn.jpg",
+                            Name = "ENERGY BOOST CAP PLUS"
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Users.Role", b =>
@@ -973,7 +1786,7 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "888a3ecf-4fab-404c-a122-48276ff4815e",
+                            ConcurrencyStamp = "483d2597-6872-48e6-9a55-d1de6f919a2f",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "spadmin@example.com",
                             EmailConfirmed = true,
@@ -981,10 +1794,10 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SPADMIN@EXAMPLE.COM",
                             NormalizedUserName = "SPADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJ/A1QE50Gg8IAjX51tTGme6ndySOWy0EAP59a4mnC6v7gbhuI566GUx8dIkIEEFOA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELyT/CpZSO35p4BlUCfFQcU3ZVflgoZGE7fyfGjVS9XGqdzLto3lDTNbCneyyulvqw==",
                             PhoneNumberConfirmed = false,
                             Provider = "System",
-                            SecurityStamp = "e0200105-becf-4e96-804e-5112a0531612",
+                            SecurityStamp = "50a4578f-7962-483e-98d8-3fc7e7ec171d",
                             TwoFactorEnabled = false,
                             UserName = "spadmin"
                         },
@@ -992,7 +1805,7 @@ namespace Store_API.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ccdf77d7-b114-40b2-9f81-b4eea07c73e3",
+                            ConcurrencyStamp = "2e133dff-0f1d-4ea6-98d5-fc81a327075d",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin1@example.com",
                             EmailConfirmed = true,
@@ -1000,10 +1813,10 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN1@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEIwhZdqC2yzUW7+YDtYCOI/+dIGQF/L0ZSTXl3KjN3j53AjS8M/A71LDMAb/utufTQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEHJVTAr07lSguH5SvsH2i4ntlhf2dhn0B2QfjfqTn7jFOTmencA3eTTgCNYGVWdu5A==",
                             PhoneNumberConfirmed = false,
                             Provider = "System",
-                            SecurityStamp = "5e836581-2430-4050-baa4-8889b3c08105",
+                            SecurityStamp = "9dcc2a37-f082-4e41-95b7-33cbf1bb363e",
                             TwoFactorEnabled = false,
                             UserName = "admin1"
                         },
@@ -1011,7 +1824,7 @@ namespace Store_API.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "803c58d0-1989-44e1-95b6-e50339a6d1ea",
+                            ConcurrencyStamp = "c49adc77-de99-46f7-bf98-83cd4b8289cc",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin2@example.com",
                             EmailConfirmed = true,
@@ -1019,10 +1832,10 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN2@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN2",
-                            PasswordHash = "AQAAAAIAAYagAAAAED6KSfbN7P2D9aPIMQF/RppD+QSsVfyaoKJub1Tbrrw/PRR6ZaxiulzKhGPf1xWZiw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAELTxO3vW2NunHcbWbHuZt9WGsWuQkxm8Guy3HLowhe0HCF74hI91v14+mxfNiscVVA==",
                             PhoneNumberConfirmed = false,
                             Provider = "System",
-                            SecurityStamp = "8ece2aa3-a7d0-41b6-9387-c12e7a37f20e",
+                            SecurityStamp = "50596dd1-7cf1-448c-b55a-d784f205b199",
                             TwoFactorEnabled = false,
                             UserName = "admin2"
                         },
@@ -1030,7 +1843,7 @@ namespace Store_API.Migrations
                         {
                             Id = 4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "4e0ee0d8-fe6b-4225-88dc-fe857fa37748",
+                            ConcurrencyStamp = "368d3d40-5a58-4914-ad39-1ef489106595",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admi3n@example.com",
                             EmailConfirmed = true,
@@ -1038,10 +1851,10 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN3@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN3",
-                            PasswordHash = "AQAAAAIAAYagAAAAEErKMXl8OG3mknlmKH6Br1j7flxmXQh37X5InUFIqI6v9VpvqhXgS9TzaQpIPobbaQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENskZunKI2sbMFKGQ7k13y0QpoAs3HfHb8yPDvc90hyJ+fUVTlo0E+RwKy+zWyg5Ow==",
                             PhoneNumberConfirmed = false,
                             Provider = "System",
-                            SecurityStamp = "5cf69fe8-fffc-46fa-9caa-8d0745f0f2b1",
+                            SecurityStamp = "8e7fae9f-374d-400d-8ff0-6505dd4c939f",
                             TwoFactorEnabled = false,
                             UserName = "admin3"
                         });
@@ -1084,6 +1897,26 @@ namespace Store_API.Migrations
                     b.HasIndex("WarehouseId");
 
                     b.ToTable("UserWarehouses");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8df45413-2c4f-408a-9953-d3ac46038246"),
+                            UserId = 2,
+                            WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
+                        },
+                        new
+                        {
+                            Id = new Guid("f172ede6-eb39-4e29-936b-5413d6106c9b"),
+                            UserId = 3,
+                            WarehouseId = new Guid("22222222-2222-2222-2222-222222222222")
+                        },
+                        new
+                        {
+                            Id = new Guid("f75b375e-9397-45d0-b39f-853b90036da5"),
+                            UserId = 4,
+                            WarehouseId = new Guid("33333333-3333-3333-3333-333333333333")
+                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -1188,13 +2021,13 @@ namespace Store_API.Migrations
 
             modelBuilder.Entity("Store_API.Models.Inventory.StockHoldItem", b =>
                 {
-                    b.HasOne("Store_API.Models.Inventory.StockHold", "Group")
+                    b.HasOne("Store_API.Models.Inventory.StockHold", "StockHold")
                         .WithMany("Items")
                         .HasForeignKey("StockHoldId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Group");
+                    b.Navigation("StockHold");
                 });
 
             modelBuilder.Entity("Store_API.Models.Inventory.StockTransaction", b =>

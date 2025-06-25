@@ -6,13 +6,12 @@ using Store_API.Models;
 using Store_API.Models.Inventory;
 using Store_API.Models.OrderAggregate;
 using Store_API.Models.Users;
-using System.Reflection.Emit;
 
 namespace Store_API.Data
 {
     public class StoreContext : IdentityDbContext<User, Role, int>
     {
-        public StoreContext(DbContextOptions options) : base(options)
+        public StoreContext(DbContextOptions<StoreContext> options) : base(options)
         {
             
         }
@@ -43,101 +42,57 @@ namespace Store_API.Data
         {
             base.OnModelCreating(builder);
 
-            #region Seeding Users
+            #region Seeding Users - Roles - UserRoles
 
-            var seedUsers = new List<User>()
-            {
-                new User
-                {
-                    Id = 1,
-                    UserName = "spadmin",
-                    NormalizedUserName = "SPADMIN",
-                    FullName = "SuperAdmin",
-                    Email = "spadmin@example.com",
-                    NormalizedEmail = "SPADMIN@EXAMPLE.COM",
-                    EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    Provider = "System",
-                },
-                new User
-                {
-                    Id = 2,
-                    UserName = "admin1",
-                    FullName = "Admin1",
-                    NormalizedUserName = "ADMIN1",
-                    Email = "admin1@example.com",
-                    NormalizedEmail = "ADMIN1@EXAMPLE.COM",
-                    EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    Provider = "System",
-                },
-                new User
-                {
-                    Id = 3,
-                    UserName = "admin2",
-                    FullName = "Admin2",
-                    NormalizedUserName = "ADMIN2",
-                    Email = "admin2@example.com",
-                    NormalizedEmail = "ADMIN2@EXAMPLE.COM",
-                    EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    Provider = "System",
-                },
-                new User
-                {
-                    Id = 4,
-                    UserName = "admin3",
-                    FullName = "Admin3",
-                    NormalizedUserName = "ADMIN3",
-                    Email = "admi3n@example.com",
-                    NormalizedEmail = "ADMIN3@EXAMPLE.COM",
-                    EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    Provider = "System",
-                }
-            };
+            var users = DBNewSeed.SeedUsersData();
+            var roles = DBNewSeed.SeedRoleData();
+            var userRoles = DBNewSeed.SeedUserRoleRelations();
 
-            // Hash mật khẩu
-            PasswordHasher<User> hasher = new PasswordHasher<User>();
-            seedUsers.ForEach(u => u.PasswordHash = hasher.HashPassword(u, $"{u.UserName}@123"));
-            builder.Entity<User>().HasData(seedUsers);
-
-            // Seed Role Data
-            builder.Entity<Role>()
-                .HasData(
-                    new { Id = 1, Name = "SuperAdmin", NormalizedName = "SUPERADMIN" },
-                    new { Id = 2, Name = "Admin", NormalizedName = "ADMIN" },
-                    new { Id = 3, Name = "Customer", NormalizedName = "CUSTOMER" }
-            );
+            builder.Entity<User>().HasData(users);
+            builder.Entity<IdentityUserRole<int>>().HasData(userRoles);
+            builder.Entity<Role>().HasData(roles);
 
             #endregion
 
-            #region Seeding User-Role
+            #region Seeding Categories - Brands - Promotions
 
-            var userUserRoles = new List<IdentityUserRole<int>>
-            {
-                new IdentityUserRole<int>
-                {
-                    UserId = 1,
-                    RoleId = 1
-                },
-                new IdentityUserRole<int>
-                {
-                    UserId = 2,
-                    RoleId = 2
-                },
-                new IdentityUserRole<int>
-                {
-                    UserId = 3,
-                    RoleId = 2
-                },
-                new IdentityUserRole<int>
-                {
-                    UserId = 4,
-                    RoleId = 2
-                },
-            };
-            builder.Entity<IdentityUserRole<int>>().HasData(userUserRoles);
+            var categories = DBNewSeed.SeedCategories();
+            var brands = DBNewSeed.SeedBrands();
+            var promotions = DBNewSeed.SeedPromotions();
+
+            builder.Entity<Category>().HasData(categories);
+            builder.Entity<Brand>().HasData(brands);
+            builder.Entity<Promotion>().HasData(promotions);
+
+            #endregion
+
+            #region Products - ProductDetails - ProductTechnologies - Technologies - Ratings
+
+            var products = DBNewSeed.SeedProducts();
+            var technologies = DBNewSeed.SeedTechnologies();
+            var productTechnologies = DBNewSeed.SeedProductTechnologies();
+            var productDetails = DBNewSeed.SeedProductDetails();
+            var ratings = DBNewSeed.SeedRatings();
+
+            builder.Entity<Product>().HasData(products);
+            builder.Entity<Technology>().HasData(technologies);
+            builder.Entity<ProductTechnology>().HasData(productTechnologies);
+            builder.Entity<ProductDetail>().HasData(productDetails);
+            builder.Entity<Rating>().HasData(ratings);
+
+            #endregion
+
+            #region Seed Warehouse - Stocks - StockTransactions - UserWarehouses
+
+            var warehouses = DBNewSeed.SeedWarehouses();
+            var stocks = DBNewSeed.SeedStocks();
+            var stockTransactions = DBNewSeed.SeedStockTransactions();
+            var userWarehouses = DBNewSeed.SeedUserWarehouses();
+
+            builder.Entity<Warehouse>().HasData(warehouses);
+            builder.Entity<Stock>().HasData(stocks);
+            builder.Entity<StockTransaction>().HasData(stockTransactions);
+            builder.Entity<UserWarehouse>().HasData(userWarehouses);
 
             #endregion
 

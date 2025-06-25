@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿using MassTransit;
+using Newtonsoft.Json;
+using Store_API.Contracts;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.DTOs.Payments;
@@ -26,11 +28,13 @@ namespace Store_API.Services
         private readonly string _apiKey;
         private readonly IConfiguration _configuration;
         private readonly EmailSenderService _emailSenderService;
+        private readonly IPublishEndpoint _publishEndpoint;
 
         public PaymentService
         (   IUnitOfWork unitOfWork, IStockService stockService
             , IConfiguration configuration, EmailSenderService emailSenderService
             , IUserService userService, IBasketService basketService, IOrderService orderService
+            , IPublishEndpoint publishEndpoint
         )
         {
             _unitOfWork = unitOfWork;
@@ -40,6 +44,7 @@ namespace Store_API.Services
             _userService = userService;
             _basketService = basketService;
             _orderService = orderService;
+            _publishEndpoint = publishEndpoint;
             _apiKey = _configuration["Stripe:SecretKey"];
 
             if (string.IsNullOrEmpty(_apiKey)) throw new Exception("Stripe API Key is missing from configuration.");
@@ -109,7 +114,7 @@ namespace Store_API.Services
                             await stripeService.CancelAsync(existingPayment.PaymentIntentId);
                         }
                         catch { }
-                        _unitOfWork.Payment.Delete(existingPayment);
+                        _unitOfWork.Payment.DeleteAsync(existingPayment);
                     }
                 }
 
@@ -153,7 +158,10 @@ namespace Store_API.Services
                 };
                 await _unitOfWork.Payment.AddAsync(payment);
 
-                // 9. SaveChanges and Commit 
+                // 9. Publish StockHoldCreated Event
+                await _publishEndpoint.Publish(new StockHoldCreated(paymentIntent.Id, basket.UserId, basket.Items));
+
+                // 10. SaveChanges and Commit 
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
 
@@ -170,7 +178,7 @@ namespace Store_API.Services
 
         #region Stripe Payment Intent Events
 
-        public async Task HandleStripeWebhookAsync(Event stripeEvent)
+        public async Task HandleStripeWebhookAsync(Stripe.Event stripeEvent)
         {
             await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
             try
@@ -194,7 +202,7 @@ namespace Store_API.Services
             }
         }
 
-        private async Task HandlePaymentIntentSuccess(Event stripeEvent)
+        private async Task HandlePaymentIntentSuccess(Stripe.Event stripeEvent)
         {
             var orderId = Guid.NewGuid();
             // 1. Handle Stripe webhook event
@@ -205,7 +213,7 @@ namespace Store_API.Services
             var messageBody = JsonConvert.SerializeObject(paymentMessage);
 
             // 2. Idempotency check
-            var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentMessage.PaymentIntentId);
+            var payment = await _unitOfWork.Payment.FindFirstAsync(x => x.PaymentIntentId == paymentMessage.PaymentIntentId);
             if (payment == null)
                 throw new InvalidOperationException($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
 
@@ -216,21 +224,15 @@ namespace Store_API.Services
             var user = await _userService.GetUser(payment.UserId);
             var basket = await _unitOfWork.Basket.GetBasketDTORedis(payment.UserId, user.UserName);
 
-            // 4. Check Inventory and Update StockTransaction (Export)
-            foreach (var item in basket.Items)
-            {
-                var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
-                if (stockExist == null || stockExist.Quantity < item.Quantity)
-                    throw new ArgumentException($"Sorry! Product is not enoungh quantity in Inventory !");
+            // 4. Get stock hold items -> Update status to Confirmed
+            var stockHold = await _unitOfWork.StockHold.FindFirstAsync(x => x.PaymentIntentId == paymentIntent.Id);
+            if (stockHold == null)
+                throw new InvalidOperationException($"Stock hold not found for PaymentIntentId: {paymentIntent.Id}");
 
-                var stockUpsertDTO = new StockUpsertDTO
-                {
-                    ProductDetailId = item.ProductDetailId,
-                    WarehouseId = stockExist.WarehouseId,
-                    Quantity = item.Quantity,
-                };
-                await _stockService.ExportStock(stockUpsertDTO);
-            }
+            if (stockHold.Status == StockHoldStatus.Confirmed)
+                throw new InvalidOperationException($"Stock hold already confirmed for PaymentIntentId: {paymentIntent.Id}");
+
+            stockHold.Status = StockHoldStatus.Confirmed;
 
             // 5. Create Order
             var shippingAddressDTO = JsonConvert.DeserializeObject<ShippingAddressDTO>(paymentIntent.Metadata["ShippingAdress"]);
@@ -293,12 +295,12 @@ namespace Store_API.Services
             await _emailSenderService.SendEmailAsync(user.Email, "[🔥🔥🔥] ORDER SUCCESS:", content);
         }
 
-        private async Task HandlePaymentIntentFailed(Event stripeEvent)
+        private async Task HandlePaymentIntentFailed(Stripe.Event stripeEvent)
         {
             var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
             if (paymentIntent == null) return;
 
-            var payment = await _unitOfWork.Payment.GetByPaymentIntent(paymentIntent.Id);
+            var payment = await _unitOfWork.Payment.FindFirstAsync(x => x.PaymentIntentId == paymentIntent.Id);
             payment.Status = PaymentStatus.Failed;
         }
 

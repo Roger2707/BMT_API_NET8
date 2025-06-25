@@ -10,7 +10,6 @@ using Store_API.Extensions;
 using Store_API.Models.Users;
 using Store_API.Services;
 using Store_API.SignalR;
-using Microsoft.Extensions.Options;
 using MassTransit;
 using Store_API.Consumers;
 
@@ -141,6 +140,9 @@ builder.Services.AddAuthorizationServices();
 
 builder.Services.AddMassTransit(x =>
 {
+    // register DI
+    x.AddConsumersFromNamespaceContaining<StockHoldCreatedConsumer>();
+
     // ensure to add the outbox after savechange success
     x.AddEntityFrameworkOutbox<StoreContext>(o =>
     {
@@ -157,6 +159,20 @@ builder.Services.AddMassTransit(x =>
         cfg.ReceiveEndpoint("stock-hold-created", e =>
         {
             e.ConfigureConsumer<StockHoldCreatedConsumer>(context);
+        });
+
+        cfg.ReceiveEndpoint("stock-hold-expired", e =>
+        {
+            e.ConfigureConsumeTopology = false;
+
+            e.Bind("my-delayed-exchange", configure =>
+            {
+                configure.ExchangeType = "x-delayed-message";
+                configure.SetExchangeArgument("x-delayed-type", "direct");
+                configure.RoutingKey = "";
+            });
+
+            e.ConfigureConsumer<StockHoldExpiredConsumer>(context);
         });
         cfg.ConfigureEndpoints(context);
     });
@@ -221,17 +237,5 @@ app.MapControllers();
 #endregion 
 
 app.MapHub<OrdersHub>("/ordersHub");
-
-#region Seed Data
-
-using (var scope = app.Services.CreateScope())
-{
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<StoreContext>();
-    context.Database.Migrate();
-    DatabaseSeeding.SeedData(context);
-}
-
-#endregion
 
 app.Run();

@@ -1,8 +1,10 @@
-﻿namespace Store_API.Contracts
+﻿using Store_API.DTOs.Baskets;
+
+namespace Store_API.Contracts
 {
-    public record StockHoldCreated(string paymentIntentId, int userId, List<StockHoldItem> items);
-    public record StockReleasedCreated(string paymentIntentId);
-    public record StockConfirmedCreated(string paymentIntentId);
+    public record StockHoldCreated(string PaymentIntentId, int UserId, List<BasketItemDTO> Items);
+    public record StockHoldExpiredCreated(string PaymentIntentId);
+    public record StockHoldConfirmedCreated(string PaymentIntentId);
 
     public class StockHoldItem
     {

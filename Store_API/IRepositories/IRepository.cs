@@ -5,6 +5,7 @@ namespace Store_API.IRepositories
     public interface IRepository<T> where T : class
     {
         Task<T> GetByIdAsync(Guid id, params Expression<Func<T, object>>[]? includes);
+        Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[]? includes);
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null);
         Task AddAsync(T entity);
         void UpdateAsync(T entity);

@@ -46,7 +46,7 @@ namespace Store_API.Repositories
             UserAddress = new UserAddressRepository(_db, _dapperService);
             UserWarehouse = new UserWarehouseRepository(_db, _dapperService);
             Order = new OrderRepository(_dapperService, _db);
-            Payment = new PaymentRepository(_db);
+            Payment = new PaymentRepository(_db, _dapperService);
             Rating = new RatingRepository(_db, _dapperService);
             ShippingOrder = new ShippingOrderRepository(_db, _dapperService);
             StockHold = new StockHoldRepository(_db, _dapperService);
