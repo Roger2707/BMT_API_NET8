@@ -4,7 +4,6 @@ using Store_API.Enums;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore;
-using Store_API.Services.IService;
 using Store_API.Repositories.IRepositories;
 using Store_API.Repositories;
 

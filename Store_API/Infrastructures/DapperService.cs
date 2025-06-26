@@ -1,9 +1,8 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
-using Store_API.Services.IService;
 using System.Data;
 
-namespace Store_API.Services
+namespace Store_API.Infrastructures
 {
     public class DapperService : IDapperService
     {

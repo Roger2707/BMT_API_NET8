@@ -1,8 +1,8 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
+using Store_API.Infrastructures;
 using Store_API.Repositories.IRepositories;
-using Store_API.Services.IService;
 using System.Linq.Expressions;
 
 namespace Store_API.Repositories
