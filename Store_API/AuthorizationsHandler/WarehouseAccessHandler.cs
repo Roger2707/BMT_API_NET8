@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
 using Store_API.Helpers;
-using Store_API.IService;
-using Store_API.IRepositories;
 using System.Security.Claims;
+using Store_API.Services.IService;
+using Store_API.Infrastructures;
 
 namespace Store_API.AuthorizationsHandler
 {
@@ -65,7 +65,7 @@ namespace Store_API.AuthorizationsHandler
                     return;
                 }
 
-                var warehouse = await _unitOfWork.Warehouse.GetByIdAsync(Guid.Parse(warehouseId));
+                var warehouse = await _unitOfWork.Warehouse.FindFirstAsync(w => w.Id == Guid.Parse(warehouseId));
                 if (warehouse == null)
                 {
                     context.Fail();

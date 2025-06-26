@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Store_API.Helpers;
-using Store_API.IService;
+using Store_API.Services.IService;
 using System.Security.Claims;
 using System.Text.Json;
 

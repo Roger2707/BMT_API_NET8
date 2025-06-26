@@ -1,7 +1,7 @@
 ﻿using Store_API.DTOs.Brands;
-using Store_API.IRepositories;
-using Store_API.IService;
+using Store_API.Infrastructures;
 using Store_API.Models;
+using Store_API.Services.IService;
 
 namespace Store_API.Services
 {
@@ -21,7 +21,7 @@ namespace Store_API.Services
 
         public async Task<Brand> GetById(Guid brandId)
         {
-            var brand = await _unitOfWork.Brand.GetByIdAsync(brandId);
+            var brand = await _unitOfWork.Brand.FindFirstAsync(x => x.Id == brandId);
             return brand;
         }
         public async Task Create(BrandDTO brandDTO)
@@ -39,7 +39,7 @@ namespace Store_API.Services
         }
         public async Task Update(BrandDTO brandDTO)
         {
-            var existedBrand = await _unitOfWork.Brand.GetByIdAsync(brandDTO.Id);
+            var existedBrand = await _unitOfWork.Brand.FindFirstAsync(x => x.Id == brandDTO.Id);
             if (existedBrand == null) throw new Exception("Brand is not existed");
 
             existedBrand.Name = brandDTO.Name;
@@ -51,7 +51,7 @@ namespace Store_API.Services
 
         public async Task Delete(Guid brandId)
         {
-            var existedBrand = await _unitOfWork.Brand.GetByIdAsync(brandId);
+            var existedBrand = await _unitOfWork.Brand.FindFirstAsync(x => x.Id == brandId);
             if (existedBrand == null) throw new Exception("Brand is not existed");
             _unitOfWork.Brand.DeleteAsync(existedBrand);
             await _unitOfWork.SaveChangesAsync();

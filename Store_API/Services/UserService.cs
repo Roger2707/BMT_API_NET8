@@ -2,14 +2,14 @@
 using Newtonsoft.Json;
 using Store_API.DTOs.Accounts;
 using Store_API.Helpers;
-using Store_API.IService;
-using Store_API.IRepositories;
 using System.Security.Claims;
 using Store_API.DTOs.User;
 using Google.Apis.Auth;
 using Store_API.Models.Users;
 using Store_API.Enums;
 using Store_API.Models.OrderAggregate;
+using Store_API.Services.IService;
+using Store_API.Infrastructures;
 
 namespace Store_API.Services
 {
@@ -487,7 +487,12 @@ namespace Store_API.Services
                 }
                 
                 // User Shipping Adress
-                var userAddresses = await _unitOfWork.UserAddress.GetAllAsync(e => e.UserId == user.Id);
+                var userAddresses = await _unitOfWork.UserAddress
+                    .GetAllAsync(model, filter =>
+                    {
+                        return u => u.UserId == user.Id;
+                    });
+
                 if(userAddresses != null && userAddresses.Any())
                 {
                     _unitOfWork.UserAddress.RemoveRangeAsync(userAddresses);

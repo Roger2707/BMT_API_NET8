@@ -1,8 +1,8 @@
 ﻿using Dapper;
 using Store_API.DTOs.Warehouse;
-using Store_API.IService;
 using Store_API.Models.Inventory;
-using Store_API.IRepositories;
+using Store_API.Services.IService;
+using Store_API.Infrastructures;
 
 
 namespace Store_API.Services
@@ -35,7 +35,7 @@ namespace Store_API.Services
 
         public async Task<WarehouseDTO> GetWarehouseDetail(Guid id)
         {
-            var warehouseExisted = await _unitOfwork.Warehouse.GetByIdAsync(id);
+            var warehouseExisted = await _unitOfwork.Warehouse.FindFirstAsync(w => w.Id == id);
             if (warehouseExisted == null) throw new Exception("Warehouse not found");
 
             return new WarehouseDTO
@@ -74,7 +74,7 @@ namespace Store_API.Services
 
         public async Task<Guid> Update(WarehouseUpsertDTO warehouseDTO, int userId)
         {
-            var warehouseExisted = await _unitOfwork.Warehouse.GetByIdAsync(warehouseDTO.Id);
+            var warehouseExisted = await _unitOfwork.Warehouse.FindFirstAsync(w => w.Id == warehouseDTO.Id);
             if (warehouseExisted == null) throw new Exception("Warehouse is not existed !");
 
             // Only SuperAdmin can modify SuperAdmin-only warehouses
@@ -97,7 +97,7 @@ namespace Store_API.Services
 
         public async Task Delete(Guid id, int userId)
         {
-            var warehouseExisted = await _unitOfwork.Warehouse.GetByIdAsync(id);
+            var warehouseExisted = await _unitOfwork.Warehouse.FindFirstAsync(w => w.Id == id);
             if (warehouseExisted == null) throw new Exception("Warehouse is not existed !");
 
             // Only SuperAdmin can delete SuperAdmin-only warehouses

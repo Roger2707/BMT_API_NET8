@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Products;
-using Store_API.IService;
+using Store_API.Services.IService;
 using System.ComponentModel.DataAnnotations;
 
 namespace Store_API.Controllers

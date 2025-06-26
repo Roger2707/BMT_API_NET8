@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Baskets;
 using Store_API.Helpers;
-using Store_API.IService;
+using Store_API.Services.IService;
 using System.Security.Claims;
 
 namespace Store_API.Controllers

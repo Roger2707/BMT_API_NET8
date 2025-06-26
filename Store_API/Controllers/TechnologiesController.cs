@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Store_API.IService;
+using Store_API.Services.IService;
 
 namespace Store_API.Controllers
 {

@@ -1,4 +1,4 @@
-﻿using Store_API.IService;
+﻿using Store_API.Services.IService;
 
 namespace Store_API.Services
 {

@@ -1,6 +1,6 @@
 ﻿using Dapper;
 using Microsoft.Data.SqlClient;
-using Store_API.IService;
+using Store_API.Services.IService;
 
 namespace Store_API.Services
 {
@@ -8,55 +8,56 @@ namespace Store_API.Services
     {
         private SqlConnection _connection;
         private SqlTransaction _transaction;
-        private readonly string _connectionString;
 
-        public DapperService(IConfiguration _configuration)
+        #region Transactions
+
+        public void UseConnection(SqlConnection connection) => _connection = connection;
+
+        public void SetTransaction(SqlTransaction transaction) => _transaction = transaction;
+
+        private SqlConnection EnsureConnectionAsync()
         {
-            _connectionString = _configuration.GetConnectionString("DefaultConnection");
+            if (_connection != null) return _connection;
+            throw new InvalidOperationException("DapperService is not initialized with a connection.");
         }
 
-        #region Transaction Methods
-
-        public void UseConnection(SqlConnection connection)
+        public async Task CommitTransactionAsync()
         {
-            _connection = connection;
+            _transaction?.Commit();
+            if (_connection != null) await _connection.CloseAsync();
+            _transaction = null;
+            _connection = null;
         }
 
-        public void SetTransaction(SqlTransaction transaction)
+        public async Task RollbackTransactionAsync()
         {
-            _transaction = transaction;
-        }
-
-        public SqlTransaction GetTransaction() => _transaction;
-        public SqlConnection GetConnection() => _connection;
-
-        private async Task<SqlConnection> EnsureConnectionAsync()
-        {
-            if (_connection != null)
-                return _connection;
-
-            var conn = new SqlConnection(_connectionString);
-            await conn.OpenAsync();
-            return conn;
+            _transaction?.Rollback();
+            if (_connection != null) await _connection.CloseAsync();
+            _transaction = null;
+            _connection = null;
         }
 
         #endregion
 
-        #region Methods
+        #region CRUD
 
         public async Task<List<TResult>> QueryAsync<TResult>(string query, object p = null)
         {
-            var connection = await EnsureConnectionAsync();
+            var connection = EnsureConnectionAsync();
             return (await connection.QueryAsync<TResult>(query, p, _transaction)).ToList();
         }
 
         public async Task<TResult> QueryFirstOrDefaultAsync<TResult>(string query, object p = null)
         {
-            var connection = await EnsureConnectionAsync();
+            var connection = EnsureConnectionAsync();
             return await connection.QueryFirstOrDefaultAsync<TResult>(query, p, _transaction);
         }
 
-        public async Task<int> Execute(string query, object p = null) => await _connection.ExecuteAsync(query, p, _transaction);
+        public async Task<int> Execute(string query, object p = null)
+        {
+            var connection = EnsureConnectionAsync();
+            return await connection.ExecuteAsync(query, p, _transaction);
+        }
 
         #endregion
     }

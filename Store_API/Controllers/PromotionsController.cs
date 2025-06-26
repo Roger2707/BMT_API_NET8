@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Store_API.DTOs.Promotions;
-using Store_API.IService;
 using Store_API.Models;
+using Store_API.Services.IService;
 
 namespace Store_API.Controllers
 {

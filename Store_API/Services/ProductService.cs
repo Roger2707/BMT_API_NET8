@@ -1,8 +1,8 @@
 ﻿using Store_API.DTOs.Paginations;
 using Store_API.DTOs.Products;
-using Store_API.IService;
 using Store_API.Models;
-using Store_API.IRepositories;
+using Store_API.Services.IService;
+using Store_API.Infrastructures;
 
 namespace Store_API.Services
 {
@@ -102,7 +102,7 @@ namespace Store_API.Services
 
             try
             {
-                Product existedProduct = await _unitOfWork.Product.GetByIdAsync(model.Id, p => p.Details);
+                Product existedProduct = await _unitOfWork.Product.FindFirstAsync(p => p.Id == model.Id, p => p.Details);
 
                 if (existedProduct == null)
                     return Guid.Empty;

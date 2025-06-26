@@ -1,7 +1,7 @@
 ﻿using Store_API.DTOs.Categories;
-using Store_API.IService;
 using Store_API.Models;
-using Store_API.IRepositories;
+using Store_API.Services.IService;
+using Store_API.Infrastructures;
 
 namespace Store_API.Services
 {
@@ -21,7 +21,7 @@ namespace Store_API.Services
 
         public async Task<Category> GetById(Guid categoryId)
         {
-            var categories = await _unitOfWork.Category.GetByIdAsync(categoryId);
+            var categories = await _unitOfWork.Category.FindFirstAsync(x => x.Id == categoryId);
             return categories;
         }
 
@@ -40,7 +40,7 @@ namespace Store_API.Services
 
         public async Task Update(CategoryDTO categoryDTO)
         {
-            var existedCategory = await _unitOfWork.Category.GetByIdAsync(categoryDTO.Id);
+            var existedCategory = await _unitOfWork.Category.FindFirstAsync(x => x.Id == categoryDTO.Id);
             if (existedCategory == null) throw new Exception("Category is not existed");
             existedCategory.Name = categoryDTO.Name;
             _unitOfWork.Category.UpdateAsync(existedCategory);
@@ -49,7 +49,7 @@ namespace Store_API.Services
 
         public async Task Delete(Guid categoryId)
         {
-            var existedCategory = await _unitOfWork.Category.GetByIdAsync(categoryId);
+            var existedCategory = await _unitOfWork.Category.FindFirstAsync(x => x.Id == categoryId);
             if (existedCategory == null) throw new Exception("Category is not existed");
             _unitOfWork.Category.DeleteAsync(existedCategory);
             await _unitOfWork.SaveChangesAsync();

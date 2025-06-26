@@ -1,6 +1,6 @@
 ﻿using MassTransit;
 using Store_API.Contracts;
-using Store_API.IService;
+using Store_API.Services.IService;
 
 namespace Store_API.Consumers
 {

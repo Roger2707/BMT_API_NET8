@@ -1,8 +1,8 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs.Promotions;
-using Store_API.IRepositories;
-using Store_API.IService;
 using Store_API.Models;
+using Store_API.Repositories.IRepositories;
+using Store_API.Services.IService;
 
 namespace Store_API.Repositories
 {
@@ -35,30 +35,6 @@ namespace Store_API.Repositories
                             ";
             var promotions = await QueryAsync<PromotionDTO>(query);
             return promotions;
-        }
-
-        public async Task<PromotionDTO> GetPromotionAsync(Guid promotionId)
-        {
-            string query = @"
-                            SELECT
-	                            promotion.Id
-	                            , promotion.StartDate
-	                            , promotion.EndDate
-	                            , promotion.BrandId
-	                            , brand.Name as BrandName
-	                            , promotion.CategoryId 
-	                            , category.Name as CategoryName
-	                            , promotion.PercentageDiscount
-
-                            FROM Promotions promotion
-
-                            INNER JOIN Brands brand ON promotion.BrandId = brand.Id
-                            INNER JOIN Categories category ON promotion.CategoryId = category.Id
-
-                            WHERE promotion.Id = @PromotionId
-                            ";
-            var promotion = await QueryFirstOrDefaultAsyncAsync<PromotionDTO>(query, new {PromotionId = promotionId});
-            return promotion;
         }
 
         public async Task<DateTime?> GetMaxEndDateOfOnePromotionAsync(Guid categoryId, Guid brandId)

@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Store_API.DTOs.Orders;
 using Store_API.Enums;
-using Store_API.IService;
 using Store_API.Models.OrderAggregate;
-using Store_API.IRepositories;
 using Store_API.SignalR;
+using Store_API.Services.IService;
+using Store_API.Infrastructures;
 
 namespace Store_API.Services
 {

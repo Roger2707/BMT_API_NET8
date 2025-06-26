@@ -1,7 +1,7 @@
 ﻿using Store_API.DTOs.Promotions;
-using Store_API.IService;
 using Store_API.Models;
-using Store_API.IRepositories;
+using Store_API.Services.IService;
+using Store_API.Infrastructures;
 
 namespace Store_API.Services
 {
@@ -22,8 +22,22 @@ namespace Store_API.Services
 
         public async Task<PromotionDTO> GetPromotion(Guid promoitonId)
         {
-            var promotion = await _unitOfWork.Promotion.GetPromotionAsync(promoitonId);
-            return promotion;
+            var promotion = await _unitOfWork.Promotion.FindFirstAsync(x => x.Id == promoitonId, x => x.Category, x => x.Brand);
+
+            if (promotion == null)
+                throw new Exception($"Promotion with ID {promoitonId} not found.");
+
+            return new PromotionDTO
+            {
+                Id = promotion.Id,
+                BrandId = promotion.BrandId,
+                CategoryId = promotion.CategoryId,
+                StartDate = promotion.StartDate,
+                EndDate = promotion.EndDate,
+                PercentageDiscount = promotion.PercentageDiscount,
+                BrandName = promotion.Brand?.Name ?? "Unknown",
+                CategoryName = promotion.Category?.Name ?? "Unknown"
+            };
         }
 
         public async Task Create(PromotionUpsertDTO promotionUpsertDTO)
@@ -52,7 +66,7 @@ namespace Store_API.Services
 
         public async Task Delete(Guid promotionId)
         {
-            var existedPromotion = await _unitOfWork.Promotion.GetByIdAsync(promotionId);
+            var existedPromotion = await _unitOfWork.Promotion.FindFirstAsync(x => x.Id == promotionId);
             if (existedPromotion == null) throw new Exception("Promotion is not exited !");
             _unitOfWork.Promotion.DeleteAsync(existedPromotion);
             await _unitOfWork.SaveChangesAsync();
@@ -60,7 +74,7 @@ namespace Store_API.Services
 
         public async Task Update(PromotionUpsertDTO promotion)
         {
-            var existedPromotion = await _unitOfWork.Promotion.GetByIdAsync(promotion.Id);
+            var existedPromotion = await _unitOfWork.Promotion.FindFirstAsync(x => x.Id == promotion.Id);
             if (existedPromotion == null) throw new Exception("Promotion is not exited !");
 
             existedPromotion.BrandId = promotion.BrandId;

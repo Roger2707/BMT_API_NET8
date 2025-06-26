@@ -6,10 +6,10 @@ using Store_API.DTOs.Orders;
 using Store_API.DTOs.Payments;
 using Store_API.Enums;
 using Store_API.Helpers;
-using Store_API.IRepositories;
-using Store_API.IService;
+using Store_API.Infrastructures;
 using Store_API.Models;
 using Store_API.Models.OrderAggregate;
+using Store_API.Services.IService;
 using Stripe;
 using System.Security.Cryptography;
 using System.Text;
@@ -66,7 +66,7 @@ namespace Store_API.Services
 
         public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAddressDTO shippingAddress)
         {
-            await _unitOfWork.BeginTransactionAsync(TransactionType.Both);
+            await _unitOfWork.BeginTransactionAsync();
             try
             {
                 // 1. Check Quantity Product in Inventory

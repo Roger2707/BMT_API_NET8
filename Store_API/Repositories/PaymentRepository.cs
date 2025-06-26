@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
 using Store_API.Enums;
-using Store_API.IRepositories;
-using Store_API.IService;
 using Store_API.Models;
+using Store_API.Repositories.IRepositories;
+using Store_API.Services.IService;
 
 namespace Store_API.Repositories
 {
@@ -16,9 +16,8 @@ namespace Store_API.Repositories
         public async Task<Payment> GetLatestPendingPaymentAsync(int userId)
         {
             return await _db.Payments
-                        .Where(p => p.UserId == userId && p.Status == PaymentStatus.Pending)
                         .OrderByDescending(p => p.CreatedAt)
-                        .FirstOrDefaultAsync();
+                        .FirstOrDefaultAsync(p => p.UserId == userId && p.Status == PaymentStatus.Pending);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using Dapper;
-using Store_API.IService;
+using Store_API.Services.IService;
 
 namespace Store_API.Services
 {

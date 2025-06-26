@@ -1,8 +1,8 @@
 ﻿using Store_API.DTOs.Stocks;
 using Store_API.Enums;
-using Store_API.IService;
 using Store_API.Models.Inventory;
-using Store_API.IRepositories;
+using Store_API.Services.IService;
+using Store_API.Infrastructures;
 
 namespace Store_API.Services
 {
@@ -51,7 +51,7 @@ namespace Store_API.Services
             await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
 
             // Handle Stock
-            var existedStock = await _unitOfWork.Stock.GetByIdAsync(stockUpsertDTO.StockId);
+            var existedStock = await _unitOfWork.Stock.FindFirstAsync(s => s.Id == stockUpsertDTO.StockId);
             if (existedStock != null)
                 existedStock.Quantity += stockUpsertDTO.Quantity;
             else
@@ -93,7 +93,7 @@ namespace Store_API.Services
             if (existedStock == null || existedStock.Quantity < stockUpsertDTO.Quantity)
                 throw new Exception("Quantity is not enough !");
 
-            var updatedStock = await _unitOfWork.Stock.GetByIdAsync(existedStock.StockId);
+            var updatedStock = await _unitOfWork.Stock.FindFirstAsync(s => s.Id == existedStock.StockId);
             updatedStock.Quantity -= stockUpsertDTO.Quantity;
 
             // Add new Stock Transaction

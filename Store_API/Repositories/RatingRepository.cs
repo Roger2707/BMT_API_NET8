@@ -1,8 +1,8 @@
 ﻿using Store_API.Data;
 using Store_API.DTOs.Rating;
-using Store_API.IRepositories;
-using Store_API.IService;
 using Store_API.Models;
+using Store_API.Repositories.IRepositories;
+using Store_API.Services.IService;
 
 namespace Store_API.Repositories
 {

@@ -1,8 +1,8 @@
 ﻿
 using Microsoft.EntityFrameworkCore;
 using Store_API.Data;
-using Store_API.IRepositories;
-using Store_API.IService;
+using Store_API.Repositories.IRepositories;
+using Store_API.Services.IService;
 using System.Linq.Expressions;
 
 namespace Store_API.Repositories
@@ -12,7 +12,7 @@ namespace Store_API.Repositories
         protected readonly StoreContext _db;
         protected readonly IDapperService _dapperService;
 
-        private DbSet<T> _dbSet;
+        private readonly DbSet<T> _dbSet;
         public Repository(StoreContext db, IDapperService dapperService)
         {
             _db = db;
@@ -51,14 +51,12 @@ namespace Store_API.Repositories
 
         #region Retrieve Data
 
-        public async Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            IQueryable<T> query = _dbSet;
-            if (filter != null) query = query.Where(filter);
-            return await query.ToListAsync();
+            return await _dbSet.ToListAsync();
         }
 
-        public async Task<T?> GetByIdAsync(Guid id, params Expression<Func<T, object>>[]? includes)
+        public async Task<IEnumerable<T>> GetAllAsync<TFilter>(TFilter filter, Func<TFilter, Expression<Func<T, bool>>> filterBuilder, params Expression<Func<T, object>>[] includes)
         {
             IQueryable<T> query = _dbSet;
 
@@ -70,7 +68,10 @@ namespace Store_API.Repositories
                 }
             }
 
-            return await query.FirstOrDefaultAsync(e => EF.Property<Guid>(e, "Id") == id);
+            var predicate = filterBuilder(filter);
+            query = query.Where(predicate);
+
+            return await query.ToListAsync();
         }
 
         public async Task<T?> FindFirstAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[]? includes)
@@ -83,13 +84,13 @@ namespace Store_API.Repositories
                     query = query.Include(include);
                 }
             }
-
             return await query.FirstOrDefaultAsync(predicate);
         }
 
         #endregion
 
         #region Dapper Funcitonalities
+
         public async Task<IEnumerable<TResult>> QueryAsync<TResult>(string query, object parameters = null)
         {
             var result = await _dapperService.QueryAsync<TResult>(query, parameters);
