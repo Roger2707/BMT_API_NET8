@@ -72,7 +72,8 @@ namespace Store_API.Repositories
                         WarehouseName = d.WarehouseName,
                         Quantity = d.Quantity,
                     }).ToList()
-                }).FirstOrDefault();
+                })
+                .FirstOrDefault();
 
             return stockDTO;
         }

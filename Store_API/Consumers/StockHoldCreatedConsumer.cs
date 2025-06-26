@@ -28,7 +28,7 @@ namespace Store_API.Consumers
                     new StockHoldExpiredCreated(context.Message.PaymentIntentId)
                     , ctx =>
                     {
-                        ctx.Headers.Set("x-delay", 15 * 60 * 1000); // 15 minutes
+                        ctx.Headers.Set("x-delay", 1 * 60 * 1000); // 1 minutes
                         ctx.SetRoutingKey("");
                         ctx.DestinationAddress = new Uri("exchange:my-delayed-exchange");
                     }

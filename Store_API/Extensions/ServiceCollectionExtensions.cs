@@ -1,6 +1,7 @@
 ﻿using Store_API.Infrastructures;
 using Store_API.Services;
 using Store_API.Services.IService;
+using Stripe;
 
 namespace Store_API.Extensions
 {
@@ -17,7 +18,7 @@ namespace Store_API.Extensions
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IBrandService, BrandService>();
             services.AddScoped<IPromotionService, PromotionService>();
-            services.AddScoped<IProductService, ProductService>();
+            services.AddScoped<IProductService, Services.ProductService>();
             services.AddScoped<ITechnologyService, TechnologyService>();
             services.AddScoped<IWarehouseService, WarehouseService>();
             services.AddScoped<IStockService, StockService>();
@@ -33,8 +34,16 @@ namespace Store_API.Extensions
             services.AddHttpClient();
             services.AddScoped<EmailSenderService>();
             services.AddScoped<IImageService, ImageService>();
-            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ITokenService, Services.TokenService>();
             services.AddSingleton<IRedisService, RedisService>();
+
+            services.AddScoped<PaymentIntentService>(provider =>
+            {
+                var configuration = provider.GetRequiredService<IConfiguration>();
+                var stripeSecretKey = configuration["Stripe:SecretKey"];
+                return new PaymentIntentService(new StripeClient(stripeSecretKey));
+            });
+
         }
     }
 }

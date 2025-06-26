@@ -18,33 +18,28 @@ namespace Store_API.Services
 {
     public class PaymentService : IPaymentService
     {
+        private readonly PaymentIntentService _paymentIntentService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IUserService _userService;
         private readonly IBasketService _basketService;
         private readonly IOrderService _orderService;
 
-        private readonly string _apiKey;
-        private readonly IConfiguration _configuration;
         private readonly EmailSenderService _emailSenderService;
         private readonly IPublishEndpoint _publishEndpoint;
 
         public PaymentService
-        (   IUnitOfWork unitOfWork, IConfiguration configuration, EmailSenderService emailSenderService
-            , IUserService userService, IBasketService basketService, IOrderService orderService, IPublishEndpoint publishEndpoint
+        (   PaymentIntentService paymentIntentService, IUnitOfWork unitOfWork, IUserService userService
+            , IBasketService basketService, IOrderService orderService
+            , EmailSenderService emailSenderService, IPublishEndpoint publishEndpoint
         )
         {
+            _paymentIntentService = paymentIntentService;
             _unitOfWork = unitOfWork;
-            _configuration = configuration;
-            _emailSenderService = emailSenderService;
             _userService = userService;
             _basketService = basketService;
             _orderService = orderService;
+            _emailSenderService = emailSenderService;
             _publishEndpoint = publishEndpoint;
-            _apiKey = _configuration["Stripe:SecretKey"];
-
-            if (string.IsNullOrEmpty(_apiKey)) throw new Exception("Stripe API Key is missing from configuration.");
-            if (string.IsNullOrEmpty(StripeConfiguration.ApiKey))
-                StripeConfiguration.ApiKey = _apiKey;
         }
 
         #region CRUD PaymentItent
@@ -72,44 +67,31 @@ namespace Store_API.Services
                 // 1. Check Quantity Product in Inventory
                 foreach (var item in basket.Items)
                 {
+                    if(item.Status == false) continue;
+
                     var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
                     if (stockExist == null || stockExist.Quantity < item.Quantity)
                         throw new Exception($"Sorry! Product {item.ProductName} is not enoungh quantity in Inventory !");
                 }
-                var stripeService = new PaymentIntentService();
+                var itemsSelected = basket.Items.Where(item => item.Status == true);
 
                 // 2. Calc Grand Total
-                double grandTotal = basket.Items.Sum(item => item.Quantity * item.DiscountPrice);
+                double grandTotal = itemsSelected.Sum(item => item.Quantity * item.DiscountPrice);
 
                 // 3. Create BasketHash
-                string basketHash = GenerateCartHash(basket.Items);
+                string basketHash = GenerateCartHash(itemsSelected);
 
-                // 4. Check existed PaymentIntent
+                // 4. Check existed PaymentIntent -> Get latest pending payment for this user
                 var existingPayment = await _unitOfWork.Payment.GetLatestPendingPaymentAsync(basket.UserId);
-                if (existingPayment != null)
+                bool isNewPayment = existingPayment == null || existingPayment.BasketHash != basketHash;
+                if (isNewPayment == false)
                 {
-                    var existingStripeIntent = await stripeService.GetAsync(existingPayment.PaymentIntentId);
-
-                    if (existingPayment.BasketHash == basketHash && existingStripeIntent.Status == "requires_payment_method")
+                    var existingStripeIntent = await _paymentIntentService.GetAsync(existingPayment.PaymentIntentId);
+                    if (existingStripeIntent.Status is "requires_payment_method" or "requires_confirmation" 
+                        or "requires_action" or "processing")
                     {
                         await _unitOfWork.CommitAsync();
                         return existingStripeIntent;
-                    }
-
-                    if (existingStripeIntent.Status == "succeeded")
-                    {
-                        await _unitOfWork.CommitAsync();
-                        throw new Exception("An existing payment was already completed for a different cart.");
-                    }
-
-                    if (existingStripeIntent.Status == "requires_payment_method" || existingStripeIntent.Status == "requires_confirmation")
-                    {
-                        try
-                        {
-                            await stripeService.CancelAsync(existingPayment.PaymentIntentId);
-                        }
-                        catch { }
-                        _unitOfWork.Payment.DeleteAsync(existingPayment);
                     }
                 }
 
@@ -137,7 +119,7 @@ namespace Store_API.Services
                 };
 
                 // 7. Create PaymentIntent
-                var paymentIntent = await stripeService.CreateAsync(options);
+                var paymentIntent = await _paymentIntentService.CreateAsync(options);
 
                 // 8. Create Payment in DB
                 var payment = new Payment
@@ -154,7 +136,7 @@ namespace Store_API.Services
                 await _unitOfWork.Payment.AddAsync(payment);
 
                 // 9. Publish StockHoldCreated Event
-                await _publishEndpoint.Publish(new StockHoldCreated(paymentIntent.Id, basket.UserId, basket.Items));
+                await _publishEndpoint.Publish(new StockHoldCreated(paymentIntent.Id, basket.UserId, itemsSelected.ToList()));
 
                 // 10. SaveChanges and Commit 
                 await _unitOfWork.SaveChangesAsync();

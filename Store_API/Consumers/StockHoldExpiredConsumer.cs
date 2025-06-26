@@ -4,17 +4,20 @@ using Store_API.DTOs.Stocks;
 using Store_API.Enums;
 using Store_API.Infrastructures;
 using Store_API.Services.IService;
+using Stripe;
 
 namespace Store_API.Consumers
 {
     public class StockHoldExpiredConsumer : IConsumer<StockHoldExpiredCreated>
     {
+        private readonly PaymentIntentService _paymentIntentService;
         private readonly IStockService _stockService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly ILogger<StockHoldExpiredConsumer> _logger;
 
-        public StockHoldExpiredConsumer(IStockService stockService, IUnitOfWork unitOfWork, ILogger<StockHoldExpiredConsumer> logger)
+        public StockHoldExpiredConsumer(PaymentIntentService paymentIntentService, IStockService stockService, IUnitOfWork unitOfWork, ILogger<StockHoldExpiredConsumer> logger)
         {
+            _paymentIntentService = paymentIntentService;
             _stockService = stockService;
             _unitOfWork = unitOfWork;
             _logger = logger;
@@ -54,10 +57,15 @@ namespace Store_API.Consumers
                     };
                     await _stockService.ImportStock(stockUpsertDTO);
                 }
+                _logger.LogInformation($"[StockHoldExpired] Released stock successfully for {context.Message.PaymentIntentId}");
+
+                await _paymentIntentService.CancelAsync(context.Message.PaymentIntentId);
+                if (payment != null) 
+                    payment.Status = PaymentStatus.Failed;
 
                 await _unitOfWork.SaveChangesAsync();
 
-                _logger.LogInformation($"[StockHoldExpired] Released stock successfully for {context.Message.PaymentIntentId}");
+                _logger.LogInformation($"[StockHoldExpired] PaymentIntent {context.Message.PaymentIntentId} cancelled and status updated to Failed");
             }
             catch (Exception ex)
             {
