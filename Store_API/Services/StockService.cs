@@ -35,7 +35,55 @@ namespace Store_API.Services
 
         #endregion
 
-        #region Import / Export Stock
+        #region Import / Export Stock - Admin - Transaction will be created now
+
+        public async Task<bool> Import(StockUpsertDTO stockUpsertDTO)
+        {
+            await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
+            try
+            {
+                // Get stock quantity in warehouse - row level lock - consistency if multiple users import stock at the same time
+                var stockQuantity = await _unitOfWork.Stock.CheckStockQuantityInWarehouse(stockUpsertDTO.ProductDetailId, stockUpsertDTO.WarehouseId);
+
+                await ImportStock(stockUpsertDTO);
+
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+       
+        public async Task<bool> Export(StockUpsertDTO stockUpsertDTO)
+        {
+            await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
+            try
+            {
+                // Get stock quantity in warehouse - row level lock - consistency if multiple users export stock at the same time
+                var stockQuantity = await _unitOfWork.Stock.CheckStockQuantityInWarehouse(stockUpsertDTO.ProductDetailId, stockUpsertDTO.WarehouseId);
+                if (stockQuantity == null || stockQuantity.Quantity < stockUpsertDTO.Quantity)
+                    throw new Exception("Quantity is not enough !");
+
+                await ExportStock(stockUpsertDTO);
+
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+                return true;
+            }
+            catch(Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+
+        #endregion
+
+        #region Import / Export Stock - System Automation - Transaction will be created outside
 
         public async Task ImportStock(StockUpsertDTO stockUpsertDTO)
         {
@@ -50,7 +98,6 @@ namespace Store_API.Services
             };
             await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
 
-            // Handle Stock
             var existedStock = await _unitOfWork.Stock.FindFirstAsync(s => s.Id == stockUpsertDTO.StockId);
             if (existedStock != null)
                 existedStock.Quantity += stockUpsertDTO.Quantity;
@@ -68,32 +115,9 @@ namespace Store_API.Services
             }
         }
 
-        public async Task<bool> Import(StockUpsertDTO stockUpsertDTO)
-        {
-            await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
-            try
-            {
-                await ImportStock(stockUpsertDTO);
-
-                await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.CommitAsync();
-                return true;
-            }
-            catch (Exception ex)
-            {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
-        }
-
         public async Task ExportStock(StockUpsertDTO stockUpsertDTO)
         {
-            var existedStock = await _unitOfWork.Stock.CheckExistedStock(stockUpsertDTO.ProductDetailId, stockUpsertDTO.WarehouseId);
-
-            if (existedStock == null || existedStock.Quantity < stockUpsertDTO.Quantity)
-                throw new Exception("Quantity is not enough !");
-
-            var updatedStock = await _unitOfWork.Stock.FindFirstAsync(s => s.Id == existedStock.StockId);
+            var updatedStock = await _unitOfWork.Stock.FindFirstAsync(s => s.Id == stockUpsertDTO.StockId);
             updatedStock.Quantity -= stockUpsertDTO.Quantity;
 
             // Add new Stock Transaction
@@ -110,24 +134,7 @@ namespace Store_API.Services
             await _unitOfWork.StockTransaction.AddAsync(stockTransaction);
         }
 
-        public async Task<bool> Export(StockUpsertDTO stockUpsertDTO)
-        {
-            await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
-            try
-            {
-                await ExportStock(stockUpsertDTO);
-
-                await _unitOfWork.SaveChangesAsync();
-                await _unitOfWork.CommitAsync();
-                return true;
-            }
-            catch(Exception ex)
-            {
-                await _unitOfWork.RollbackAsync();
-                throw;
-            }
-        }
-
         #endregion
+
     }
 }

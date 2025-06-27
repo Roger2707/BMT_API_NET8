@@ -31,7 +31,7 @@ namespace Store_API.Consumers
                 var payment = await _unitOfWork.Payment.FindFirstAsync(x => x.PaymentIntentId == context.Message.PaymentIntentId);
                 if (payment != null && payment.Status == PaymentStatus.Success) return;
 
-                var stockHold = await _unitOfWork.StockHold.FindFirstAsync(x => x.PaymentIntentId == context.Message.PaymentIntentId);
+                var stockHold = await _unitOfWork.StockHold.FindFirstAsync(x => x.PaymentIntentId == context.Message.PaymentIntentId, x => x.Items);
 
                 if (stockHold == null || stockHold.Status != StockHoldStatus.Holding)
                     throw new Exception($"[StockHoldExpired] StockHold not found or already confirmed for {context.Message.PaymentIntentId}");

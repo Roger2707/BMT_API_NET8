@@ -1,10 +1,10 @@
 ﻿namespace Store_API.DTOs.Stocks
 {
-    public class StockExistDTO
+    public class StockAvailable
     {
-        public Guid WarehouseId { get; set; }
-        public string WarehouseName { get; set; }
+        public Guid StockId { get; set; }
         public Guid ProductDetailId { get; set; }
+        public Guid WarehouseId { get; set; }
         public int Quantity { get; set; }
     }
 }

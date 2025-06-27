@@ -4,6 +4,7 @@ using Store_API.Contracts;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
 using Store_API.DTOs.Payments;
+using Store_API.DTOs.Stocks;
 using Store_API.Enums;
 using Store_API.Helpers;
 using Store_API.Infrastructures;
@@ -23,13 +24,14 @@ namespace Store_API.Services
         private readonly IUserService _userService;
         private readonly IBasketService _basketService;
         private readonly IOrderService _orderService;
+        private readonly IStockService _stockService;
 
         private readonly EmailSenderService _emailSenderService;
         private readonly IPublishEndpoint _publishEndpoint;
 
         public PaymentService
         (   PaymentIntentService paymentIntentService, IUnitOfWork unitOfWork, IUserService userService
-            , IBasketService basketService, IOrderService orderService
+            , IBasketService basketService, IOrderService orderService, IStockService stockService
             , EmailSenderService emailSenderService, IPublishEndpoint publishEndpoint
         )
         {
@@ -38,6 +40,7 @@ namespace Store_API.Services
             _userService = userService;
             _basketService = basketService;
             _orderService = orderService;
+            _stockService = stockService;
             _emailSenderService = emailSenderService;
             _publishEndpoint = publishEndpoint;
         }
@@ -64,24 +67,28 @@ namespace Store_API.Services
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                // 1. Check Quantity Product in Inventory
+                // 1. Check Quantity Inventory -> Export Stock if available
                 foreach (var item in basket.Items)
                 {
                     if(item.Status == false) continue;
-
-                    var stockExist = await _unitOfWork.Stock.GetStockExisted(item.ProductDetailId);
-                    if (stockExist == null || stockExist.Quantity < item.Quantity)
+                    var stockAvailable = await _unitOfWork.Stock.GetAvailableStock(item.ProductDetailId, item.Quantity);
+                    if (stockAvailable == null)
                         throw new Exception($"Sorry! Product {item.ProductName} is not enoungh quantity in Inventory !");
+
+                    await _stockService.ExportStock(new StockUpsertDTO
+                    {
+                        ProductDetailId = item.ProductDetailId,
+                        WarehouseId = stockAvailable.WarehouseId,
+                        Quantity = item.Quantity,
+                        StockId = stockAvailable.StockId
+                    });
                 }
                 var itemsSelected = basket.Items.Where(item => item.Status == true);
 
-                // 2. Calc Grand Total
-                double grandTotal = itemsSelected.Sum(item => item.Quantity * item.DiscountPrice);
-
-                // 3. Create BasketHash
+                // 2. Create BasketHash
                 string basketHash = GenerateCartHash(itemsSelected);
 
-                // 4. Check existed PaymentIntent -> Get latest pending payment for this user
+                // 3. Check existed PaymentIntent -> Get latest pending payment for this user
                 var existingPayment = await _unitOfWork.Payment.GetLatestPendingPaymentAsync(basket.UserId);
                 bool isNewPayment = existingPayment == null || existingPayment.BasketHash != basketHash;
                 if (isNewPayment == false)
@@ -95,11 +102,12 @@ namespace Store_API.Services
                     }
                 }
 
-                // 5. Exchange rate (vnd -> usd)
+                // 4. Handle money rate (vnd -> usd)
                 decimal exchangeRate = 0.000039m;
+                double grandTotal = itemsSelected.Sum(item => item.Quantity * item.DiscountPrice);
                 long amountInCents = (long)(CF.GetDecimal(grandTotal) * exchangeRate * 100);
 
-                // 6. Create Payment Intent Options
+                // 5. Create PaymentIntent
                 var options = new PaymentIntentCreateOptions
                 {
                     Amount = amountInCents,
@@ -117,11 +125,9 @@ namespace Store_API.Services
                         { "ShippingAdress", JsonConvert.SerializeObject(shippingAddress) },
                     }
                 };
-
-                // 7. Create PaymentIntent
                 var paymentIntent = await _paymentIntentService.CreateAsync(options);
 
-                // 8. Create Payment in DB
+                // 6. Create Payments
                 var payment = new Payment
                 {
                     UserId = basket.UserId,
@@ -135,10 +141,10 @@ namespace Store_API.Services
                 };
                 await _unitOfWork.Payment.AddAsync(payment);
 
-                // 9. Publish StockHoldCreated Event
+                // 7. Publish StockHoldCreated Event: *event must be publish before the last save changes
                 await _publishEndpoint.Publish(new StockHoldCreated(paymentIntent.Id, basket.UserId, itemsSelected.ToList()));
 
-                // 10. SaveChanges and Commit 
+                // 8. SaveChanges and Commit Transaction
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
 

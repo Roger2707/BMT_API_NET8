@@ -13,16 +13,47 @@ namespace Store_API.Repositories
 
         }
 
-        public async Task<StockQuantity> CheckExistedStock(Guid productDetailId, Guid warehouseId)
+        #region Check Stock Quantity enough in Warehouse - before Export Stock - Lock row stock - prevent race condition
+
+        public async Task<StockQuantity> CheckStockQuantityInWarehouse(Guid productDetailId, Guid warehouseId)
         {
-            string query = @"SELECT Id as StockId, Quantity FROM Stocks 
-                            WHERE ProductDetailId = @ProductDetailId AND WarehouseId = @WarehouseId";
+            string query = @"
+                            SELECT Id as StockId, Quantity 
+                            FROM Stocks 
+                            WITH (UPDLOCK, ROWLOCK)
+                            WHERE ProductDetailId = @ProductDetailId AND WarehouseId = @WarehouseId
+                            ";
 
             var p = new { ProductDetailId = productDetailId, WarehouseId = warehouseId };
             var result = await _dapperService.QueryFirstOrDefaultAsync<StockQuantity>(query, p);
             return result;
         }
 
+        #endregion
+
+        #region Check Stock Existed in All Warehouse - before export for selling
+
+        public async Task<StockAvailable> GetAvailableStock(Guid productDetailId, int requiredQuantity)
+        {
+            string query = @" 
+                            SELECT s.Id AS StockId, s.ProductDetailId, s.WarehouseId, s.Quantity
+                            FROM 
+                            (
+                                SELECT TOP 1 *
+                                FROM Stocks WITH (UPDLOCK, ROWLOCK)
+                                WHERE ProductDetailId = @ProductDetailId AND Quantity >= @RequiredQuantity
+                                ORDER BY Quantity DESC
+                            ) s
+                            ";
+
+            var p = new { ProductDetailId = productDetailId, RequiredQuantity = requiredQuantity };
+            var result = await _dapperService.QueryFirstOrDefaultAsync<StockAvailable>(query, p);
+            return result;
+        }
+
+        #endregion
+
+        #region Retrieved Stocks - View
         public async Task<StockDTO> GetStock(Guid productDetailId)
         {
             string query = @"
@@ -78,24 +109,7 @@ namespace Store_API.Repositories
             return stockDTO;
         }
 
-        public async Task<StockExistDTO> GetStockExisted(Guid productDetailId)
-        {
-            string query = @" 
-                            SELECT TOP 1
-                                 wh.Id AS WarehouseId,
-                                 wh.Name AS WarehouseName,
-	                             d.Id as ProductDetailId,
-                                 ISNULL(s.Quantity, 0) AS Quantity
-                             FROM Warehouses wh
-
-                             LEFT JOIN ProductDetails d ON d.Id = @ProductDetailId
-                             LEFT JOIN Stocks s ON s.WarehouseId = wh.Id AND s.ProductDetailId = d.Id
-
-                             WHERE Quantity > 0"
-                            ;
-            var p = new { ProductDetailId = productDetailId };
-            var result =await _dapperService.QueryFirstOrDefaultAsync<StockExistDTO>(query, p);
-            return result;
-        }
+        #endregion
+       
     }
 }

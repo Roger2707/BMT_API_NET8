@@ -12,6 +12,7 @@ using Store_API.Services;
 using Store_API.SignalR;
 using MassTransit;
 using Store_API.Consumers;
+using Store_API.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -156,6 +157,12 @@ builder.Services.AddMassTransit(x =>
 
     x.UsingRabbitMq((context, cfg) =>
     {
+        cfg.Publish<StockHoldExpiredCreated>(x =>
+        {
+            x.ExchangeType = "x-delayed-message";
+            x.SetExchangeArgument("x-delayed-type", "direct");
+        });
+
         cfg.ReceiveEndpoint("stock-hold-created", e =>
         {
             e.ConfigureConsumer<StockHoldCreatedConsumer>(context);
@@ -163,17 +170,9 @@ builder.Services.AddMassTransit(x =>
 
         cfg.ReceiveEndpoint("stock-hold-expired", e =>
         {
-            e.ConfigureConsumeTopology = false;
-
-            e.Bind("my-delayed-exchange", configure =>
-            {
-                configure.ExchangeType = "x-delayed-message";
-                configure.SetExchangeArgument("x-delayed-type", "direct");
-                configure.RoutingKey = "";
-            });
-
             e.ConfigureConsumer<StockHoldExpiredConsumer>(context);
         });
+
         cfg.ConfigureEndpoints(context);
     });
 });
