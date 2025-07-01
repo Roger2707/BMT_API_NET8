@@ -1,9 +1,9 @@
 ﻿using MassTransit;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Store_API.Contracts;
 using Store_API.DTOs.Baskets;
 using Store_API.DTOs.Orders;
-using Store_API.DTOs.Payments;
 using Store_API.DTOs.Stocks;
 using Store_API.Enums;
 using Store_API.Helpers;
@@ -45,7 +45,7 @@ namespace Store_API.Services
             _publishEndpoint = publishEndpoint;
         }
 
-        #region CRUD PaymentItent
+        #region CRUD PaymentIntent
 
         public string GenerateCartHash(IEnumerable<BasketItemDTO> cartItems)
         {
@@ -62,15 +62,37 @@ namespace Store_API.Services
             return hash;
         }
 
-        public async Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAddressDTO shippingAddress)
+        public async Task CreatePaymentAsync(int userId, string username, ShippingAddressDTO shippingAddress)
+        {
+            var basket = await _basketService.GetBasketDTO(userId, username);
+            var requestId = Guid.NewGuid();
+            if (basket == null) throw new Exception($"Basket not found for UserId: {userId}");
+            var payment = new Payment
+            {
+                Id = requestId,
+                UserId = userId,
+                PaymentIntentId = "",
+                ClientSecret = "",
+                Amount = 0,
+                BasketHash = "",
+                Status = PaymentStatus.Pending,
+                CreatedAt = DateTime.UtcNow,
+                OrderId = Guid.Empty
+            };
+            await _unitOfWork.Payment.AddAsync(payment);
+            await _publishEndpoint.Publish(new PaymentIntentCreated(requestId, userId, basket.Items, shippingAddress));
+            await _unitOfWork.SaveChangesAsync();
+        }
+
+        public async Task<PaymentIntent> CreatePaymentIntentAsync(int userId, Guid requestId, List<BasketItemDTO> items, ShippingAddressDTO shippingAddress)
         {
             await _unitOfWork.BeginTransactionAsync();
             try
             {
+                var itemsSelected = items.Where(item => item.Status == true);
                 // 1. Check Quantity Inventory -> Export Stock if available
-                foreach (var item in basket.Items)
+                foreach (var item in itemsSelected)
                 {
-                    if(item.Status == false) continue;
                     var stockAvailable = await _unitOfWork.Stock.GetAvailableStock(item.ProductDetailId, item.Quantity);
                     if (stockAvailable == null)
                         throw new Exception($"Sorry! Product {item.ProductName} is not enoungh quantity in Inventory !");
@@ -83,18 +105,17 @@ namespace Store_API.Services
                         StockId = stockAvailable.StockId
                     });
                 }
-                var itemsSelected = basket.Items.Where(item => item.Status == true);
 
                 // 2. Create BasketHash
                 string basketHash = GenerateCartHash(itemsSelected);
 
                 // 3. Check existed PaymentIntent -> Get latest pending payment for this user
-                var existingPayment = await _unitOfWork.Payment.GetLatestPendingPaymentAsync(basket.UserId);
+                var existingPayment = await _unitOfWork.Payment.GetLatestPendingPaymentAsync(userId);
                 bool isNewPayment = existingPayment == null || existingPayment.BasketHash != basketHash;
                 if (isNewPayment == false)
                 {
                     var existingStripeIntent = await _paymentIntentService.GetAsync(existingPayment.PaymentIntentId);
-                    if (existingStripeIntent.Status is "requires_payment_method" or "requires_confirmation" 
+                    if (existingStripeIntent.Status is "requires_payment_method" or "requires_confirmation"
                         or "requires_action" or "processing")
                     {
                         await _unitOfWork.CommitAsync();
@@ -114,41 +135,28 @@ namespace Store_API.Services
                     Currency = "usd",
 
                     // ## 3D Secure - use for SCA (Strong Customer Authentication)
-                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions
-                    {
-                        Enabled = true
-                    },
+                    AutomaticPaymentMethods = new PaymentIntentAutomaticPaymentMethodsOptions { Enabled = true },
 
                     // Shipping Adress
-                    Metadata = new Dictionary<string, string>
-                    {
-                        { "ShippingAdress", JsonConvert.SerializeObject(shippingAddress) },
-                    }
+                    Metadata = new Dictionary<string, string> { { "ShippingAdress", JsonConvert.SerializeObject(shippingAddress) }, }
                 };
                 var paymentIntent = await _paymentIntentService.CreateAsync(options);
 
-                // 6. Create Payments
-                var payment = new Payment
-                {
-                    UserId = basket.UserId,
-                    PaymentIntentId = paymentIntent.Id,
-                    ClientSecret = paymentIntent.ClientSecret,
-                    Amount = grandTotal,
-                    BasketHash = basketHash,
-                    Status = PaymentStatus.Pending,
-                    CreatedAt = DateTime.UtcNow,
-                    OrderId = Guid.Empty
-                };
-                await _unitOfWork.Payment.AddAsync(payment);
+                // 6. Update Payments
+                var payment = await _unitOfWork.Payment.FindFirstAsync(x => x.Id == requestId);
+                payment.PaymentIntentId = paymentIntent.Id;
+                payment.ClientSecret = paymentIntent.ClientSecret;
+                payment.Amount = grandTotal;
+                payment.BasketHash = basketHash;
 
                 // 7. Publish StockHoldCreated Event: *event must be publish before the last save changes
-                await _publishEndpoint.Publish(new StockHoldCreated(paymentIntent.Id, basket.UserId, itemsSelected.ToList()));
+                await _publishEndpoint.Publish(new StockHoldCreated(paymentIntent.Id, userId, itemsSelected.ToList()));
 
-                // 8. SaveChanges and Commit Transaction
+                // 8. Save changes and Commit transaction
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
 
-                return paymentIntent;
+                return paymentIntent;          
             }
             catch (Exception ex)
             {
@@ -192,13 +200,10 @@ namespace Store_API.Services
             var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
             if (paymentIntent == null) return;
 
-            var paymentMessage = new PaymentProcessingMessage { PaymentIntentId = paymentIntent.Id };
-            var messageBody = JsonConvert.SerializeObject(paymentMessage);
-
             // 2. Idempotency check
-            var payment = await _unitOfWork.Payment.FindFirstAsync(x => x.PaymentIntentId == paymentMessage.PaymentIntentId);
+            var payment = await _unitOfWork.Payment.FindFirstAsync(x => x.PaymentIntentId == paymentIntent.Id);
             if (payment == null)
-                throw new InvalidOperationException($"Payment not found for IntentId: {paymentMessage.PaymentIntentId}");
+                throw new InvalidOperationException($"Payment not found for IntentId: {paymentIntent.Id}");
 
             if (payment.Status == PaymentStatus.Success)
                 return;
@@ -275,7 +280,7 @@ namespace Store_API.Services
                                                             [ROGER BMT's Customer Service Team]                                       
                                 ";
 
-            await _emailSenderService.SendEmailAsync(user.Email, "[🔥🔥🔥] ORDER SUCCESS:", content);
+            await _emailSenderService.SendEmailAsync(user.Email, "[ 🔥🔥🔥 ] ORDER SUCCESS:", content);
         }
 
         private async Task HandlePaymentIntentFailed(Stripe.Event stripeEvent)

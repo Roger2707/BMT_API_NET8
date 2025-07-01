@@ -6,7 +6,8 @@ namespace Store_API.Services.IService
 {
     public interface IPaymentService
     {
-        Task<PaymentIntent> CreatePaymentIntentAsync(BasketDTO basket, ShippingAddressDTO shippingAddress);
+        Task CreatePaymentAsync(int userId, string username, ShippingAddressDTO shippingAddressDTO);
+        Task<PaymentIntent> CreatePaymentIntentAsync(int userId, Guid requestId, List<BasketItemDTO> items, ShippingAddressDTO shippingAddress);
         Task HandleStripeWebhookAsync(Event stripeEvent);
     }
 }

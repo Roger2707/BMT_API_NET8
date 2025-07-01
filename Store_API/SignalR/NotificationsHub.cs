@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.SignalR;
 using System.Security.Claims;
 
 namespace Store_API.SignalR
 {
-    public class OrdersHub : Hub
+    [Authorize]
+    public class NotificationsHub : Hub
     {
         public override async Task OnConnectedAsync()
         {

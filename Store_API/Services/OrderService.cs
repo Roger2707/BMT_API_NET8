@@ -11,8 +11,8 @@ namespace Store_API.Services
     public class OrderService : IOrderService
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IHubContext<OrdersHub> _hubContext;
-        public OrderService(IUnitOfWork unitOfWork, IHubContext<OrdersHub> hubContext)
+        private readonly IHubContext<NotificationsHub> _hubContext;
+        public OrderService(IUnitOfWork unitOfWork, IHubContext<NotificationsHub> hubContext)
         {
             _unitOfWork = unitOfWork;
             _hubContext = hubContext;

@@ -4,7 +4,7 @@ namespace Store_API.Models
 {
     public class Payment
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public int UserId { get; set; }
         public Guid OrderId { get; set; }
         public string PaymentIntentId { get; set; }

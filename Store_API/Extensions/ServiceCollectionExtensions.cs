@@ -43,7 +43,6 @@ namespace Store_API.Extensions
                 var stripeSecretKey = configuration["Stripe:SecretKey"];
                 return new PaymentIntentService(new StripeClient(stripeSecretKey));
             });
-
         }
     }
 }

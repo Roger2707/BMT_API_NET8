@@ -163,6 +163,12 @@ builder.Services.AddMassTransit(x =>
             x.SetExchangeArgument("x-delayed-type", "direct");
         });
 
+        cfg.ReceiveEndpoint("payment-intent-created", e =>
+        {
+            e.ConfigureConsumer<PaymentIntentCreatedConsumer>(context);
+            e.ConcurrentMessageLimit = 1; // Limit to 1 concurrent message to ensure payment processing
+        });
+
         cfg.ReceiveEndpoint("stock-hold-created", e =>
         {
             e.ConfigureConsumer<StockHoldCreatedConsumer>(context);
@@ -235,6 +241,6 @@ app.MapControllers();
 
 #endregion 
 
-app.MapHub<OrdersHub>("/ordersHub");
+app.MapHub<NotificationsHub>("/notificationsHub");
 
 app.Run();

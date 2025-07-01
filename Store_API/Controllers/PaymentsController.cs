@@ -5,6 +5,8 @@ using Store_API.Helpers;
 using Store_API.Services.IService;
 using Stripe;
 using System.Security.Claims;
+using Store_API.DTOs.Payments;
+using Store_API.Enums;
 
 namespace Store_API.Controllers
 {
@@ -23,16 +25,19 @@ namespace Store_API.Controllers
             _configuration = configuration;
         }
 
+        [Authorize]
         [HttpPost("create-client-secret")]
         public async Task<IActionResult> CreateClientSecret([FromBody] ShippingAddressDTO shippingAddressDTO)
         {
             try
             {
-                var basketDTO = await _basketService.GetBasketDTO(CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier)), User.Identity.Name);
-                if (basketDTO == null) return BadRequest(new ProblemDetails { Title = "Basket is empty !" });
-                var paymentIntent = await _paymentService.CreatePaymentIntentAsync(basketDTO, shippingAddressDTO);
-
-                return Ok(new { ClientSecret = paymentIntent.ClientSecret });
+                int userId = CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                await _paymentService.CreatePaymentAsync(userId, User.Identity.Name, shippingAddressDTO);       
+                return Ok(new PaymentProcessingResponse
+                {
+                    Status = PaymentStatus.Pending,
+                    Message = "Payment request is being processed. You will receive updates via SignalR."
+                });
             }
             catch (Exception ex)
             {
