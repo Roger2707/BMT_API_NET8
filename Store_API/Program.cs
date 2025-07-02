@@ -26,7 +26,7 @@ builder.Services.AddDbContext<StoreContext>(opt => opt.UseSqlServer(builder.Conf
 
 #endregion
 
-#region Config Swagger JWT Bearer
+#region Config Swagger
 
 builder.Services.AddSwaggerGen(c =>
 {
@@ -118,7 +118,7 @@ builder.Services
            var accessToken = context.Request.Query["access_token"];
            var path = context.HttpContext.Request.Path;
 
-           if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/ordersHub"))
+           if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationsHub"))
            {
                context.Token = accessToken;
            }

@@ -55,8 +55,6 @@ namespace Store_API.Controllers
                 var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
                 var whSecret = _configuration["Stripe:WhSecret"];
                 var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], whSecret);
-
-                // Can improve this by using RabbitMQ
                 await _paymentService.HandleStripeWebhookAsync(stripeEvent);
             }
             catch (Exception ex)

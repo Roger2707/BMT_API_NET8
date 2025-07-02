@@ -1,5 +1,4 @@
 ﻿using MassTransit;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Store_API.Contracts;
 using Store_API.DTOs.Baskets;
