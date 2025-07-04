@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250701044637_createNewDB")]
-    partial class createNewDB
+    [Migration("20250704043520_createNewDB4725")]
+    partial class createNewDB4725
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -898,13 +898,7 @@ namespace Store_API.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("ImageUrl")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -923,9 +917,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Attack - Dominate - Conquers",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
-                            Name = "Astrox 99 Pro (Ver.2021)",
-                            PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0"
+                            Name = "Astrox 99 Pro (Ver.2021)"
                         },
                         new
                         {
@@ -934,9 +926,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Two Faces - Expolosive Attack - Solid Hard Defend",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828714/products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828716/products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828717/products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828718/products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828719/products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828720/products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj.jpg",
-                            Name = "Duora Z Strike (Ver.2017)",
-                            PublicId = "products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak,products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya,products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1,products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf,products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely,products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj"
+                            Name = "Duora Z Strike (Ver.2017)"
                         },
                         new
                         {
@@ -945,9 +935,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Controls - Focus - Feel",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828775/products/arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828777/products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828778/products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828779/products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu.jpg",
-                            Name = "ArcSaber 11 Pro (Ver.2021)",
-                            PublicId = "arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re,products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx,products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv,products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly,products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp,products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu"
+                            Name = "ArcSaber 11 Pro (Ver.2021)"
                         },
                         new
                         {
@@ -956,9 +944,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Racket Choosing by The Olympic Champion (2020) Viktor Axelsen",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp",
-                            Name = "Axtrox 100ZZ (Ver.Kurenai)",
-                            PublicId = "ldpbvqnabfaq7o2uggia"
+                            Name = "Axtrox 100ZZ (Ver.Kurenai)"
                         },
                         new
                         {
@@ -967,9 +953,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "King Double - Speed - Power",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735830149/products/nanoflare 1000z/yj14npg3jorqi1dhbygd.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830150/products/nanoflare 1000z/ptbxakwyi6dtxsedhog4.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830151/products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830152/products/nanoflare 1000z/syrhneosnjsnoyuwwdte.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830153/products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830154/products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt.jpg",
-                            Name = "Nanoflare 1000Z",
-                            PublicId = "products/nanoflare 1000z/yj14npg3jorqi1dhbygd,products/nanoflare 1000z/ptbxakwyi6dtxsedhog4,products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts,products/nanoflare 1000z/syrhneosnjsnoyuwwdte,products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs,products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt"
+                            Name = "Nanoflare 1000Z"
                         },
                         new
                         {
@@ -978,9 +962,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "All England Champ (2021) Racket Chosen",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152504/bobdvzdutlsnhkgd3csa.webp",
-                            Name = "Thuskter Ryuga Metalic (Ver.2023)",
-                            PublicId = "bobdvzdutlsnhkgd3csa"
+                            Name = "Thuskter Ryuga Metalic (Ver.2023)"
                         },
                         new
                         {
@@ -989,9 +971,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "New Shape - New Tech - New Feelings",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152808/erovfedlbzb0xkzqglbj.jpg",
-                            Name = "Axtrox 88D Pro (Ver.2024)",
-                            PublicId = "erovfedlbzb0xkzqglbj"
+                            Name = "Axtrox 88D Pro (Ver.2024)"
                         },
                         new
                         {
@@ -1000,9 +980,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Speed - Control - Attack",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153834/rweggufmgnga3zjklf2f.jpg",
-                            Name = "Brave Sword 12 (Ver.55th 2024)",
-                            PublicId = "rweggufmgnga3zjklf2f"
+                            Name = "Brave Sword 12 (Ver.55th 2024)"
                         },
                         new
                         {
@@ -1011,9 +989,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Speed - Control - Attack",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153808/cy4dqkjmsqakqxsqonl5.jpg",
-                            Name = "Thuskter Falcon White (Ver. Limited TYZ)",
-                            PublicId = "cy4dqkjmsqakqxsqonl5"
+                            Name = "Thuskter Falcon White (Ver. Limited TYZ)"
                         },
                         new
                         {
@@ -1022,9 +998,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Chosen By World Champion 2021 - Loh Kean Yew",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153857/algdodmsmknzhilm9wds.webp",
-                            Name = "Axforce 90",
-                            PublicId = "algdodmsmknzhilm9wds"
+                            Name = "Axforce 90"
                         },
                         new
                         {
@@ -1033,9 +1007,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Modern Technologies - Powerful Attack",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927477/products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi.jpg",
-                            Name = "Axforce 100 (Ver.Kirin)",
-                            PublicId = "products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi"
+                            Name = "Axforce 100 (Ver.Kirin)"
                         },
                         new
                         {
@@ -1044,9 +1016,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Blow White Attack",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153705/w9s0ruep5gxnelaunfgq.jpg",
-                            Name = "Techtonic 9",
-                            PublicId = "w9s0ruep5gxnelaunfgq"
+                            Name = "Techtonic 9"
                         },
                         new
                         {
@@ -1055,9 +1025,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Chosen by The World Champion (2014, 2015), The OLP Champion (2016) - Chen Long",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153773/cetkfwcafc8xliwnim9n.jpg",
-                            Name = "Flame N55",
-                            PublicId = "cetkfwcafc8xliwnim9n"
+                            Name = "Flame N55"
                         },
                         new
                         {
@@ -1066,9 +1034,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Smooth - Jump - Reach the win",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153525/bpjcwixbyweafni7t5sz.jpg",
-                            Name = "Comfort Z",
-                            PublicId = "bpjcwixbyweafni7t5sz"
+                            Name = "Comfort Z"
                         },
                         new
                         {
@@ -1077,9 +1043,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "The upgrade of Comfort Z Version",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
-                            Name = "Comfort Z3",
-                            PublicId = "bpjcwixbyweafni7t5sz"
+                            Name = "Comfort Z3"
                         },
                         new
                         {
@@ -1088,9 +1052,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Smooth - Jump - Reach the win",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734926089/products/hxlh389m9vsug2zumawz.jpg",
-                            Name = "Accelarate Booster (Ver.2022)",
-                            PublicId = "products/hxlh389m9vsug2zumawz"
+                            Name = "Accelarate Booster (Ver.2022)"
                         },
                         new
                         {
@@ -1099,9 +1061,7 @@ namespace Store_API.Migrations
                             CategoryId = new Guid("9d19c053-8b47-4e6d-9e9a-4188cb50d2e6"),
                             Created = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Speed - Jump - Dominate",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153621/dn25ivc2gpbcytdfqfim.webp",
-                            Name = "Accelarate Advanced (Ver.2024)",
-                            PublicId = "dn25ivc2gpbcytdfqfim"
+                            Name = "Accelarate Advanced (Ver.2024)"
                         });
                 });
 
@@ -1117,11 +1077,17 @@ namespace Store_API.Migrations
                     b.Property<string>("ExtraName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("Price")
                         .HasColumnType("float");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -1138,8 +1104,10 @@ namespace Store_API.Migrations
                             Id = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             Color = "#880808",
                             ExtraName = "Red Tiger",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
                             Price = 4200000.0,
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0",
                             Status = 1
                         },
                         new
@@ -1147,8 +1115,10 @@ namespace Store_API.Migrations
                             Id = new Guid("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
                             Color = "#fff",
                             ExtraName = "White Tiger",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
                             Price = 4300000.0,
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
+                            PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0",
                             Status = 1
                         },
                         new
@@ -1156,17 +1126,21 @@ namespace Store_API.Migrations
                             Id = new Guid("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"),
                             Color = "#fff",
                             ExtraName = "Chou Tien Chen Signature!",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828714/products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828716/products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828717/products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828718/products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828719/products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828720/products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj.jpg",
                             Price = 4150000.0,
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
+                            PublicId = "products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak,products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya,products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1,products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf,products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely,products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj",
                             Status = 1
                         },
                         new
                         {
                             Id = new Guid("7a3f4036-942f-4f8a-a823-0f3c5c791e20"),
                             Color = "#880808",
-                            ExtraName = "",
+                            ExtraName = "Ver.2021 - Zheng Si Wei",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735828775/products/arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828777/products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828778/products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828779/products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu.jpg",
                             Price = 4250000.0,
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
+                            PublicId = "arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re,products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx,products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv,products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly,products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp,products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu",
                             Status = 1
                         },
                         new
@@ -1174,8 +1148,10 @@ namespace Store_API.Migrations
                             Id = new Guid("c9b74e77-dc8b-4c4e-96c9-d6b2e8adf2cf"),
                             Color = "#4169E1",
                             ExtraName = "Navy Blue",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp",
                             Price = 4500000.0,
                             ProductId = new Guid("550e8400-e29b-41d4-a716-446655440000"),
+                            PublicId = "ldpbvqnabfaq7o2uggia",
                             Status = 1
                         },
                         new
@@ -1183,8 +1159,10 @@ namespace Store_API.Migrations
                             Id = new Guid("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"),
                             Color = "#880808",
                             ExtraName = "Ver.Kurenai",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp",
                             Price = 4450000.0,
                             ProductId = new Guid("550e8400-e29b-41d4-a716-446655440000"),
+                            PublicId = "ldpbvqnabfaq7o2uggia",
                             Status = 1
                         },
                         new
@@ -1192,8 +1170,10 @@ namespace Store_API.Migrations
                             Id = new Guid("2e8c3bc1-23e5-4df9-822c-2f7d9dd4f5f3"),
                             Color = "#FDDA0D",
                             ExtraName = "The Yellow Flash",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735830149/products/nanoflare 1000z/yj14npg3jorqi1dhbygd.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830150/products/nanoflare 1000z/ptbxakwyi6dtxsedhog4.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830151/products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830152/products/nanoflare 1000z/syrhneosnjsnoyuwwdte.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830153/products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830154/products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt.jpg",
                             Price = 4350000.0,
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            PublicId = "products/nanoflare 1000z/yj14npg3jorqi1dhbygd,products/nanoflare 1000z/ptbxakwyi6dtxsedhog4,products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts,products/nanoflare 1000z/syrhneosnjsnoyuwwdte,products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs,products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt",
                             Status = 1
                         },
                         new
@@ -1201,8 +1181,10 @@ namespace Store_API.Migrations
                             Id = new Guid("51fa47d3-9baf-4e71-bdd8-6206533a126c"),
                             Color = "#880808",
                             ExtraName = "Limited Edition (2025)",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1735830149/products/nanoflare 1000z/yj14npg3jorqi1dhbygd.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830150/products/nanoflare 1000z/ptbxakwyi6dtxsedhog4.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830151/products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830152/products/nanoflare 1000z/syrhneosnjsnoyuwwdte.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830153/products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830154/products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt.jpg",
                             Price = 15000000.0,
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
+                            PublicId = "products/nanoflare 1000z/yj14npg3jorqi1dhbygd,products/nanoflare 1000z/ptbxakwyi6dtxsedhog4,products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts,products/nanoflare 1000z/syrhneosnjsnoyuwwdte,products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs,products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt",
                             Status = 1
                         },
                         new
@@ -1210,8 +1192,10 @@ namespace Store_API.Migrations
                             Id = new Guid("6a4e5f76-3c84-4f4e-bb76-61768c5d3e7d"),
                             Color = "#FF5733",
                             ExtraName = "Lee Zii Ja Chosen",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152504/bobdvzdutlsnhkgd3csa.webp",
                             Price = 3600000.0,
                             ProductId = new Guid("123e4567-e89b-12d3-a456-426614174000"),
+                            PublicId = "bobdvzdutlsnhkgd3csa",
                             Status = 1
                         },
                         new
@@ -1219,8 +1203,10 @@ namespace Store_API.Migrations
                             Id = new Guid("d55b3f65-68b2-4c5e-85ae-8f2a3bfb6b8f"),
                             Color = "#7393B3",
                             ExtraName = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152808/erovfedlbzb0xkzqglbj.jpg",
                             Price = 4200000.0,
                             ProductId = new Guid("9b9f0b80-4f3d-11ec-81d3-0242ac130003"),
+                            PublicId = "erovfedlbzb0xkzqglbj",
                             Status = 1
                         },
                         new
@@ -1228,8 +1214,10 @@ namespace Store_API.Migrations
                             Id = new Guid("e4d849aa-7683-47e5-9f45-2e4894a3ddf4"),
                             Color = "#4169E1",
                             ExtraName = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153834/rweggufmgnga3zjklf2f.jpg",
                             Price = 2800000.0,
                             ProductId = new Guid("00112233-4455-6677-8899-aabbccddeeff"),
+                            PublicId = "rweggufmgnga3zjklf2f",
                             Status = 1
                         },
                         new
@@ -1237,8 +1225,10 @@ namespace Store_API.Migrations
                             Id = new Guid("3b6e123a-f75c-4de5-86a5-d2b5e8b6c9d2"),
                             Color = "#fff",
                             ExtraName = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153808/cy4dqkjmsqakqxsqonl5.jpg",
                             Price = 2700000.0,
                             ProductId = new Guid("b3e2f5f0-7e44-4e06-b69e-8f87be0c30f7"),
+                            PublicId = "cy4dqkjmsqakqxsqonl5",
                             Status = 1
                         },
                         new
@@ -1246,8 +1236,10 @@ namespace Store_API.Migrations
                             Id = new Guid("0c462b3e-61c9-4e34-bab2-7d82c4c5e8e1"),
                             Color = "#880808",
                             ExtraName = "Ver.Tiger Max",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153857/algdodmsmknzhilm9wds.webp",
                             Price = 3850000.0,
                             ProductId = new Guid("cb3b0e7d-5ad3-4ec7-9b9a-4f06efb27c03"),
+                            PublicId = "algdodmsmknzhilm9wds",
                             Status = 1
                         },
                         new
@@ -1255,8 +1247,10 @@ namespace Store_API.Migrations
                             Id = new Guid("8b7f69d4-459c-45c8-bf38-9f5b214a9d7e"),
                             Color = "#4169E1",
                             ExtraName = "Ver.Dragon Max",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153857/algdodmsmknzhilm9wds.webp",
                             Price = 3880000.0,
                             ProductId = new Guid("cb3b0e7d-5ad3-4ec7-9b9a-4f06efb27c03"),
+                            PublicId = "algdodmsmknzhilm9wds",
                             Status = 1
                         },
                         new
@@ -1264,8 +1258,10 @@ namespace Store_API.Migrations
                             Id = new Guid("a2e987b6-fdbc-4d9a-a86b-6f9cb4e7f236"),
                             Color = "#880808",
                             ExtraName = "Ver.Kirin",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927477/products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi.jpg",
                             Price = 4250000.0,
                             ProductId = new Guid("e029d3c5-b6b3-4e31-bada-1e6b7d5af7c8"),
+                            PublicId = "products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi",
                             Status = 1
                         },
                         new
@@ -1273,8 +1269,10 @@ namespace Store_API.Migrations
                             Id = new Guid("13c87621-8b94-4515-90d4-35f5f8a4b23e"),
                             Color = "#fff",
                             ExtraName = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153705/w9s0ruep5gxnelaunfgq.jpg",
                             Price = 3300000.0,
                             ProductId = new Guid("8a97f9a6-221d-4f5b-bc37-6e5cb7a979b6"),
+                            PublicId = "w9s0ruep5gxnelaunfgq",
                             Status = 1
                         },
                         new
@@ -1282,8 +1280,10 @@ namespace Store_API.Migrations
                             Id = new Guid("2fa0f68b-efc9-4a92-b4c3-8f62c4d8e5a1"),
                             Color = "#880808",
                             ExtraName = "Chen Long Edition (Rio 2016)",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153773/cetkfwcafc8xliwnim9n.jpg",
                             Price = 5000000.0,
                             ProductId = new Guid("dd36bf61-fc77-4cfb-82e1-6b2ff6f9b1d4"),
+                            PublicId = "cetkfwcafc8xliwnim9n",
                             Status = 1
                         },
                         new
@@ -1291,26 +1291,32 @@ namespace Store_API.Migrations
                             Id = new Guid("5d479eab-b8c6-4df1-99f7-df3a7b2e6f87"),
                             Color = "#333",
                             ExtraName = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153525/bpjcwixbyweafni7t5sz.jpg",
                             Price = 2200000.0,
                             ProductId = new Guid("a2cf7e92-29fd-4d61-90b3-d3f2f8a7e9c6"),
+                            PublicId = "bpjcwixbyweafni7t5sz",
                             Status = 1
                         },
                         new
                         {
                             Id = new Guid("7f1b9d38-3b5d-474f-832b-85c7c5d2a9b4"),
                             Color = "#880808",
-                            ExtraName = "Ver.Red",
+                            ExtraName = "Ver.Dark Red",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
                             Price = 2850000.0,
                             ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
+                            PublicId = "bpjcwixbyweafni7t5sz",
                             Status = 1
                         },
                         new
                         {
                             Id = new Guid("b9f376e1-6a5d-4b34-9a1c-3f9e8a7b2d5c"),
                             Color = "#4169E1",
-                            ExtraName = "Ver.Blue",
+                            ExtraName = "Ver.Dark Blue",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
                             Price = 2830000.0,
                             ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
+                            PublicId = "bpjcwixbyweafni7t5sz",
                             Status = 1
                         },
                         new
@@ -1318,8 +1324,10 @@ namespace Store_API.Migrations
                             Id = new Guid("41d3f8b7-c1e2-456f-a9c8-72b3d2e5f9a4"),
                             Color = "#FF69B4",
                             ExtraName = "Ver.Pink",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
                             Price = 2800000.0,
                             ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
+                            PublicId = "bpjcwixbyweafni7t5sz",
                             Status = 1
                         },
                         new
@@ -1327,8 +1335,10 @@ namespace Store_API.Migrations
                             Id = new Guid("9d5a72c4-1f87-4b3a-b7e8-d4c5f9a2e3b6"),
                             Color = "#4169E1",
                             ExtraName = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734926089/products/hxlh389m9vsug2zumawz.jpg",
                             Price = 1500000.0,
                             ProductId = new Guid("4d21b8e5-8a14-4b37-b84b-3d1c2e2e5f76"),
+                            PublicId = "products/hxlh389m9vsug2zumawz",
                             Status = 1
                         },
                         new
@@ -1336,8 +1346,10 @@ namespace Store_API.Migrations
                             Id = new Guid("63e7c5d2-9b4f-4f38-b7d1-85f9a3e2c4d8"),
                             Color = "#fff",
                             ExtraName = "",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729153621/dn25ivc2gpbcytdfqfim.webp",
                             Price = 1700000.0,
                             ProductId = new Guid("2f8c6a10-5633-4b91-90a1-7c924df78e68"),
+                            PublicId = "dn25ivc2gpbcytdfqfim",
                             Status = 1
                         });
                 });
@@ -1364,91 +1376,91 @@ namespace Store_API.Migrations
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6938)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3251)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6947)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3263)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6949)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3330)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6951)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3333)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6953)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3335)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6956)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3340)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6958)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3342)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6960)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3344)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6962)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3346)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6965)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3349)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6967)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3351)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6969)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3353)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6978)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3355)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6980)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3357)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
-                            Created = new DateTime(2025, 7, 1, 4, 46, 37, 144, DateTimeKind.Utc).AddTicks(6982)
+                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3359)
                         });
                 });
 
@@ -1784,7 +1796,7 @@ namespace Store_API.Migrations
                         {
                             Id = 1,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6bc1a30f-4904-442e-bd57-ac73166cdd2d",
+                            ConcurrencyStamp = "3fe3530f-ab90-4b40-affb-459bd118bc74",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "spadmin@example.com",
                             EmailConfirmed = true,
@@ -1792,10 +1804,10 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "SPADMIN@EXAMPLE.COM",
                             NormalizedUserName = "SPADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMA2yK6dwXcPL6Sc5SpxjV6jfaThVuAretTOefcfIrmB00MU9F8VW4tMd1qsxw68Sw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJ0YWf8ywgecEIbQ84tgT8Sz9zTfE80bYezuqZzHAHDukv2pte1BqVLayrPJYDZ4LA==",
                             PhoneNumberConfirmed = false,
                             Provider = "System",
-                            SecurityStamp = "5c8c56d6-0203-46a9-a1d4-14b9c28991e1",
+                            SecurityStamp = "48e687ca-4c43-42f8-9d04-9709077a2ddf",
                             TwoFactorEnabled = false,
                             UserName = "spadmin"
                         },
@@ -1803,7 +1815,7 @@ namespace Store_API.Migrations
                         {
                             Id = 2,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "283e4fd5-c88b-40f6-9728-097489d53893",
+                            ConcurrencyStamp = "0ed59af1-916d-4b40-9e79-7d375220f313",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin1@example.com",
                             EmailConfirmed = true,
@@ -1811,10 +1823,10 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN1@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBcdj7TTbDsxYrkQszspGjxsx0TBOhbhSAoVYKi8aKtMX+/Th+j0J8yCO6r3Suop4w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEE02uAg0gTG/LfDDpt/MNAsvywamLoyYpM+2SDRptp9V1dJsoSjg2dFMsUEMILu4Nw==",
                             PhoneNumberConfirmed = false,
                             Provider = "System",
-                            SecurityStamp = "a24bf6ac-6f8a-4000-9cdd-7532a856bc0c",
+                            SecurityStamp = "695765b4-aa7c-411c-9a14-0b6bd55f872c",
                             TwoFactorEnabled = false,
                             UserName = "admin1"
                         },
@@ -1822,7 +1834,7 @@ namespace Store_API.Migrations
                         {
                             Id = 3,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "be893ae3-a548-47b3-bc3f-24db31fed458",
+                            ConcurrencyStamp = "585ad4a6-cf4e-407c-b35a-77e649b29842",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admin2@example.com",
                             EmailConfirmed = true,
@@ -1830,10 +1842,10 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN2@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN2",
-                            PasswordHash = "AQAAAAIAAYagAAAAEByd6Ij0AiQkEGA4CGxCRP8GSPndATrnz+9okGXB2DSgcPIW9lR6eIu+S4omDuP1Lw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENoDVn9RiyBDLTUzd/ldYdfXVBJPCcDrZaV+DI1qpYnJg15QgmbH5G5W09nyIhHROw==",
                             PhoneNumberConfirmed = false,
                             Provider = "System",
-                            SecurityStamp = "28ef418f-d303-45f7-88e8-9f7111dce9fb",
+                            SecurityStamp = "ebe8cfe4-1f3b-4dc4-b34b-6ac68711e410",
                             TwoFactorEnabled = false,
                             UserName = "admin2"
                         },
@@ -1841,7 +1853,7 @@ namespace Store_API.Migrations
                         {
                             Id = 4,
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "caa498ca-8ba7-43b6-a35b-2d30acef4d36",
+                            ConcurrencyStamp = "d5f5cb6a-3769-4623-973f-d1681ffb73f5",
                             Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
                             Email = "admi3n@example.com",
                             EmailConfirmed = true,
@@ -1849,10 +1861,10 @@ namespace Store_API.Migrations
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN3@EXAMPLE.COM",
                             NormalizedUserName = "ADMIN3",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEmmrgh2IXqbBn1m1qSzbnihpA7+8EwnHessGkHoiFdQPFF8N9+0xXxp4eiF/i4dbA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKLuKMcbookzR+GZQp3uPVd7D2RQLeDKXraA7S8NmSTLWlIZRzb4/WJXrPAYFRD3aA==",
                             PhoneNumberConfirmed = false,
                             Provider = "System",
-                            SecurityStamp = "6b57222b-3594-4461-aeac-cba586847ce1",
+                            SecurityStamp = "e8b2c33f-1284-4da4-b9ec-225ec933e520",
                             TwoFactorEnabled = false,
                             UserName = "admin3"
                         });
@@ -1899,19 +1911,19 @@ namespace Store_API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ebfe9016-23bf-46f8-aecc-98a391d440b1"),
+                            Id = new Guid("d86af4a2-9e1f-4127-90e8-ee08e5ffeec7"),
                             UserId = 2,
                             WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
                         },
                         new
                         {
-                            Id = new Guid("69f285ba-8380-4191-8aa0-35fb01367460"),
+                            Id = new Guid("a34d831a-fab7-44a6-9612-adc9963501ec"),
                             UserId = 3,
                             WarehouseId = new Guid("22222222-2222-2222-2222-222222222222")
                         },
                         new
                         {
-                            Id = new Guid("a9ce915c-f486-4690-bc94-bcffc429a390"),
+                            Id = new Guid("8964a57c-b5fb-4201-be39-eb3f9be49ac8"),
                             UserId = 4,
                             WarehouseId = new Guid("33333333-3333-3333-3333-333333333333")
                         });

@@ -10,8 +10,11 @@ namespace Store_API.Services.IService
         Task<ProductDTO> GetProductDTO(Guid productId);
         Task<IEnumerable<ProductSingleDetailDTO>> GetProductSingleDetails(ProductSearch search);
         Task<ProductSingleDetailDTO> GetProductSingleDetail(Guid productDetailId);
+
+        #region CRUD
         Task<Guid> CreateProduct(ProductUpsertDTO model);
         Task<Guid> UpdateProduct(ProductUpsertDTO model);
         Task<int> UpdateProductStatus(Guid productId);
+        #endregion
     }
 }

@@ -12,5 +12,7 @@ namespace Store_API.Models
         public string ExtraName { get; set; } = "";
         public double Price { get; set; }
         public int Status { get; set; }
+        public string ImageUrl { get; set; }
+        public string PublicId { get; set; }
     }
 }

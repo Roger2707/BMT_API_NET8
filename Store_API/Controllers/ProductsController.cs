@@ -65,7 +65,6 @@ namespace Store_API.Controllers
             try
             {
                 var result = await _productService.CreateProduct(productDTO);
-
                 if (result == Guid.Empty)
                     return BadRequest(new ProblemDetails { Title = "Create Failed !" });
 

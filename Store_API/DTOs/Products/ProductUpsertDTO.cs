@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Runtime.InteropServices;
 namespace Store_API.DTOs.Products
 {
     public class ProductUpsertDTO
@@ -11,8 +10,6 @@ namespace Store_API.DTOs.Products
         [Required]
         [Length(0, 5000)]
         public string Description { get; set; }
-        public string? ImageUrl { get; set; }
-        public string? PublicId { get; set; }
         public DateTime Created { get; set; }
         public Guid CategoryId { get; set; }
         public Guid BrandId { get; set; }

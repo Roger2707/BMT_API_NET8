@@ -81,7 +81,7 @@ namespace Store_API.Repositories
             query = query.Replace("-- conditions", where);
             var result = await _dapperService.QueryAsync<ProductDetailDisplayDTO>(query, new { OrderBy = productParams.OrderBy, PageSize = PageSize, PageNumber = productParams.CurrentPage });
 
-            if (result.Count == 0) return null;    
+            if (result.Count == 0) return null;
             TotalRow = CF.GetInt(result[0].TotalRow);
             return result;
         }
@@ -99,7 +99,7 @@ namespace Store_API.Repositories
                                 IIF(promotion.PercentageDiscount is NULL,
                                     detail.Price,
                                     detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) as DiscountPrice,
-                                ImageUrl,
+                                detail.ImageUrl,
                                 product.CategoryId,
                                 category.Name as CategoryName,
                                 product.BrandId,
@@ -137,8 +137,8 @@ namespace Store_API.Repositories
                             SELECT 
                                 detail.Id as ProductDetailId,
                                 product.Name as ProductName,
-                                IIF(product.ImageUrl IS NOT NULL, 
-                                    (SELECT TOP 1 value FROM STRING_SPLIT(product.ImageUrl, ',')), 
+                                IIF(detail.ImageUrl IS NOT NULL, 
+                                    (SELECT TOP 1 value FROM STRING_SPLIT(detail.ImageUrl, ',')), 
                                     '') AS ProductFirstImage,
                                 detail.Color as Color,
                                 detail.Price as OriginPrice,
@@ -194,8 +194,8 @@ namespace Store_API.Repositories
 		                            , detail.Price - (detail.Price * (promotion.PercentageDiscount / 100))) 
 	                            as DiscountPrice
                                 , Description
-                                , ImageUrl
-                                , PublicId
+                                , detail.ImageUrl
+                                , detail.PublicId
                                 , Created
                                 , detail.Status
                                 , product.CategoryId
@@ -257,8 +257,8 @@ namespace Store_API.Repositories
                 SELECT 
                     detail.Id as ProductDetailId,
                     product.Name as ProductName,
-                    IIF(product.ImageUrl IS NOT NULL, 
-                        (SELECT TOP 1 value FROM STRING_SPLIT(product.ImageUrl, ',')), 
+                    IIF(detail.ImageUrl IS NOT NULL, 
+                        (SELECT TOP 1 value FROM STRING_SPLIT(detail.ImageUrl, ',')), 
                         '') AS ProductFirstImage,
                     detail.Color as Color,
                     detail.Price as OriginPrice,

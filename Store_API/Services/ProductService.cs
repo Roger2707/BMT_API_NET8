@@ -73,15 +73,11 @@ namespace Store_API.Services
                         Price = d.Price,
                         Color = d.Color,
                         ExtraName = d.ExtraName,
-                        Status = d.Status
+                        Status = d.Status,
+                        ImageUrl = !string.IsNullOrEmpty(d.ImageUrl) ? d.ImageUrl : "",
+                        PublicId = !string.IsNullOrEmpty(d.PublicId) ? d.PublicId : "",
                     }).ToList()
                 };
-
-                if (!string.IsNullOrEmpty(model.ImageUrl) && !string.IsNullOrEmpty(model.PublicId))
-                {
-                    product.ImageUrl = model.ImageUrl;
-                    product.PublicId = model.PublicId;
-                }
 
                 await _unitOfWork.Product.AddAsync(product);
                 await _unitOfWork.SaveChangesAsync();
@@ -103,29 +99,13 @@ namespace Store_API.Services
             try
             {
                 Product existedProduct = await _unitOfWork.Product.FindFirstAsync(p => p.Id == model.Id, p => p.Details);
+                if (existedProduct == null) return Guid.Empty;
 
-                if (existedProduct == null)
-                    return Guid.Empty;
+                existedProduct.Name = model.Name ?? existedProduct.Name;
+                existedProduct.Description = model.Description ?? existedProduct.Description;
+                existedProduct.CategoryId = model.CategoryId != existedProduct.CategoryId ? model.CategoryId : existedProduct.CategoryId;
+                existedProduct.BrandId = model.BrandId != existedProduct.BrandId ? model.BrandId : existedProduct.BrandId;
 
-                // Update Different Fields / != NULL
-                if (!string.IsNullOrWhiteSpace(model.Name) && model.Name != existedProduct.Name)
-                    existedProduct.Name = model.Name;
-                if (!string.IsNullOrWhiteSpace(model.Description) && model.Description != existedProduct.Description)
-                    existedProduct.Description = model.Description;
-                if (model.CategoryId != existedProduct.CategoryId)
-                    existedProduct.CategoryId = model.CategoryId;
-                if (model.BrandId != existedProduct.BrandId)
-                    existedProduct.BrandId = model.BrandId;
-
-                // Handle Images List
-                if (!string.IsNullOrEmpty(model.ImageUrl) && !string.IsNullOrEmpty(model.PublicId))
-                {
-                    existedProduct.ImageUrl = model.ImageUrl;
-                    existedProduct.PublicId = model.PublicId;
-                }
-
-                // Handle Product Details
-                // Remove all -> Add again
                 _unitOfWork.ProductDetail.RemoveRangeAsync(existedProduct.Details);
                 await _unitOfWork.ProductDetail.AddRangeAsync(model.ProductDetails.Select(d => new ProductDetail()
                 {
@@ -134,7 +114,9 @@ namespace Store_API.Services
                     Price = d.Price,
                     Color = d.Color,
                     ExtraName = d.ExtraName,
-                    Status = d.Status
+                    Status = d.Status,
+                    ImageUrl = !string.IsNullOrEmpty(d.ImageUrl) ? d.ImageUrl : "",
+                    PublicId = !string.IsNullOrEmpty(d.PublicId) ? d.PublicId : "",
                 }));
 
                 await _unitOfWork.SaveChangesAsync();
