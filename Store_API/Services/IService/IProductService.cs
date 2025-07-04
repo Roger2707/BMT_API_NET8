@@ -5,11 +5,9 @@ namespace Store_API.Services.IService
 {
     public interface IProductService
     {
-        Task<Pagination<ProductDetailDisplayDTO>> GetPageProductDTOs(ProductParams productParams);
-        Task<List<ProductDetailDisplayDTO>> GetProductsBestSeller();
+        Task<Pagination<ProductFullDetailDTO>> GetPageProducts(ProductParams productParams);
         Task<ProductDTO> GetProductDTO(Guid productId);
-        Task<IEnumerable<ProductSingleDetailDTO>> GetProductSingleDetails(ProductSearch search);
-        Task<ProductSingleDetailDTO> GetProductSingleDetail(Guid productDetailId);
+        Task<List<ProductFullDetailDTO>> GetProductsBestSeller();
 
         #region CRUD
         Task<Guid> CreateProduct(ProductUpsertDTO model);

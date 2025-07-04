@@ -16,10 +16,10 @@ namespace Store_API.Services
 
         #region Retrieve Data
 
-        public async Task<Pagination<ProductDetailDisplayDTO>> GetPageProductDTOs(ProductParams productParams)
+        public async Task<Pagination<ProductFullDetailDTO>> GetPageProducts(ProductParams productParams)
         {
             var products = await _unitOfWork.Product.GetProducts(productParams);
-            var result = Pagination<ProductDetailDisplayDTO>.GetPaginationData(products, _unitOfWork.Product.TotalRow, productParams.CurrentPage, _unitOfWork.Product.PageSize);
+            var result = Pagination<ProductFullDetailDTO>.GetPaginationData(products, _unitOfWork.Product.TotalRow, productParams.CurrentPage, _unitOfWork.Product.PageSize);
             return result;
         }
 
@@ -29,22 +29,7 @@ namespace Store_API.Services
             return product;
         }
 
-        public async Task<IEnumerable<ProductSingleDetailDTO>> GetProductSingleDetails(ProductSearch search)
-        {
-            var result = await _unitOfWork.Product.GetProductDetails(search);
-            return result;
-        }
-
-        // one product can have many detail - this method returns a single detail by id
-        public async Task<ProductSingleDetailDTO> GetProductSingleDetail(Guid productDetailId)
-        {
-            var result = await _unitOfWork.Product.GetProductSingleDetail(productDetailId);
-            if (result == null)
-                throw new ArgumentException($"Product detail with ID {productDetailId} not found");
-            return result;
-        }
-
-        public async Task<List<ProductDetailDisplayDTO>> GetProductsBestSeller()
+        public async Task<List<ProductFullDetailDTO>> GetProductsBestSeller()
         {
             var bestSellers = await _unitOfWork.Product.GetProductsBestSeller();
             return bestSellers;

@@ -1,6 +1,8 @@
-﻿using Store_API.DTOs.Baskets;
+﻿using Microsoft.AspNetCore.Mvc;
+using Store_API.DTOs.Baskets;
 using Store_API.Enums;
 using Store_API.Infrastructures;
+using Store_API.Models;
 using Store_API.Services.IService;
 
 namespace Store_API.Services
@@ -84,14 +86,22 @@ namespace Store_API.Services
 
         public async Task UpsertBasket(BasketUpsertDTO basketUpsertDTO)
         {
+            #region Validations
+
             if (basketUpsertDTO == null)
                 throw new ArgumentNullException(nameof(basketUpsertDTO));
 
             if (string.IsNullOrWhiteSpace(basketUpsertDTO.Username))
                 throw new ArgumentException("Username cannot be empty", nameof(basketUpsertDTO.Username));
 
+            var productDetail = await _unitOfWork.ProductDetail.FindFirstAsync(x => x.Id == basketUpsertDTO.ProductDetailId);
+            if (productDetail == null) 
+                throw new ArgumentException($"Product Id: {basketUpsertDTO.ProductDetailId} not found !");
+
             if (basketUpsertDTO.Quantity <= 0)
                 throw new ArgumentException("Quantity must be greater than 0", nameof(basketUpsertDTO.Quantity));
+
+            #endregion
 
             string basketKey = $"basket:{basketUpsertDTO.Username}";
             var redisBasket = await _redisService.GetAsync<BasketDTO>(basketKey);
@@ -99,7 +109,7 @@ namespace Store_API.Services
             try
             {
                 redisBasket = await GetOrCreateBasket(redisBasket, basketUpsertDTO);
-                await UpdateBasketItems(redisBasket, basketUpsertDTO);
+                await UpdateBasketItems(redisBasket, basketUpsertDTO, productDetail.ProductId);
                 await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(1));
             }
             catch (Exception ex)
@@ -123,28 +133,25 @@ namespace Store_API.Services
             };
         }
 
-        private async Task UpdateBasketItems(BasketDTO basket, BasketUpsertDTO basketUpsertDTO)
+        private async Task UpdateBasketItems(BasketDTO basket, BasketUpsertDTO basketUpsertDTO, Guid productId)
         {
             var existingItem = basket.Items.FirstOrDefault(item => item.ProductDetailId == basketUpsertDTO.ProductDetailId);
+            var productDTO = await _productService.GetProductDTO(productId);
+            var productDetailDTO = productDTO.Details.FirstOrDefault(detail => detail.Id == basketUpsertDTO.ProductDetailId);           
 
             if (existingItem == null)
             {
-                var productDetail = await _productService.GetProductSingleDetail(basketUpsertDTO.ProductDetailId);
-                
-                if (productDetail == null)
-                    throw new Exception($"Product detail with ID {basketUpsertDTO.ProductDetailId} not found");
-
                 basket.Items.Add(new BasketItemDTO
                 {
                     BasketItemId = Guid.NewGuid(),
-                    ProductDetailId = productDetail.ProductDetailId,
+                    ProductDetailId = productDetailDTO.Id,
                     Quantity = basketUpsertDTO.Quantity,
                     Status = true,
-                    ProductName = productDetail.ProductName,
-                    ProductFirstImage = productDetail.ProductFirstImage,
-                    OriginPrice = productDetail.OriginPrice,
-                    DiscountPercent = productDetail.DiscountPercent,
-                    DiscountPrice = productDetail.DiscountPrice
+                    ProductName = productDTO.Name,
+                    ProductFirstImage = productDetailDTO.ImageUrl.Split(',')[0],
+                    OriginPrice = productDetailDTO.OriginPrice,
+                    DiscountPercent = productDetailDTO.PercentageDiscount,
+                    DiscountPrice = productDetailDTO.DiscountPrice
                 });
                 return;
             }

@@ -2,7 +2,8 @@
 {
     public class ProductParams
     {
-        public string? OrderBy { get; set; }
+        public double? MinPrice { get; set; } = 0;
+        public double? MaxPrice { get; set; } = 100000000;
         public string? SearchBy { get; set; }
         public string? FilterByCategory { get; set; }
         public string? FilterByBrand { get; set; }

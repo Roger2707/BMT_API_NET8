@@ -41,8 +41,6 @@ namespace Store_API.Controllers
                 Quantity = basketParams.Quantity,
                 Mode = basketParams.Mode
             };
-            var product = await _productService.GetProductSingleDetail(basketUpsertDTO.ProductDetailId);
-            if (product == null) return BadRequest(new ProblemDetails { Title = $"Product Id: {basketUpsertDTO.ProductDetailId} not found !" });
 
             try
             {
