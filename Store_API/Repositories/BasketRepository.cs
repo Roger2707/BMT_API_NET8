@@ -115,9 +115,9 @@ namespace Store_API.Repositories
                     , items.Id as BasketItemId
                     , items.ProductDetailId
                     , product.Name as ProductName
-                    , IIF(product.ImageUrl IS NOT NULL, 
+                    , IIF(detail.ImageUrl IS NOT NULL, 
                         (SELECT TOP 1 value 
-                         FROM STRING_SPLIT(product.ImageUrl, ',')), 
+                         FROM STRING_SPLIT(detail.ImageUrl, ',')), 
                         '') AS ProductFirstImage
                     , items.Quantity
                     , detail.Price as OriginPrice
