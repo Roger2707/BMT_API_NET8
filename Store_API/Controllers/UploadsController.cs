@@ -45,31 +45,30 @@ namespace Store_API.Controllers
         [HttpPost("upload-images")]
         public async Task<IActionResult> UploadImages([FromForm] ImageUploadDTO imageUploadDTO)
         {
-            if (imageUploadDTO.Files == null || imageUploadDTO.Files.Count == 0) return Ok(1);
-
+            if (imageUploadDTO.Files == null || imageUploadDTO.Files.Count == 0) return Ok(new {messages = "there is no images !"});
             try
             {
-                // Upload Multiple Images
-                var uploadTasks = imageUploadDTO.Files
-                    .Select(image => _imageService.AddImageAsync(image, imageUploadDTO.FolderPath))
-                    .ToList();
+                var imageResults = await _imageService.AddMultipleImageAsync(imageUploadDTO.Files, imageUploadDTO.FolderPath);
 
-                // Multi thread - run all task at the same time and wait for all to complete
-                var imageResults = await Task.WhenAll(uploadTasks);
-
-                // Check image error != null -> save db
-                var validImages = imageResults.Where(img => img.Error == null).ToList();
-
-                if(validImages.Count == 0) return BadRequest(new ProblemDetails { Title = "Upload Image Failed" });
+                // Check image error
+                var hasError = imageResults.Any(img => img.Error != null);
+                if (hasError)
+                {
+                    return BadRequest(new
+                    {
+                        Title = "Upload Failed ! One or many image has error",
+                        FailedImages = imageResults.Where(img => img.Error != null)
+                    });
+                }
 
                 // Delete Existed Images
-                if(!string.IsNullOrEmpty(imageUploadDTO.PublicIds))
+                if (!string.IsNullOrEmpty(imageUploadDTO.PublicIds))
                     await _imageService.DeleteMultipleImageAsync(imageUploadDTO.PublicIds);
 
-                string imageUrl = string.Join(",", validImages.Select(img => img.SecureUrl.ToString()));
-                string publicId = string.Join(",", validImages.Select(img => img.PublicId));
+                string imageUrl = string.Join(",", imageResults.Select(img => img.SecureUrl.ToString()));
+                string publicId = string.Join(",", imageResults.Select(img => img.PublicId));
 
-                return Ok(new { imageUrl, publicId });
+                return Ok(new { imageUrl, publicId, messages = "Upload success !" });
             }
             catch (Exception ex)
             {

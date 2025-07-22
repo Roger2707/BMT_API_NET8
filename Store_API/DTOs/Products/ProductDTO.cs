@@ -21,6 +21,7 @@
         public double PercentageDiscount { get; set; }
         public double DiscountPrice { get; set; }
         public string? ImageUrl { get; set; }
+        public string? PublicId { get; set; }
         public string Color { get; set; }
         public string? ExtraName { get; set; } = "";
         public string Status { get; set; }
