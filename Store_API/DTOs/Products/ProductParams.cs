@@ -7,6 +7,7 @@
         public string? SearchBy { get; set; }
         public string? FilterByCategory { get; set; }
         public string? FilterByBrand { get; set; }
+        public string? SortBy { get; set; }
         public int CurrentPage { get; set; } = 1;
     }
 }

@@ -59,13 +59,15 @@ namespace Store_API.Repositories
 	                        , IIF(p.PercentageDiscount > 0, p.OriginPrice - p.OriginPrice * p.PercentageDiscount / 100, p.OriginPrice) as DiscountPrice
 	                        , (SELECT COUNT(1) FROM FilterdProducts) as TotalRow
                         FROM FilterdProducts as p
-                        ORDER BY p.Created
+                        ORDER BY -- orderBy
                         OFFSET @Offset ROWS
                         FETCH NEXT @FetchNext ROWS ONLY
                     ";
-
-            string where = GetConditionString(productParams);
+            
+            string where, sortBy;
+            GetConditionString(productParams, out where, out sortBy);
             query = query.Replace("-- conditions", where);
+            query = query.Replace("-- orderBy", sortBy);
             int offset = PageSize * (productParams.CurrentPage - 1);
             int fetchNext = PageSize;
             var result = await _dapperService.QueryAsync<ProductFullDetailDTO>(query, new { Offset = offset, FetchNext = fetchNext });
@@ -216,10 +218,9 @@ namespace Store_API.Repositories
 
         #region Helper Functionalities
 
-        private static string GetConditionString(ProductParams productParams)
+        private static void GetConditionString(ProductParams productParams, out string where, out string sortBy)
         {
-            string where = "";
-
+            where = "";
             if (!string.IsNullOrEmpty(productParams.SearchBy))
             {
                 where += " AND product.Name LIKE '%" + productParams.SearchBy + "%' ";
@@ -257,7 +258,21 @@ namespace Store_API.Repositories
             if (productParams.MaxPrice > 0)
                 where += " AND detail.Price <= " + productParams.MaxPrice + " ";
 
-            return where;
+            if(string.IsNullOrEmpty(productParams.SortBy))
+            {
+                sortBy = " p.Created DESC ";
+            }
+            else
+            {
+                sortBy = productParams.SortBy.ToLower() switch
+                {
+                    "priceasc" => " DiscountPrice ASC ",
+                    "pricedesc" => " DiscountPrice DESC ",
+                    "nameasc" => " p.Name ASC ",
+                    "namedesc" => " p.Name DESC ",
+                    _ => " p.Created DESC ",
+                };
+            }
         }
 
         #endregion
