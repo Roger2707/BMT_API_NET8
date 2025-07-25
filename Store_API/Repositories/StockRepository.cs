@@ -63,7 +63,7 @@ namespace Store_API.Repositories
                                 p.Name AS ProductName,
                                 d.Price,
                                 d.Color,
-	                            p.ImageUrl,
+	                            d.ImageUrl,
 	                            c.Name as CategoryName,
 	                            b.Name as BrandName,
 	                            -- 

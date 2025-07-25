@@ -3,7 +3,6 @@ namespace Store_API.DTOs.Products
 {
     public class ProductUpsertDTO
     {
-        public Guid Id { get; set; }
         [Required]
         [Length(1, 100)]
         public string Name { get; set; }
@@ -17,7 +16,6 @@ namespace Store_API.DTOs.Products
     }
     public class ProductUpsertDetailDTO
     {
-        public Guid Id { get; set; }
         public Guid ProductId { get; set; }
         [Required, Range(100000, 20000000)]
         public double Price { get; set; }

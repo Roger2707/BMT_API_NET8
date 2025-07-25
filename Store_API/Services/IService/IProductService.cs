@@ -10,8 +10,8 @@ namespace Store_API.Services.IService
         Task<List<ProductFullDetailDTO>> GetProductsBestSeller();
 
         #region CRUD
-        Task<Guid> CreateProduct(ProductUpsertDTO model);
-        Task<Guid> UpdateProduct(ProductUpsertDTO model);
+        Task<bool> CreateProduct(ProductUpsertDTO model);
+        Task<bool> UpdateProduct(ProductUpsertDTO model, Guid updatedProductId);
         Task<int> UpdateProductStatus(Guid productId);
         #endregion
     }

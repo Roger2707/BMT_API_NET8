@@ -58,19 +58,12 @@ namespace Store_API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] ProductUpsertDTO productDTO)
         {
-            if (productDTO.Id == Guid.Empty)
-                return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
-
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             try
             {
                 var result = await _productService.CreateProduct(productDTO);
-                if (result == Guid.Empty)
-                    return BadRequest(new ProblemDetails { Title = "Create Failed !" });
-
-                return Ok(productDTO.Id);
+                if (!result) return BadRequest(new ProblemDetails { Title = "Create Failed !" });
+                return Ok();
             }
             catch(Exception ex)
             {
@@ -79,22 +72,17 @@ namespace Store_API.Controllers
         }
 
         [HttpPut("update")]
-        public async Task<IActionResult> Update([FromBody] ProductUpsertDTO productDTO)
+        public async Task<IActionResult> Update([FromBody] ProductUpsertDTO productDTO, Guid updatedProductId)
         {
+            if (!ModelState.IsValid)return BadRequest(ModelState);
             try
             {
-                if (productDTO.Id == Guid.Empty)
-                    return BadRequest(new ProblemDetails { Title = "Product Id is Empty" });
+                if(updatedProductId == Guid.Empty)
+                    return BadRequest(new ProblemDetails { Title = "Product ID is required !" });
 
-                if (!ModelState.IsValid)
-                    return BadRequest(ModelState);
-
-                var result = await _productService.UpdateProduct(productDTO);
-
-                if (result == Guid.Empty)
-                    return BadRequest(new ProblemDetails { Title = "Update Failed !" });
-
-                return Ok(productDTO.Id);
+                var result = await _productService.UpdateProduct(productDTO, updatedProductId);
+                if (!result) return BadRequest(new ProblemDetails { Title = "Update Failed !" });
+                return Ok();
             }
             catch(Exception ex)
             {

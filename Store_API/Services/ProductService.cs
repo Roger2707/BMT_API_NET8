@@ -39,14 +39,13 @@ namespace Store_API.Services
 
         #region CRUD Operations
 
-        public async Task<Guid> CreateProduct(ProductUpsertDTO model)
+        public async Task<bool> CreateProduct(ProductUpsertDTO model)
         {
             await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.EntityFramework);
             try
             {
                 var product = new Product()
                 {
-                    Id = model.Id,
                     Name = model.Name,
                     Description = model.Description,
                     Created = model.Created,
@@ -68,7 +67,7 @@ namespace Store_API.Services
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
 
-                return model.Id;
+                return true;
             }
             catch(Exception ex)
             {
@@ -77,14 +76,14 @@ namespace Store_API.Services
             }
         }
 
-        public async Task<Guid> UpdateProduct(ProductUpsertDTO model)
+        public async Task<bool> UpdateProduct(ProductUpsertDTO model, Guid updatedProductId)
         {
             await _unitOfWork.BeginTransactionAsync(Enums.TransactionType.EntityFramework);
 
             try
             {
-                Product existedProduct = await _unitOfWork.Product.FindFirstAsync(p => p.Id == model.Id, p => p.Details);
-                if (existedProduct == null) return Guid.Empty;
+                Product existedProduct = await _unitOfWork.Product.FindFirstAsync(p => p.Id == updatedProductId, p => p.Details);
+                if (existedProduct == null)  throw new Exception("Product not found !");
 
                 existedProduct.Name = model.Name ?? existedProduct.Name;
                 existedProduct.Description = model.Description ?? existedProduct.Description;
@@ -94,7 +93,6 @@ namespace Store_API.Services
                 _unitOfWork.ProductDetail.RemoveRangeAsync(existedProduct.Details);
                 await _unitOfWork.ProductDetail.AddRangeAsync(model.ProductDetails.Select(d => new ProductDetail()
                 {
-                    Id = d.Id,
                     ProductId = d.ProductId,
                     Price = d.Price,
                     Color = d.Color,
@@ -106,7 +104,8 @@ namespace Store_API.Services
 
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
-                return model.Id;
+
+                return true;
             }
             catch(Exception ex)
             {
