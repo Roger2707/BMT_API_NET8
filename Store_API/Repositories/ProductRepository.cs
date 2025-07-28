@@ -64,8 +64,7 @@ namespace Store_API.Repositories
                         FETCH NEXT @FetchNext ROWS ONLY
                     ";
             
-            string where, sortBy;
-            GetConditionString(productParams, out where, out sortBy);
+            GetConditionString(productParams, out string where, out string sortBy);
             query = query.Replace("-- conditions", where);
             query = query.Replace("-- orderBy", sortBy);
             int offset = PageSize * (productParams.CurrentPage - 1);

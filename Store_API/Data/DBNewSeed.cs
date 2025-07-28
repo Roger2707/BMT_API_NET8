@@ -107,7 +107,8 @@ namespace Store_API.Data
             {
                 new Brand { Id = Guid.Parse("e1798a79-327e-4851-9028-b1c9b2e82ec6"), Name = "Yonex", Country = "Japan" },
                 new Brand { Id = Guid.Parse("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d"), Name = "Victor", Country = "Taiwan" },
-                new Brand { Id = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"), Name = "Lining", Country = "China" }
+                new Brand { Id = Guid.Parse("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"), Name = "Lining", Country = "China" },
+                new Brand { Id = Guid.Parse("11E425AB-91CF-468F-BE8F-49DE57B83F9C"), Name = "Mizuno", Country = "Japan" },
             };
         }
 
@@ -330,8 +331,8 @@ namespace Store_API.Data
                     Status = 1, 
                     Color = "#880808", 
                     ExtraName = "Red Tiger" ,
-                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
-                    PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0",
+                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753170301/products/astrox 99 pro %28ver.2021%29/gffrh5ynbaolqfu3rhtt.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170302/products/astrox 99 pro %28ver.2021%29/x3s0xxejeiwyusjqewvw.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170303/products/astrox 99 pro %28ver.2021%29/pyqv1thyop2kagydxbl6.webp",
+                    PublicId = "products/astrox 99 pro (ver.2021)/gffrh5ynbaolqfu3rhtt,products/astrox 99 pro (ver.2021)/x3s0xxejeiwyusjqewvw,products/astrox 99 pro (ver.2021)/pyqv1thyop2kagydxbl6",
                 },
                 new ProductDetail 
                 { 
@@ -341,8 +342,8 @@ namespace Store_API.Data
                     Status = 1, 
                     Color = "#fff", 
                     ExtraName = "White Tiger" ,
-                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
-                    PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0",
+                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753170392/products/astrox 99 pro %28ver.2021%29/tj5fdhwpcixxywopflkl.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753170393/products/astrox 99 pro %28ver.2021%29/gtol5tfuqpcncb3c1m9a.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170394/products/astrox 99 pro %28ver.2021%29/vo6rpwquqqkxkhddawun.avif",
+                    PublicId = "products/astrox 99 pro (ver.2021)/tj5fdhwpcixxywopflkl,products/astrox 99 pro (ver.2021)/gtol5tfuqpcncb3c1m9a,products/astrox 99 pro (ver.2021)/vo6rpwquqqkxkhddawun",
                 },
                 // Z-strike        
                 new ProductDetail 
@@ -377,8 +378,8 @@ namespace Store_API.Data
                     Status = 1, 
                     Color = "#4169E1", 
                     ExtraName = "Navy Blue" ,
-                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp",
-                    PublicId = "ldpbvqnabfaq7o2uggia",
+                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753165745/products/axtrox 100zz %28ver.kurenai%29/idkcrtg0lk2cn2lfyfkx.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753165746/products/axtrox 100zz %28ver.kurenai%29/yumdrsowwvsvhsilhb63.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753165747/products/axtrox 100zz %28ver.kurenai%29/dn7p1adfppyiif2vkj49.jpg",
+                    PublicId = "",
                 },
                 new ProductDetail 
                 { 
@@ -388,8 +389,8 @@ namespace Store_API.Data
                     Status = 1, 
                     Color = "#880808", 
                     ExtraName = "Ver.Kurenai",
-                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp",
-                    PublicId = "ldpbvqnabfaq7o2uggia",
+                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753166031/products/axtrox 100zz/qkxi31l38yjhnem8ozxu.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753166031/products/axtrox 100zz/ndewv96gzptaledtvys5.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753166032/products/axtrox 100zz/ubgceb3ls0gpf00fyxde.webp",
+                    PublicId = "",
                 },
                 // 1000Z            
                 new ProductDetail 
@@ -491,8 +492,8 @@ namespace Store_API.Data
                     Status = 1, 
                     Color = "#880808", 
                     ExtraName = "Ver.Kirin",
-                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927477/products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi.jpg",
-                    PublicId = "products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi",
+                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753167837/products/axforce 100 %28ver.kirin%29/hnmdobj4zep8ualscfpt.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753167838/products/axforce 100 %28ver.kirin%29/uckkk6feh46pbaocmgoz.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753167839/products/axforce 100 %28ver.kirin%29/gvl4o3adysnzdiazyu7c.jpg",
+                    PublicId = "products/axforce 100 (ver.kirin)/hnmdobj4zep8ualscfpt,products/axforce 100 (ver.kirin)/uckkk6feh46pbaocmgoz,products/axforce 100 (ver.kirin)/gvl4o3adysnzdiazyu7c",
                 },
                 // Tectonic 9                  
                 new ProductDetail 
@@ -531,36 +532,36 @@ namespace Store_API.Data
                 // Comfort Z3                     
                 new ProductDetail 
                 { 
-                    Id = Guid.Parse("7f1b9d38-3b5d-474f-832b-85c7c5d2a9b4"), 
+                    Id = Guid.Parse("B9F376E1-6A5D-4B34-9A1C-3F9E8A7B2D5C"), 
                     ProductId = Guid.Parse("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), 
-                    Price = 2850000, 
+                    Price = 2790000, 
                     Status = 1, 
                     Color = "#880808", 
                     ExtraName = "Ver.Dark Red",
-                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
-                    PublicId = "bpjcwixbyweafni7t5sz",
+                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753168472/products/comfort z3/sgcotgmw6ig39scbh1cr.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168475/products/comfort z3/nu9dyqdda3ima8apehjr.png,https://res.cloudinary.com/duat1htay/image/upload/v1753168476/products/comfort z3/hq5n84q4zsssp2i35pxw.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753168483/products/comfort z3/gqybeyyrrfnhcn6nhnaf.png",
+                    PublicId = "products/comfort z3/sgcotgmw6ig39scbh1cr,products/comfort z3/nu9dyqdda3ima8apehjr,products/comfort z3/hq5n84q4zsssp2i35pxw,products/comfort z3/gqybeyyrrfnhcn6nhnaf",
                 },
                 new ProductDetail 
                 { 
-                    Id = Guid.Parse("b9f376e1-6a5d-4b34-9a1c-3f9e8a7b2d5c"), 
+                    Id = Guid.Parse("41D3F8B7-C1E2-456F-A9C8-72B3D2E5F9A4"), 
                     ProductId = Guid.Parse("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), 
-                    Price = 2830000, 
+                    Price = 2950000, 
                     Status = 1, 
-                    Color = "#4169E1", 
-                    ExtraName = "Ver.Dark Blue",
-                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
-                    PublicId = "bpjcwixbyweafni7t5sz",
+                    Color = "#333", 
+                    ExtraName = "Ver.Black (2025)",
+                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753168600/products/comfort z3/u8pw80r0ukhlnv8c3nk1.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753168601/products/comfort z3/vzkujcg2djj5zgk6brjh.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168602/products/comfort z3/mqllf4b81aryunlqxcqb.webp",
+                    PublicId = "products/comfort z3/u8pw80r0ukhlnv8c3nk1,products/comfort z3/vzkujcg2djj5zgk6brjh,products/comfort z3/mqllf4b81aryunlqxcqb",
                 },
                 new ProductDetail 
                 { 
-                    Id = Guid.Parse("41d3f8b7-c1e2-456f-a9c8-72b3d2e5f9a4"), 
+                    Id = Guid.Parse("7F1B9D38-3B5D-474F-832B-85C7C5D2A9B4"), 
                     ProductId = Guid.Parse("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), 
-                    Price = 2800000, 
+                    Price = 2850000, 
                     Status = 1, 
                     Color = "#FF69B4", 
-                    ExtraName = "Ver.Pink",
-                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
-                    PublicId = "bpjcwixbyweafni7t5sz",
+                    ExtraName = "Ver.Dark White (2025)",
+                    ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753168743/products/comfort z3/fi99vs120kuboq3oliqe.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168744/products/comfort z3/cdgmnjypuh7c0eyrcawm.jpg",
+                    PublicId = "products/comfort z3/fi99vs120kuboq3oliqe,products/comfort z3/cdgmnjypuh7c0eyrcawm",
                 },
                 // Victor                         
                 new ProductDetail 
