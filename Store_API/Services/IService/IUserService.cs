@@ -13,7 +13,7 @@ namespace Store_API.Services.IService
         #endregion
 
         #region Email Send
-        Task SendWelcomeEmailAsync(string email, string username, string password);
+        Task SendEmailLoginAsync(string email, string username);
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace Store_API.Services.IService
 
         #region Methods
 
-        Task<string> UpdateUser(UserDTO userUpserDTO);
+        Task UpdateUser(UserDTO userUpserDTO);
 
         #endregion
 

@@ -13,6 +13,8 @@ namespace Store_API.Infrastructures
         #region Repositories
 
         public IUserRepository User { get; }
+        public IRoleRepository Role { get; }
+        public IUserRoleRepository UserRole { get; }
         public IProductRepository Product { get; }
         public IProductDetailRepository ProductDetail { get; }
         public ICategoryRepository Category { get; }

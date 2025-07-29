@@ -58,11 +58,14 @@ namespace Store_API.Services
 
         public async Task<User> CreateUserAsync(SignUpRequest request)
         {
+            if (string.IsNullOrWhiteSpace(request.Username))
+                throw new ArgumentException("Username is required.");
+
             if (await _unitOfWork.User.FindFirstAsync(u => u.Email == request.Email) != null)
-                throw new Exception("Email already exists.");
+                throw new ArgumentException("Email already exists.");
 
             if (await _unitOfWork.User.FindFirstAsync(u => u.Username == request.Username) != null)
-                throw new Exception("Username already exists.");
+                throw new ArgumentException("Username already exists.");
 
             string password = request.Username[0].ToString().ToUpper() + request.Username.Substring(1).ToLower() + "@123";
 
@@ -82,16 +85,16 @@ namespace Store_API.Services
             return user;
         }
 
-        public async Task SendWelcomeEmailAsync(string email, string username, string password)
+        public async Task SendEmailLoginAsync(string email, string username)
         {
             string content = $@"    Hello, welcome to our badminton store
                                     Your Initial info:
 
                                     Username: {username}
-                                    Password: {password}
+                                    Password: {username + "@123"}
 
-                                    You can change your password after sign in
-                                    Wish you 'll have a nice experience. Thank you!
+                                    You should change your password after log in in order to have strong protection for your account.
+                                    Have a nice day!
                                                                             [ROGER]                                       
                                 ";
 
@@ -118,7 +121,7 @@ namespace Store_API.Services
         public async Task<UserDTO> LoginOAuth(GoogleAuthRequest request)
         {
             if (string.IsNullOrEmpty(request.AuthCode))
-                throw new Exception("Authorization code is null or empty.");
+                throw new ArgumentNullException("Authorization code is null or empty.");
 
             var tokenRequestUri = "https://oauth2.googleapis.com/token";
             var requestBody = new Dictionary<string, string>
@@ -135,11 +138,11 @@ namespace Store_API.Services
             var responseString = await response.Content.ReadAsStringAsync();
 
             if (!response.IsSuccessStatusCode)
-                throw new Exception($"Failed to login {responseString}");
+                throw new HttpRequestException($"Failed to login {responseString}");
 
             var tokenResponse = JsonConvert.DeserializeObject<GoogleTokenResponse>(responseString);
             if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.Id_token))
-                throw new Exception("Could not get token from Google");
+                throw new InvalidOperationException("Could not get token from Google");
 
             var settings = new GoogleJsonWebSignature.ValidationSettings()
             {
@@ -150,8 +153,9 @@ namespace Store_API.Services
 
             if (user == null)
             {
-                user = new User { Username = payload.Email, Email = payload.Email, FullName = payload.Name };
+                user = new User { Username = payload.Email, Email = payload.Email, FullName = payload.Name, Provider = "Google" };
                 await _unitOfWork.User.AddAsync(user);
+                await _unitOfWork.SaveChangesAsync();
             }
             var userResponse = await GetUser(user.Username);
             return userResponse;
@@ -165,10 +169,10 @@ namespace Store_API.Services
             var user = await _unitOfWork.User.FindFirstAsync(u => u.Username == userName);
             bool checkResult = VerifyPassword(changePasswordDTO.CurrentPassword, user.PasswordHash);
             if (!checkResult)
-                throw new Exception("Wrong password ! Try again.");
+                throw new UnauthorizedAccessException("Wrong password ! Try again.");
 
             if (string.Compare(changePasswordDTO.NewPassword, changePasswordDTO.ConfirmedNewPassword) != 0)
-                throw new Exception("New Password and ConfirmedPassword must be the same !");
+                throw new ArgumentException("New Password and ConfirmedPassword must be the same !");
 
             user.PasswordHash = HashPassword(changePasswordDTO.NewPassword);
             await _unitOfWork.SaveChangesAsync();
@@ -200,11 +204,11 @@ namespace Store_API.Services
         {
             var user = await _unitOfWork.User.FindFirstAsync(u => u.Email == resetPasswordDTO.Email);
             if (user == null)
-                throw new Exception("Email does not exist.");
+                throw new ArgumentException("Email does not exist.");
 
             // Compare Password
             if (string.Compare(resetPasswordDTO.NewPassword, resetPasswordDTO.ConfirmNewPassword) != 0)
-                throw new Exception("New Password and ConfirmedPassword must be the same !");
+                throw new ArgumentException("New Password and ConfirmedPassword must be the same !");
             user.PasswordHash = HashPassword(resetPasswordDTO.NewPassword);
             await _unitOfWork.SaveChangesAsync();
         }
@@ -213,7 +217,7 @@ namespace Store_API.Services
 
         #region Update / Password Helpers
 
-        public async Task<string> UpdateUser(UserDTO model)
+        public async Task UpdateUser(UserDTO model)
         {
             var user = await _unitOfWork.User.FindFirstAsync(u => u.Username == model.UserName);
             await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
@@ -263,7 +267,6 @@ namespace Store_API.Services
 
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();    
-                return model.UserName;
             }
             catch(Exception ex)
             {

@@ -29,20 +29,13 @@ namespace Store_API.Controllers
         [HttpPost("create-client-secret")]
         public async Task<IActionResult> CreateClientSecret([FromBody] ShippingAddressDTO shippingAddressDTO)
         {
-            try
+            int userId = CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            await _paymentService.CreatePaymentAsync(userId, User.Identity.Name, shippingAddressDTO);
+            return Ok(new PaymentProcessingResponse
             {
-                int userId = CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                await _paymentService.CreatePaymentAsync(userId, User.Identity.Name, shippingAddressDTO);       
-                return Ok(new PaymentProcessingResponse
-                {
-                    Status = PaymentStatus.Pending,
-                    Message = "Payment request is being processed. You will receive updates via SignalR."
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+                Status = PaymentStatus.Pending,
+                Message = "Payment request is being processed. You will receive updates via SignalR."
+            });
         }
 
         // stripe listen --forward-to localhost:5110/api/payments/webhook
@@ -50,17 +43,10 @@ namespace Store_API.Controllers
         [HttpPost("webhook")]
         public async Task<IActionResult> StripeWebhook()
         {
-            try
-            {
-                var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
-                var whSecret = _configuration["Stripe:WhSecret"];
-                var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], whSecret);
-                await _paymentService.HandleStripeWebhookAsync(stripeEvent);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            var whSecret = _configuration["Stripe:WhSecret"];
+            var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], whSecret);
+            await _paymentService.HandleStripeWebhookAsync(stripeEvent);
 
             return Ok(new { Title = "Check out Successfully !" });
         }

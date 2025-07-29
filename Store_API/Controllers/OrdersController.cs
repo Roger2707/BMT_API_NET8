@@ -37,15 +37,8 @@ namespace Store_API.Controllers
         [HttpPost("update-order-status")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody] OrderUpdatStatusRequest request)
         {
-            try
-            {
-                await _orderService.UpdateOrderStatus(request);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+            await _orderService.UpdateOrderStatus(request);
+            return Ok();
         }
     }
 }

@@ -17,73 +17,52 @@ namespace Store_API.Controllers
         [HttpGet("get-cities")]
         public async Task<IActionResult> GetCities()
         {
-            try
-            {
-                var url = "https://provinces.open-api.vn/api/";
-                var response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                var result = await response.Content.ReadAsStringAsync();
+            var url = "https://provinces.open-api.vn/api/";
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
 
-                var cityJson = JsonConvert.DeserializeObject<List<dynamic>>(result);
-                var cities = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Cities --"} };
+            var cityJson = JsonConvert.DeserializeObject<List<dynamic>>(result);
+            var cities = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Cities --" } };
 
-                foreach(var item in cityJson)
-                    cities.Add(new LocationDTO { Name = item.name, Code = item.code });
+            foreach (var item in cityJson)
+                cities.Add(new LocationDTO { Name = item.name, Code = item.code });
 
-                return Ok(cities);
-            }
-            catch (HttpRequestException ex)
-            {
-                return BadRequest(new ProblemDetails { Title = $"Error fetching data: {ex.Message}" });
-            }
+            return Ok(cities);
         }
 
         [HttpGet("get-districts")]
         public async Task<IActionResult> GetDistricts(string cityCode)
         {
-            try
-            {
-                var url = $"https://provinces.open-api.vn/api/p/{cityCode}?depth=2";
-                var response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                var result = await response.Content.ReadAsStringAsync();
+            var url = $"https://provinces.open-api.vn/api/p/{cityCode}?depth=2";
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
 
-                var cityJson = JsonConvert.DeserializeObject<dynamic>(result);
-                var districts = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Districts --" } };
+            var cityJson = JsonConvert.DeserializeObject<dynamic>(result);
+            var districts = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Districts --" } };
 
-                foreach (var item in cityJson.districts)
-                    districts.Add(new LocationDTO { Name = item.name, Code = item.code });
+            foreach (var item in cityJson.districts)
+                districts.Add(new LocationDTO { Name = item.name, Code = item.code });
 
-                return Ok(districts);
-            }
-            catch (HttpRequestException ex)
-            {
-                return BadRequest(new ProblemDetails { Title = $"Error fetching data: {ex.Message}" });
-            }
+            return Ok(districts);
         }
 
         [HttpGet("get-wards")]
         public async Task<IActionResult> GetWards(string districtCode)
         {
-            try
-            {
-                var url = $"https://provinces.open-api.vn/api/d/{districtCode}?depth=2";
-                var response = await _httpClient.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                var result = await response.Content.ReadAsStringAsync();
+            var url = $"https://provinces.open-api.vn/api/d/{districtCode}?depth=2";
+            var response = await _httpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            var result = await response.Content.ReadAsStringAsync();
 
-                var cityJson = JsonConvert.DeserializeObject<dynamic>(result);
-                var districts = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Wards --" } };
+            var cityJson = JsonConvert.DeserializeObject<dynamic>(result);
+            var districts = new List<LocationDTO>() { new LocationDTO { Code = 0, Name = "-- Choose Wards --" } };
 
-                foreach (var item in cityJson.wards)
-                    districts.Add(new LocationDTO { Name = item.name, Code = item.code });
+            foreach (var item in cityJson.wards)
+                districts.Add(new LocationDTO { Name = item.name, Code = item.code });
 
-                return Ok(districts);
-            }
-            catch (HttpRequestException ex)
-            {
-                return BadRequest(new ProblemDetails { Title = $"Error fetching data: {ex.Message}" });
-            }
+            return Ok(districts);
         }
     }
 }

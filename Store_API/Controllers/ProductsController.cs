@@ -19,29 +19,15 @@ namespace Store_API.Controllers
         [HttpGet("get-products-page")]
         public async Task<IActionResult> GetProductsInPage([FromQuery] ProductParams productParams)
         {
-            try
-            {
-                var result = await _productService.GetPageProducts(productParams);
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            var result = await _productService.GetPageProducts(productParams);
+            return Ok(result);
         }
 
         [HttpGet("get-products-best-seller")]
         public async Task<IActionResult> GetProductsBestSeller()
         {
-            try
-            {
-                var result = await _productService.GetProductsBestSeller();
-                return Ok(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            var result = await _productService.GetProductsBestSeller();
+            return Ok(result);
         }
 
         [HttpGet("get-product-dto", Name = "get-product-detail-dto")]
@@ -59,35 +45,23 @@ namespace Store_API.Controllers
         public async Task<IActionResult> Create([FromBody] ProductUpsertDTO productDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            try
-            {
-                var result = await _productService.CreateProduct(productDTO);
-                if (!result) return BadRequest(new ProblemDetails { Title = "Create Failed !" });
-                return Ok();
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+
+            var result = await _productService.CreateProduct(productDTO);
+            if (!result) return BadRequest(new ProblemDetails { Title = "Create Failed !" });
+            return Ok();
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromBody] ProductUpsertDTO productDTO, Guid updatedProductId)
         {
             if (!ModelState.IsValid)return BadRequest(ModelState);
-            try
-            {
-                if(updatedProductId == Guid.Empty)
-                    return BadRequest(new ProblemDetails { Title = "Product ID is required !" });
 
-                var result = await _productService.UpdateProduct(productDTO, updatedProductId);
-                if (!result) return BadRequest(new ProblemDetails { Title = "Update Failed !" });
-                return Ok();
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            if (updatedProductId == Guid.Empty)
+                return BadRequest(new ProblemDetails { Title = "Product ID is required !" });
+
+            var result = await _productService.UpdateProduct(productDTO, updatedProductId);
+            if (!result) return BadRequest(new ProblemDetails { Title = "Update Failed !" });
+            return Ok();
         }
 
         [HttpPost("change-status")]

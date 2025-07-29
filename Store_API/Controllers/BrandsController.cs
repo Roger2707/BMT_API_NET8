@@ -32,43 +32,22 @@ namespace Store_API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] BrandDTO model)
         {
-            try
-            {
-                await _brandService.Create(model);
-                return CreatedAtRoute("GetDetailBrand", new { id = model.Id }, model);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _brandService.Create(model);
+            return CreatedAtRoute("GetDetailBrand", new { id = model.Id }, model);
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromForm] BrandDTO model)
         {
-            try
-            {
-                await _brandService.Update(model);
-                return CreatedAtRoute("GetDetailBrand", new { id = model.Id }, model);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _brandService.Update(model);
+            return CreatedAtRoute("GetDetailBrand", new { id = model.Id }, model);
         }
 
         [HttpDelete("delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
-            {
-                await _brandService.Delete(id);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _brandService.Delete(id);
+            return Ok();
         }
     }
 }

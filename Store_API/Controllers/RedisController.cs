@@ -16,61 +16,33 @@ namespace Store_API.Controllers
         [HttpGet("set")]
         public async Task<IActionResult> SetKeyValue(string key, string value)
         {
-            try
-            {
-                await _redis.StringSetAsync(key, value, TimeSpan.FromMinutes(15));
-                return Ok(new { Message = $"Key '{key}' set with value '{value}'" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
+            await _redis.StringSetAsync(key, value, TimeSpan.FromMinutes(15));
+            return Ok(new { Message = $"Key '{key}' set with value '{value}'" });
         }
 
         [HttpGet("get")]
         public async Task<IActionResult> GetKeyValue(string key)
         {
-            try
+            var value = await _redis.StringGetAsync(key);
+            if (value.IsNullOrEmpty)
             {
-                var value = await _redis.StringGetAsync(key);
-                if (value.IsNullOrEmpty)
-                {
-                    return NotFound(new { Message = $"Key '{key}' not found" });
-                }
-                return Ok(new { Key = key, Value = value.ToString() });
+                return NotFound(new { Message = $"Key '{key}' not found" });
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
+            return Ok(new { Key = key, Value = value.ToString() });
         }
 
         [HttpGet("delete")]
         public async Task<IActionResult> DelKeyValue(string key)
         {
-            try
-            {
-                var value = await _redis.KeyDeleteAsync(key);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
+            var value = await _redis.KeyDeleteAsync(key);
+            return Ok();
         }
 
         [HttpGet("test-ping")]
         public async Task<IActionResult> TestPing()
         {
-            try
-            {
-                var pong = await _redis.PingAsync();
-                return Ok(new { Pong = pong });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.ToString() });
-            }
+            var pong = await _redis.PingAsync();
+            return Ok(new { Pong = pong });
         }
     }
 }

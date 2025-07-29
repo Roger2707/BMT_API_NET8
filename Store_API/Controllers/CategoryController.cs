@@ -32,43 +32,22 @@ namespace Store_API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] CategoryDTO model)
         {
-            try
-            {
-                await _categoryService.Create(model);
-                return CreatedAtRoute("GetDetailCategory", new { id = model.Id }, model);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }         
+            await _categoryService.Create(model);
+            return CreatedAtRoute("GetDetailCategory", new { id = model.Id }, model);
         }
 
         [HttpPut("update")]
         public async Task<IActionResult> Update([FromForm] CategoryDTO model)
         {
-            try
-            {
-                await _categoryService.Update(model);
-                return CreatedAtRoute("GetDetailCategory", new { id = model.Id }, model);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _categoryService.Update(model);
+            return CreatedAtRoute("GetDetailCategory", new { id = model.Id }, model);
         }
 
         [HttpDelete("delete")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            try
-            {
-                await _categoryService.Delete(id);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(ex.Message);
-            }
+            await _categoryService.Delete(id);
+            return Ok();
         }
     }
 }

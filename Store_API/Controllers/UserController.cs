@@ -29,52 +29,28 @@ namespace Store_API.Controllers
         [HttpPost("external-login")]
         public async Task<IActionResult> ExternalLogin([FromBody] GoogleAuthRequest model)
         {
-            try
-            {
-                var userResponse = await _userService.LoginOAuth(model);
-                if (userResponse != null) return Ok(userResponse);
-                return BadRequest(new ProblemDetails { Title = "Login failed !" });
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            var userResponse = await _userService.LoginOAuth(model);
+            return Ok(userResponse);
         }
 
         [HttpPost("sign-up")]
         public async Task<IActionResult> SignUp(SignUpRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            try
-            {
-                var userResult = await _userService.CreateUserAsync(request);
-                if (userResult == null) return BadRequest();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-                await _userService.SendWelcomeEmailAsync(userResult.Email, userResult.Username, "GeneratedPassword");
-                return Ok("User is created successfully!");
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            var userResult = await _userService.CreateUserAsync(request);
+            if (userResult == null) return BadRequest(new ProblemDetails { Title = "Sign up failed !"});
+
+            await _userService.SendEmailLoginAsync(userResult.Email, userResult.Username);
+            return Ok("User is created successfully!");
         }
 
         [HttpPost("log-in")]
         public async Task<IActionResult> Login(LoginRequest request)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-            try
-            {
-                var result = await _userService.SignInAsync(request);
-                if (result == null) return BadRequest(new ProblemDetails { Title = "Login failed !" });
-                return Ok(result);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+            var result = await _userService.SignInAsync(request);
+            return Ok(result);
         }
 
         [Authorize]
@@ -82,60 +58,34 @@ namespace Store_API.Controllers
         public async Task<IActionResult> ChangePassword(ChangePasswordDTO passwordDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            try
-            {
-                await _userService.ChangePassword(User.Identity.Name, passwordDTO);
-                return Ok(new { Title = "Change Password Successfully !" });
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+
+            await _userService.ChangePassword(User.Identity.Name, passwordDTO);
+            return Ok(new { Title = "Change Password Successfully !" });
         }
 
         [HttpPost("forget-password")]
         public async Task<IActionResult> ForgetPassword([FromBody] ForgetPasswordDTO model)
         {
             if(!ModelState.IsValid) return BadRequest(ModelState);
-            try
-            {
-                await _userService.ForgetPassword(model);
-                return Ok();
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+
+            await _userService.ForgetPassword(model);
+            return Ok();
         }
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPasswordDTO model)
         {
-            try
-            {
-                await _userService.ResetPassword(model);
-                return Ok(new {Title = "Reset Password Successfully !"});
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            await _userService.ResetPassword(model);
+            return Ok(new { Title = "Reset Password Successfully !" });
         }
 
         [Authorize]
         [HttpGet("current-user")]
         public async Task<IActionResult> GetCurrentUser()
         {
-            try
-            {
-                string userName = User.Identity.Name;
-                var user = await _userService.GetUser(userName);
-                return Ok(user);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            string userName = User.Identity.Name;
+            var user = await _userService.GetUser(userName);
+            return Ok(user);
         }
 
         [Authorize]
@@ -143,16 +93,10 @@ namespace Store_API.Controllers
         public async Task<IActionResult> UpdateProfile([FromBody] UserDTO userUpsertDTO)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            try
-            {
-                string username = await _userService.UpdateUser(userUpsertDTO);
-                var user = await _userService.GetUser(username);
-                return Ok(user);
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+
+            await _userService.UpdateUser(userUpsertDTO);
+            var user = await _userService.GetUser(userUpsertDTO.UserName);
+            return Ok(user);
         }
     }
 }

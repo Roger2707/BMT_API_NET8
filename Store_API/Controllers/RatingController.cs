@@ -37,16 +37,9 @@ namespace Store_API.Controllers
         {
             int userId = CF.GetInt(User.FindFirstValue(ClaimTypes.NameIdentifier));
             ratingDTO.UserId = userId;
-            
-            try
-            {
-                await _ratingService.SetRating(ratingDTO);
-                return Ok(new {Title = $"Set Rating: {ratingDTO.ProductDetailId} Successfully !"});
-            }
-            catch(Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+
+            await _ratingService.SetRating(ratingDTO);
+            return Ok(new { Title = $"Set Rating: {ratingDTO.ProductDetailId} Successfully !" });
         }
     }
 }

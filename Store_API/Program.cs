@@ -11,6 +11,7 @@ using Store_API.SignalR;
 using MassTransit;
 using Store_API.Consumers;
 using Store_API.Contracts;
+using Store_API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -205,10 +206,13 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+app.UseCors("AllowSpecificOrigin");
+
+// Middleware to handle exceptions globally - dont need try-catch every controller
+app.UseMiddleware<ExceptionHandlingMiddleware>();
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
-
-app.UseCors("AllowSpecificOrigin");
 
 app.UseAuthentication();
 app.UseAuthorization();

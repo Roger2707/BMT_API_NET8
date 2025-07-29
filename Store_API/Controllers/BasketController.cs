@@ -12,11 +12,9 @@ namespace Store_API.Controllers
     public class BasketController : ControllerBase
     {
         private readonly IBasketService _basketService;
-        private readonly IProductService _productService;
-        public BasketController(IBasketService basketService, IProductService productService)
+        public BasketController(IBasketService basketService)
         {
             _basketService = basketService;
-            _productService = productService;
         }
 
         [HttpGet("get-basket")]
@@ -42,32 +40,17 @@ namespace Store_API.Controllers
                 Mode = basketParams.Mode
             };
 
-            try
-            {
-                await _basketService.UpsertBasket(basketUpsertDTO);
-                var basketDTO = await _basketService.GetBasketDTO(userId, User.Identity.Name);
-                //var newItemUpdated = basketDTO.Items.FirstOrDefault(i => i.ProductDetailId == basketUpsertDTO.ProductDetailId);
-                return Ok(basketDTO);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            await _basketService.UpsertBasket(basketUpsertDTO);
+            var basketDTO = await _basketService.GetBasketDTO(userId, User.Identity.Name);
+            return Ok(basketDTO);
         }
 
         [Authorize]
         [HttpPost("toggle-status-item")]
         public async Task<IActionResult> ToggleItemsStatus(Guid itemId)
         {
-            try
-            {
-                await _basketService.ToggleBasketItemStatus(User.Identity.Name, itemId);
-                return Ok(itemId);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }       
+            await _basketService.ToggleBasketItemStatus(User.Identity.Name, itemId);
+            return Ok(itemId);
         }
     }
 }

@@ -48,23 +48,16 @@ namespace Store_API.Controllers
         [Authorize(Policy = "ManageStock")]
         public async Task<IActionResult> UpsertStock([FromBody] StockUpsertDTO stockUpsertDTO)
         {
-            try
+            bool result = true;
+            if (stockUpsertDTO.TransactionType == 1)
             {
-                bool result = true;
-                if(stockUpsertDTO.TransactionType == 1)
-                {
-                    result = await _stockService.Import(stockUpsertDTO);
-                }
-                else if(stockUpsertDTO.TransactionType == 0)
-                {
-                    result = await _stockService.Export(stockUpsertDTO);
-                }
-                return Ok(result);
+                result = await _stockService.Import(stockUpsertDTO);
             }
-            catch(Exception ex)
+            else if (stockUpsertDTO.TransactionType == 0)
             {
-                return BadRequest(new ProblemDetails { Title = ex.Message});
+                result = await _stockService.Export(stockUpsertDTO);
             }
+            return Ok(result);
         }
 
         #endregion 

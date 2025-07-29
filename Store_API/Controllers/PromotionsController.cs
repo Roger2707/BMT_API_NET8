@@ -34,16 +34,9 @@ namespace Store_API.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromForm] PromotionUpsertDTO promotion)
         {
-            try
-            {
-                await _promotionService.Create(promotion);
-                var newPromotion = await _promotionService.GetPromotion(promotion.Id);
-                return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, newPromotion);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            await _promotionService.Create(promotion);
+            var newPromotion = await _promotionService.GetPromotion(promotion.Id);
+            return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, newPromotion);
         }
 
         [HttpPut("update")]
@@ -52,16 +45,9 @@ namespace Store_API.Controllers
             if(promotion.Id == Guid.Empty) 
                 return BadRequest(new ProblemDetails { Title = "Id can not be empty !" });
 
-            try
-            {
-                await _promotionService.Update(promotion);
-                var promotionUpdated = await _promotionService.GetPromotion(promotion.Id);
-                return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, promotionUpdated);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+            await _promotionService.Update(promotion);
+            var promotionUpdated = await _promotionService.GetPromotion(promotion.Id);
+            return CreatedAtRoute("GetDetailPromotion", new { promotionId = promotion.Id }, promotionUpdated);
         }
 
         [HttpDelete("delete")]
@@ -69,15 +55,9 @@ namespace Store_API.Controllers
         {
             if (id == Guid.Empty)
                 return BadRequest(new ProblemDetails { Title = "Id can not be empty !" });
-            try
-            {
-                await _promotionService.Delete(id);
-                return Ok(1);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ProblemDetails { Title = ex.Message });
-            }
+
+            await _promotionService.Delete(id);
+            return Ok(1);
         }
     }
 }
