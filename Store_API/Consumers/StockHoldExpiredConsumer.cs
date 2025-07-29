@@ -48,7 +48,7 @@ namespace Store_API.Consumers
                     var stock = await _unitOfWork.Stock.FindFirstAsync(x => x.ProductDetailId == item.ProductDetailId);
                     if (stock == null)
                         throw new Exception($"Stock for product {item.ProductDetailId} not found");
-
+                    
                     var stockUpsertDTO = new StockUpsertDTO
                     {
                         ProductDetailId = item.ProductDetailId,

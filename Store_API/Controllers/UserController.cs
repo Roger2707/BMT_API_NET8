@@ -51,7 +51,7 @@ namespace Store_API.Controllers
                 var userResult = await _userService.CreateUserAsync(request);
                 if (userResult == null) return BadRequest();
 
-                await _userService.SendWelcomeEmailAsync(userResult.Email, userResult.UserName, "GeneratedPassword");
+                await _userService.SendWelcomeEmailAsync(userResult.Email, userResult.Username, "GeneratedPassword");
                 return Ok("User is created successfully!");
             }
             catch(Exception ex)

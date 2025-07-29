@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -7,7 +6,6 @@ using StackExchange.Redis;
 using Store_API.Data;
 using System.Text;
 using Store_API.Extensions;
-using Store_API.Models.Users;
 using Store_API.Services;
 using Store_API.SignalR;
 using MassTransit;
@@ -76,21 +74,6 @@ builder.Services.AddCors(options =>
 #endregion
 
 #region Authentication + Authorization
-
-builder.Services
-    .AddIdentity<User, Store_API.Models.Users.Role>(opt =>
-    {
-        opt.Password.RequiredLength = 7;
-        opt.Password.RequireDigit = false;
-        opt.Password.RequireUppercase = false;
-        opt.User.RequireUniqueEmail = true;
-    })
-    .AddEntityFrameworkStores<StoreContext>()
-    .AddDefaultTokenProviders();
-
-builder.Services.Configure<DataProtectionTokenProviderOptions>(options => {
-    options.TokenLifespan = TimeSpan.FromHours(2);
-});
 
 builder.Services
     .AddAuthentication(options =>

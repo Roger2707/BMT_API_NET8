@@ -190,131 +190,6 @@ namespace Store_API.Migrations
                     b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetRoleClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserClaims", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("LoginProvider", "ProviderKey");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("AspNetUserLogins", (string)null);
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            UserId = 1,
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            UserId = 2,
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            UserId = 3,
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            UserId = 4,
-                            RoleId = 2
-                        });
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("UserId", "LoginProvider", "Name");
-
-                    b.ToTable("AspNetUserTokens", (string)null);
-                });
-
             modelBuilder.Entity("Store_API.Models.Basket", b =>
                 {
                     b.Property<Guid>("Id")
@@ -393,6 +268,12 @@ namespace Store_API.Migrations
                             Id = new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"),
                             Country = "China",
                             Name = "Lining"
+                        },
+                        new
+                        {
+                            Id = new Guid("11e425ab-91cf-468f-be8f-49de57b83f9c"),
+                            Country = "Japan",
+                            Name = "Mizuno"
                         });
                 });
 
@@ -1101,10 +982,10 @@ namespace Store_API.Migrations
                             Id = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             Color = "#880808",
                             ExtraName = "Red Tiger",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753170301/products/astrox 99 pro %28ver.2021%29/gffrh5ynbaolqfu3rhtt.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170302/products/astrox 99 pro %28ver.2021%29/x3s0xxejeiwyusjqewvw.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170303/products/astrox 99 pro %28ver.2021%29/pyqv1thyop2kagydxbl6.webp",
                             Price = 4200000.0,
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
-                            PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0",
+                            PublicId = "products/astrox 99 pro (ver.2021)/gffrh5ynbaolqfu3rhtt,products/astrox 99 pro (ver.2021)/x3s0xxejeiwyusjqewvw,products/astrox 99 pro (ver.2021)/pyqv1thyop2kagydxbl6",
                             Status = 1
                         },
                         new
@@ -1112,10 +993,10 @@ namespace Store_API.Migrations
                             Id = new Guid("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"),
                             Color = "#fff",
                             ExtraName = "White Tiger",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753170392/products/astrox 99 pro %28ver.2021%29/tj5fdhwpcixxywopflkl.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753170393/products/astrox 99 pro %28ver.2021%29/gtol5tfuqpcncb3c1m9a.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170394/products/astrox 99 pro %28ver.2021%29/vo6rpwquqqkxkhddawun.avif",
                             Price = 4300000.0,
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
-                            PublicId = "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0",
+                            PublicId = "products/astrox 99 pro (ver.2021)/tj5fdhwpcixxywopflkl,products/astrox 99 pro (ver.2021)/gtol5tfuqpcncb3c1m9a,products/astrox 99 pro (ver.2021)/vo6rpwquqqkxkhddawun",
                             Status = 1
                         },
                         new
@@ -1145,10 +1026,10 @@ namespace Store_API.Migrations
                             Id = new Guid("c9b74e77-dc8b-4c4e-96c9-d6b2e8adf2cf"),
                             Color = "#4169E1",
                             ExtraName = "Navy Blue",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753165745/products/axtrox 100zz %28ver.kurenai%29/idkcrtg0lk2cn2lfyfkx.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753165746/products/axtrox 100zz %28ver.kurenai%29/yumdrsowwvsvhsilhb63.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753165747/products/axtrox 100zz %28ver.kurenai%29/dn7p1adfppyiif2vkj49.jpg",
                             Price = 4500000.0,
                             ProductId = new Guid("550e8400-e29b-41d4-a716-446655440000"),
-                            PublicId = "ldpbvqnabfaq7o2uggia",
+                            PublicId = "",
                             Status = 1
                         },
                         new
@@ -1156,10 +1037,10 @@ namespace Store_API.Migrations
                             Id = new Guid("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"),
                             Color = "#880808",
                             ExtraName = "Ver.Kurenai",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753166031/products/axtrox 100zz/qkxi31l38yjhnem8ozxu.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753166031/products/axtrox 100zz/ndewv96gzptaledtvys5.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753166032/products/axtrox 100zz/ubgceb3ls0gpf00fyxde.webp",
                             Price = 4450000.0,
                             ProductId = new Guid("550e8400-e29b-41d4-a716-446655440000"),
-                            PublicId = "ldpbvqnabfaq7o2uggia",
+                            PublicId = "",
                             Status = 1
                         },
                         new
@@ -1255,10 +1136,10 @@ namespace Store_API.Migrations
                             Id = new Guid("a2e987b6-fdbc-4d9a-a86b-6f9cb4e7f236"),
                             Color = "#880808",
                             ExtraName = "Ver.Kirin",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1734927477/products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi.jpg",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753167837/products/axforce 100 %28ver.kirin%29/hnmdobj4zep8ualscfpt.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753167838/products/axforce 100 %28ver.kirin%29/uckkk6feh46pbaocmgoz.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753167839/products/axforce 100 %28ver.kirin%29/gvl4o3adysnzdiazyu7c.jpg",
                             Price = 4250000.0,
                             ProductId = new Guid("e029d3c5-b6b3-4e31-bada-1e6b7d5af7c8"),
-                            PublicId = "products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi",
+                            PublicId = "products/axforce 100 (ver.kirin)/hnmdobj4zep8ualscfpt,products/axforce 100 (ver.kirin)/uckkk6feh46pbaocmgoz,products/axforce 100 (ver.kirin)/gvl4o3adysnzdiazyu7c",
                             Status = 1
                         },
                         new
@@ -1296,35 +1177,35 @@ namespace Store_API.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7f1b9d38-3b5d-474f-832b-85c7c5d2a9b4"),
+                            Id = new Guid("b9f376e1-6a5d-4b34-9a1c-3f9e8a7b2d5c"),
                             Color = "#880808",
                             ExtraName = "Ver.Dark Red",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
-                            Price = 2850000.0,
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753168472/products/comfort z3/sgcotgmw6ig39scbh1cr.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168475/products/comfort z3/nu9dyqdda3ima8apehjr.png,https://res.cloudinary.com/duat1htay/image/upload/v1753168476/products/comfort z3/hq5n84q4zsssp2i35pxw.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753168483/products/comfort z3/gqybeyyrrfnhcn6nhnaf.png",
+                            Price = 2790000.0,
                             ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
-                            PublicId = "bpjcwixbyweafni7t5sz",
-                            Status = 1
-                        },
-                        new
-                        {
-                            Id = new Guid("b9f376e1-6a5d-4b34-9a1c-3f9e8a7b2d5c"),
-                            Color = "#4169E1",
-                            ExtraName = "Ver.Dark Blue",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
-                            Price = 2830000.0,
-                            ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
-                            PublicId = "bpjcwixbyweafni7t5sz",
+                            PublicId = "products/comfort z3/sgcotgmw6ig39scbh1cr,products/comfort z3/nu9dyqdda3ima8apehjr,products/comfort z3/hq5n84q4zsssp2i35pxw,products/comfort z3/gqybeyyrrfnhcn6nhnaf",
                             Status = 1
                         },
                         new
                         {
                             Id = new Guid("41d3f8b7-c1e2-456f-a9c8-72b3d2e5f9a4"),
-                            Color = "#FF69B4",
-                            ExtraName = "Ver.Pink",
-                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg",
-                            Price = 2800000.0,
+                            Color = "#333",
+                            ExtraName = "Ver.Black (2025)",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753168600/products/comfort z3/u8pw80r0ukhlnv8c3nk1.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753168601/products/comfort z3/vzkujcg2djj5zgk6brjh.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168602/products/comfort z3/mqllf4b81aryunlqxcqb.webp",
+                            Price = 2950000.0,
                             ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
-                            PublicId = "bpjcwixbyweafni7t5sz",
+                            PublicId = "products/comfort z3/u8pw80r0ukhlnv8c3nk1,products/comfort z3/vzkujcg2djj5zgk6brjh,products/comfort z3/mqllf4b81aryunlqxcqb",
+                            Status = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("7f1b9d38-3b5d-474f-832b-85c7c5d2a9b4"),
+                            Color = "#FF69B4",
+                            ExtraName = "Ver.Dark White (2025)",
+                            ImageUrl = "https://res.cloudinary.com/duat1htay/image/upload/v1753168743/products/comfort z3/fi99vs120kuboq3oliqe.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168744/products/comfort z3/cdgmnjypuh7c0eyrcawm.jpg",
+                            Price = 2850000.0,
+                            ProductId = new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"),
+                            PublicId = "products/comfort z3/fi99vs120kuboq3oliqe,products/comfort z3/cdgmnjypuh7c0eyrcawm",
                             Status = 1
                         },
                         new
@@ -1373,91 +1254,91 @@ namespace Store_API.Migrations
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3251)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4269)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3263)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4277)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3330)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4279)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3333)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4281)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3335)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4283)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3340)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4286)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3342)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4288)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3344)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4290)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3346)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4293)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3349)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4295)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3351)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4297)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3353)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4299)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3355)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4306)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3357)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4308)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
-                            Created = new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3359)
+                            Created = new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4309)
                         });
                 });
 
@@ -1664,45 +1545,28 @@ namespace Store_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Name")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedName")
-                        .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
-
-                    b.ToTable("AspNetRoles", (string)null);
+                    b.ToTable("Roles");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Name = "SuperAdmin",
-                            NormalizedName = "SUPERADMIN"
+                            Name = "SuperAdmin"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Admin",
-                            NormalizedName = "ADMIN"
+                            Name = "Admin"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Customer",
-                            NormalizedName = "CUSTOMER"
+                            Name = "Customer"
                         });
                 });
 
@@ -1714,22 +1578,11 @@ namespace Store_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("Dob")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
@@ -1737,28 +1590,11 @@ namespace Store_API.Migrations
                     b.Property<string>("ImageUrl")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
 
                     b.Property<string>("Provider")
                         .HasColumnType("nvarchar(max)");
@@ -1766,104 +1602,61 @@ namespace Store_API.Migrations
                     b.Property<string>("PublicId")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("SecurityStamp")
+                    b.Property<string>("Username")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("NormalizedEmail")
-                        .HasDatabaseName("EmailIndex");
-
-                    b.HasIndex("NormalizedUserName")
-                        .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "3fe3530f-ab90-4b40-affb-459bd118bc74",
-                            Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Dob = new DateTime(2025, 7, 29, 10, 59, 44, 967, DateTimeKind.Local).AddTicks(8566),
                             Email = "spadmin@example.com",
-                            EmailConfirmed = true,
                             FullName = "SuperAdmin",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "SPADMIN@EXAMPLE.COM",
-                            NormalizedUserName = "SPADMIN",
-                            PasswordHash = "AQAAAAIAAYagAAAAEJ0YWf8ywgecEIbQ84tgT8Sz9zTfE80bYezuqZzHAHDukv2pte1BqVLayrPJYDZ4LA==",
-                            PhoneNumberConfirmed = false,
+                            ImageUrl = "",
+                            PasswordHash = "$2a$11$a0ixSBzS0b4A031kdh6Hq.z64w49IoFvBnNmsykCusnOd.dbARX72",
                             Provider = "System",
-                            SecurityStamp = "48e687ca-4c43-42f8-9d04-9709077a2ddf",
-                            TwoFactorEnabled = false,
-                            UserName = "spadmin"
+                            PublicId = "",
+                            Username = "spadmin"
                         },
                         new
                         {
                             Id = 2,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "0ed59af1-916d-4b40-9e79-7d375220f313",
-                            Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Dob = new DateTime(2025, 7, 29, 10, 59, 44, 967, DateTimeKind.Local).AddTicks(8586),
                             Email = "admin1@example.com",
-                            EmailConfirmed = true,
                             FullName = "Admin1",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN1@EXAMPLE.COM",
-                            NormalizedUserName = "ADMIN1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEE02uAg0gTG/LfDDpt/MNAsvywamLoyYpM+2SDRptp9V1dJsoSjg2dFMsUEMILu4Nw==",
-                            PhoneNumberConfirmed = false,
+                            ImageUrl = "",
+                            PasswordHash = "$2a$11$5Yk65wUFFHmET28tJMlAnOq.en0gO7t5elekyZUTCr6cAeocxTMm2",
                             Provider = "System",
-                            SecurityStamp = "695765b4-aa7c-411c-9a14-0b6bd55f872c",
-                            TwoFactorEnabled = false,
-                            UserName = "admin1"
+                            PublicId = "",
+                            Username = "admin1"
                         },
                         new
                         {
                             Id = 3,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "585ad4a6-cf4e-407c-b35a-77e649b29842",
-                            Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Dob = new DateTime(2025, 7, 29, 10, 59, 44, 967, DateTimeKind.Local).AddTicks(8588),
                             Email = "admin2@example.com",
-                            EmailConfirmed = true,
                             FullName = "Admin2",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN2@EXAMPLE.COM",
-                            NormalizedUserName = "ADMIN2",
-                            PasswordHash = "AQAAAAIAAYagAAAAENoDVn9RiyBDLTUzd/ldYdfXVBJPCcDrZaV+DI1qpYnJg15QgmbH5G5W09nyIhHROw==",
-                            PhoneNumberConfirmed = false,
+                            ImageUrl = "",
+                            PasswordHash = "$2a$11$Gh92tfuiV8JJFAiT9QFY8ukFLQ/GQ9U6f6NvXGT5RCrZ46NhZjCm6",
                             Provider = "System",
-                            SecurityStamp = "ebe8cfe4-1f3b-4dc4-b34b-6ac68711e410",
-                            TwoFactorEnabled = false,
-                            UserName = "admin2"
+                            PublicId = "",
+                            Username = "admin2"
                         },
                         new
                         {
                             Id = 4,
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "d5f5cb6a-3769-4623-973f-d1681ffb73f5",
-                            Dob = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Dob = new DateTime(2025, 7, 29, 10, 59, 44, 967, DateTimeKind.Local).AddTicks(8589),
                             Email = "admi3n@example.com",
-                            EmailConfirmed = true,
                             FullName = "Admin3",
-                            LockoutEnabled = false,
-                            NormalizedEmail = "ADMIN3@EXAMPLE.COM",
-                            NormalizedUserName = "ADMIN3",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKLuKMcbookzR+GZQp3uPVd7D2RQLeDKXraA7S8NmSTLWlIZRzb4/WJXrPAYFRD3aA==",
-                            PhoneNumberConfirmed = false,
+                            ImageUrl = "",
+                            PasswordHash = "$2a$11$3jmAqls3P86zyf/siN9uhucTPRp/rtkMRa8EFFuC.X0TZodm5yKcK",
                             Provider = "System",
-                            SecurityStamp = "e8b2c33f-1284-4da4-b9ec-225ec933e520",
-                            TwoFactorEnabled = false,
-                            UserName = "admin3"
+                            PublicId = "",
+                            Username = "admin3"
                         });
                 });
 
@@ -1883,6 +1676,43 @@ namespace Store_API.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserAddresses");
+                });
+
+            modelBuilder.Entity("Store_API.Models.Users.UserRole", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "RoleId");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("UserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            UserId = 1,
+                            RoleId = 1
+                        },
+                        new
+                        {
+                            UserId = 2,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            UserId = 3,
+                            RoleId = 2
+                        },
+                        new
+                        {
+                            UserId = 4,
+                            RoleId = 2
+                        });
                 });
 
             modelBuilder.Entity("Store_API.Models.Users.UserWarehouse", b =>
@@ -1908,73 +1738,22 @@ namespace Store_API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d86af4a2-9e1f-4127-90e8-ee08e5ffeec7"),
+                            Id = new Guid("28ff7e93-b205-4bf1-a496-7f41830d92ac"),
                             UserId = 2,
                             WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
                         },
                         new
                         {
-                            Id = new Guid("a34d831a-fab7-44a6-9612-adc9963501ec"),
+                            Id = new Guid("c3a036ea-c095-43a0-8513-f4e40a7cc446"),
                             UserId = 3,
                             WarehouseId = new Guid("22222222-2222-2222-2222-222222222222")
                         },
                         new
                         {
-                            Id = new Guid("8964a57c-b5fb-4201-be39-eb3f9be49ac8"),
+                            Id = new Guid("91f4a3c5-8134-401a-8650-2361aa13af36"),
                             UserId = 4,
                             WarehouseId = new Guid("33333333-3333-3333-3333-333333333333")
                         });
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
-                {
-                    b.HasOne("Store_API.Models.Users.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
-                {
-                    b.HasOne("Store_API.Models.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
-                {
-                    b.HasOne("Store_API.Models.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
-                {
-                    b.HasOne("Store_API.Models.Users.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Store_API.Models.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
-                {
-                    b.HasOne("Store_API.Models.Users.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Store_API.Models.Basket", b =>
@@ -2280,6 +2059,25 @@ namespace Store_API.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Store_API.Models.Users.UserRole", b =>
+                {
+                    b.HasOne("Store_API.Models.Users.Role", "Role")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Store_API.Models.Users.User", "User")
+                        .WithMany("UserRoles")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Store_API.Models.Users.UserWarehouse", b =>
                 {
                     b.HasOne("Store_API.Models.Users.User", "User")
@@ -2326,6 +2124,11 @@ namespace Store_API.Migrations
                     b.Navigation("Products");
                 });
 
+            modelBuilder.Entity("Store_API.Models.Users.Role", b =>
+                {
+                    b.Navigation("UserRoles");
+                });
+
             modelBuilder.Entity("Store_API.Models.Users.User", b =>
                 {
                     b.Navigation("Basket");
@@ -2333,6 +2136,8 @@ namespace Store_API.Migrations
                     b.Navigation("Orders");
 
                     b.Navigation("UserAddresses");
+
+                    b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
         }

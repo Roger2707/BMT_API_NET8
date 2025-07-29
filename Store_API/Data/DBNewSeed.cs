@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Store_API.Models;
+﻿using Store_API.Models;
 using Store_API.Models.Inventory;
 using Store_API.Models.Users;
 
@@ -14,56 +13,40 @@ namespace Store_API.Data
                 new User
                 {
                     Id = 1,
-                    UserName = "spadmin",
-                    NormalizedUserName = "SPADMIN",
+                    Username = "spadmin",
                     FullName = "SuperAdmin",
                     Email = "spadmin@example.com",
-                    NormalizedEmail = "SPADMIN@EXAMPLE.COM",
-                    EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString(),
                     Provider = "System",
                 },
                 new User
                 {
                     Id = 2,
-                    UserName = "admin1",
+                    Username = "admin1",
                     FullName = "Admin1",
-                    NormalizedUserName = "ADMIN1",
                     Email = "admin1@example.com",
-                    NormalizedEmail = "ADMIN1@EXAMPLE.COM",
-                    EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString(),
                     Provider = "System",
                 },
                 new User
                 {
                     Id = 3,
-                    UserName = "admin2",
+                    Username = "admin2",
                     FullName = "Admin2",
-                    NormalizedUserName = "ADMIN2",
                     Email = "admin2@example.com",
-                    NormalizedEmail = "ADMIN2@EXAMPLE.COM",
-                    EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString(),
                     Provider = "System",
                 },
                 new User
                 {
                     Id = 4,
-                    UserName = "admin3",
+                    Username = "admin3",
                     FullName = "Admin3",
-                    NormalizedUserName = "ADMIN3",
                     Email = "admi3n@example.com",
-                    NormalizedEmail = "ADMIN3@EXAMPLE.COM",
-                    EmailConfirmed = true,
-                    SecurityStamp = Guid.NewGuid().ToString(),
                     Provider = "System",
                 }
             };
 
             // Hash mật khẩu
-            PasswordHasher<User> hasher = new PasswordHasher<User>();
-            seedUsers.ForEach(u => u.PasswordHash = hasher.HashPassword(u, $"{u.UserName}@123"));
+            
+            seedUsers.ForEach(u => u.PasswordHash = BCrypt.Net.BCrypt.HashPassword($"{u.Username}@123"));
 
             return seedUsers;
         }
@@ -72,20 +55,20 @@ namespace Store_API.Data
         {
             return new List<Role>
             {
-                new Role { Id = 1, Name = "SuperAdmin", NormalizedName = "SUPERADMIN" },
-                new Role { Id = 2, Name = "Admin", NormalizedName = "ADMIN" },
-                new Role { Id = 3, Name = "Customer", NormalizedName = "CUSTOMER" }
+                new Role { Id = 1, Name = "SuperAdmin" },
+                new Role { Id = 2, Name = "Admin" },
+                new Role { Id = 3, Name = "Customer" }
             };
         }
 
-        public static List<IdentityUserRole<int>> SeedUserRoleRelations()
+        public static List<UserRole> SeedUserRoleRelations()
         {
-            return new List<IdentityUserRole<int>>
+            return new List<UserRole>
             {
-                new IdentityUserRole<int> { UserId = 1, RoleId = 1 }, // SuperAdmin
-                new IdentityUserRole<int> { UserId = 2, RoleId = 2 }, // Admin1
-                new IdentityUserRole<int> { UserId = 3, RoleId = 2 }, // Admin2
-                new IdentityUserRole<int> { UserId = 4, RoleId = 2 }  // Admin3
+                new UserRole { UserId = 1, RoleId = 1 }, // SuperAdmin
+                new UserRole { UserId = 2, RoleId = 2 }, // Admin1
+                new UserRole { UserId = 3, RoleId = 2 }, // Admin2
+                new UserRole { UserId = 4, RoleId = 2 }  // Admin3
             };
         }
 

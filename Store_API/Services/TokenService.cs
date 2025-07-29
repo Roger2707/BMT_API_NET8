@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.IdentityModel.Tokens;
+using Store_API.Infrastructures;
 using Store_API.Models.Users;
 using Store_API.Services.IService;
 using System.IdentityModel.Tokens.Jwt;
@@ -10,13 +10,13 @@ namespace Store_API.Services
 {
     public class TokenService : ITokenService
     {
-        private readonly UserManager<User> _userManager;
+        private readonly IUnitOfWork _unitOfWork;
         private readonly IConfiguration _config;
 
-        public TokenService(UserManager<User> userManager, IConfiguration config)
+        public TokenService(IUnitOfWork unitOfWork, IConfiguration config)
         {
+            _unitOfWork = unitOfWork;
             _config = config;
-            _userManager = userManager;
         }
 
         public async Task<string> GenerateToken(User user)
@@ -25,15 +25,13 @@ namespace Store_API.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.Email, user.Email),
             };
 
-            var roles = await _userManager.GetRolesAsync(user);
+            var roles = await _unitOfWork.User.GetRoles(user.Id);
             foreach (var role in roles)
-            {
-                claims.Add(new Claim(ClaimTypes.Role, role));
-            }
+                claims.Add(new Claim(ClaimTypes.Role, role.Name));
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWTSettings:TokenKey"]));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
@@ -47,6 +45,26 @@ namespace Store_API.Services
             );
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+        }
+
+        public string GeneratePasswordResetToken(User user)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWTSettings:ResetPasswordKey"]));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(new[]
+                {
+                     new Claim("userId", user.Id.ToString()),
+                     new Claim("type", "password_reset")
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            return tokenHandler.WriteToken(token);
         }
     }
 }

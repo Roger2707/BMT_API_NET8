@@ -14,13 +14,12 @@ namespace Store_API.Services.IService
 
         #region Email Send
         Task SendWelcomeEmailAsync(string email, string username, string password);
-        Task SendLinkResetPwToMail(ForgetPasswordDTO model, User user);
+
         #endregion
 
         #region Authentication
         Task<User> CreateUserAsync(SignUpRequest request);
         Task<UserDTO> SignInAsync(LoginRequest request);
-        Task<UserDTO> LoginOAuthRedirect();
         Task<UserDTO> LoginOAuth(GoogleAuthRequest request);
         #endregion
 

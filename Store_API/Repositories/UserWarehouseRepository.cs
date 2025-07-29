@@ -11,19 +11,5 @@ namespace Store_API.Repositories
         public UserWarehouseRepository(StoreContext db, IDapperService dapperService) : base(db, dapperService)
         {
         }
-
-        public async Task<UserWarehouse> GetByUserIdAndWarehouseId(int userId, Guid warehouseId)
-        {
-            return await _db.UserWarehouses
-                .FirstOrDefaultAsync(uw => uw.UserId == userId && uw.WarehouseId == warehouseId);
-        }
-
-        public async Task<List<Guid>> GetWarehouseIdsByUserId(int userId)
-        {
-            return await _db.UserWarehouses
-                .Where(uw => uw.UserId == userId)
-                .Select(uw => uw.WarehouseId)
-                .ToListAsync();
-        }
     }
 } 

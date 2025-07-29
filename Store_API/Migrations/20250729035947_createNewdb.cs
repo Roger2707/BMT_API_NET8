@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -8,57 +7,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Store_API.Migrations
 {
     /// <inheritdoc />
-    public partial class createNewDB4725 : Migration
+    public partial class createNewdb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "AspNetRoles",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoles", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUsers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Dob = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Provider = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    NormalizedEmail = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
-                    EmailConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SecurityStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PhoneNumberConfirmed = table.Column<bool>(type: "bit", nullable: false),
-                    TwoFactorEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    LockoutEnd = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
-                    LockoutEnabled = table.Column<bool>(type: "bit", nullable: false),
-                    AccessFailedCount = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUsers", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Brands",
                 columns: table => new
@@ -190,6 +143,19 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Roles",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Roles", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "StockHolds",
                 columns: table => new
                 {
@@ -221,6 +187,27 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Username = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Dob = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Provider = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Warehouses",
                 columns: table => new
                 {
@@ -233,185 +220,6 @@ namespace Store_API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Warehouses", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    RoleId = table.Column<int>(type: "int", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetRoleClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetRoleClaims_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserClaims_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
-                columns: table => new
-                {
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserLogins", x => new { x.LoginProvider, x.ProviderKey });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserLogins_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    RoleId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserRoles", x => new { x.UserId, x.RoleId });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetRoles_RoleId",
-                        column: x => x.RoleId,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_AspNetUserRoles_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
-                columns: table => new
-                {
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AspNetUserTokens", x => new { x.UserId, x.LoginProvider, x.Name });
-                    table.ForeignKey(
-                        name: "FK_AspNetUserTokens_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Baskets",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Baskets", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Baskets_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    DeliveryFee = table.Column<double>(type: "float", nullable: false),
-                    GrandTotal = table.Column<double>(type: "float", nullable: false),
-                    ClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Orders_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "UserAddresses",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserAddresses", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserAddresses_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -491,6 +299,103 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Baskets",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Baskets", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Baskets_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrderDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    DeliveryFee = table.Column<double>(type: "float", nullable: false),
+                    GrandTotal = table.Column<double>(type: "float", nullable: false),
+                    ClientSecret = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserAddresses",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ward = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    StreetAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PostalCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Country = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserAddresses", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserAddresses_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserRoles",
+                columns: table => new
+                {
+                    UserId = table.Column<int>(type: "int", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserRoles", x => new { x.UserId, x.RoleId });
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserRoles_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserWarehouses",
                 columns: table => new
                 {
@@ -502,15 +407,64 @@ namespace Store_API.Migrations
                 {
                     table.PrimaryKey("PK_UserWarehouses", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UserWarehouses_AspNetUsers_UserId",
+                        name: "FK_UserWarehouses_Users_UserId",
                         column: x => x.UserId,
-                        principalTable: "AspNetUsers",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserWarehouses_Warehouses_WarehouseId",
                         column: x => x.WarehouseId,
                         principalTable: "Warehouses",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductDetails",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Color = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ExtraName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Price = table.Column<double>(type: "float", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ProductDetails_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProductTechnologies",
+                columns: table => new
+                {
+                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TechnologyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProductTechnologies", x => new { x.ProductId, x.TechnologyId });
+                    table.ForeignKey(
+                        name: "FK_ProductTechnologies_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ProductTechnologies_Technologies_TechnologyId",
+                        column: x => x.TechnologyId,
+                        principalTable: "Technologies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -569,55 +523,6 @@ namespace Store_API.Migrations
                         name: "FK_ShippingOrders_Orders_OrderId",
                         column: x => x.OrderId,
                         principalTable: "Orders",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductDetails",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Color = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ExtraName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Price = table.Column<double>(type: "float", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PublicId = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductDetails", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductDetails_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductTechnologies",
-                columns: table => new
-                {
-                    ProductId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TechnologyId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Created = table.Column<DateTime>(type: "datetime2", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductTechnologies", x => new { x.ProductId, x.TechnologyId });
-                    table.ForeignKey(
-                        name: "FK_ProductTechnologies_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductTechnologies_Technologies_TechnologyId",
-                        column: x => x.TechnologyId,
-                        principalTable: "Technologies",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -705,31 +610,11 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[,]
-                {
-                    { 1, null, "SuperAdmin", "SUPERADMIN" },
-                    { 2, null, "Admin", "ADMIN" },
-                    { 3, null, "Customer", "CUSTOMER" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Dob", "Email", "EmailConfirmed", "FullName", "ImageUrl", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "Provider", "PublicId", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[,]
-                {
-                    { 1, 0, "3fe3530f-ab90-4b40-affb-459bd118bc74", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "spadmin@example.com", true, "SuperAdmin", null, false, null, "SPADMIN@EXAMPLE.COM", "SPADMIN", "AQAAAAIAAYagAAAAEJ0YWf8ywgecEIbQ84tgT8Sz9zTfE80bYezuqZzHAHDukv2pte1BqVLayrPJYDZ4LA==", null, false, "System", null, "48e687ca-4c43-42f8-9d04-9709077a2ddf", false, "spadmin" },
-                    { 2, 0, "0ed59af1-916d-4b40-9e79-7d375220f313", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin1@example.com", true, "Admin1", null, false, null, "ADMIN1@EXAMPLE.COM", "ADMIN1", "AQAAAAIAAYagAAAAEE02uAg0gTG/LfDDpt/MNAsvywamLoyYpM+2SDRptp9V1dJsoSjg2dFMsUEMILu4Nw==", null, false, "System", null, "695765b4-aa7c-411c-9a14-0b6bd55f872c", false, "admin1" },
-                    { 3, 0, "585ad4a6-cf4e-407c-b35a-77e649b29842", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admin2@example.com", true, "Admin2", null, false, null, "ADMIN2@EXAMPLE.COM", "ADMIN2", "AQAAAAIAAYagAAAAENoDVn9RiyBDLTUzd/ldYdfXVBJPCcDrZaV+DI1qpYnJg15QgmbH5G5W09nyIhHROw==", null, false, "System", null, "ebe8cfe4-1f3b-4dc4-b34b-6ac68711e410", false, "admin2" },
-                    { 4, 0, "d5f5cb6a-3769-4623-973f-d1681ffb73f5", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "admi3n@example.com", true, "Admin3", null, false, null, "ADMIN3@EXAMPLE.COM", "ADMIN3", "AQAAAAIAAYagAAAAEKLuKMcbookzR+GZQp3uPVd7D2RQLeDKXraA7S8NmSTLWlIZRzb4/WJXrPAYFRD3aA==", null, false, "System", null, "e8b2c33f-1284-4da4-b9ec-225ec933e520", false, "admin3" }
-                });
-
-            migrationBuilder.InsertData(
                 table: "Brands",
                 columns: new[] { "Id", "Country", "Name" },
                 values: new object[,]
                 {
+                    { new Guid("11e425ab-91cf-468f-be8f-49de57b83f9c"), "Japan", "Mizuno" },
                     { new Guid("5378f75e-4a8a-4531-86f5-0c9b2f8a1b6d"), "Taiwan", "Victor" },
                     { new Guid("b07c2e46-76a5-4b8a-92fb-7cc62e13b5cb"), "China", "Lining" },
                     { new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"), "Japan", "Yonex" }
@@ -759,6 +644,16 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Roles",
+                columns: new[] { "Id", "Name" },
+                values: new object[,]
+                {
+                    { 1, "SuperAdmin" },
+                    { 2, "Admin" },
+                    { 3, "Customer" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Technologies",
                 columns: new[] { "Id", "Description", "ImageUrl", "Name", "PublicId" },
                 values: new object[,]
@@ -776,6 +671,17 @@ namespace Store_API.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "Users",
+                columns: new[] { "Id", "Dob", "Email", "FullName", "ImageUrl", "PasswordHash", "PhoneNumber", "Provider", "PublicId", "Username" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2025, 7, 29, 10, 59, 44, 967, DateTimeKind.Local).AddTicks(8566), "spadmin@example.com", "SuperAdmin", "", "$2a$11$a0ixSBzS0b4A031kdh6Hq.z64w49IoFvBnNmsykCusnOd.dbARX72", null, "System", "", "spadmin" },
+                    { 2, new DateTime(2025, 7, 29, 10, 59, 44, 967, DateTimeKind.Local).AddTicks(8586), "admin1@example.com", "Admin1", "", "$2a$11$5Yk65wUFFHmET28tJMlAnOq.en0gO7t5elekyZUTCr6cAeocxTMm2", null, "System", "", "admin1" },
+                    { 3, new DateTime(2025, 7, 29, 10, 59, 44, 967, DateTimeKind.Local).AddTicks(8588), "admin2@example.com", "Admin2", "", "$2a$11$Gh92tfuiV8JJFAiT9QFY8ukFLQ/GQ9U6f6NvXGT5RCrZ46NhZjCm6", null, "System", "", "admin2" },
+                    { 4, new DateTime(2025, 7, 29, 10, 59, 44, 967, DateTimeKind.Local).AddTicks(8589), "admi3n@example.com", "Admin3", "", "$2a$11$3jmAqls3P86zyf/siN9uhucTPRp/rtkMRa8EFFuC.X0TZodm5yKcK", null, "System", "", "admin3" }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Warehouses",
                 columns: new[] { "Id", "Created", "IsSuperAdminOnly", "Location", "Name" },
                 values: new object[,]
@@ -783,17 +689,6 @@ namespace Store_API.Migrations
                     { new Guid("11111111-1111-1111-1111-111111111111"), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, "Ho Chi Minh City", "HCM Warehouse" },
                     { new Guid("22222222-2222-2222-2222-222222222222"), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, "Thu Duc City", "Thu Duc Warehouse" },
                     { new Guid("33333333-3333-3333-3333-333333333333"), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), false, "Vung Tau City", "HHT Warehouse" }
-                });
-
-            migrationBuilder.InsertData(
-                table: "AspNetUserRoles",
-                columns: new[] { "RoleId", "UserId" },
-                values: new object[,]
-                {
-                    { 1, 1 },
-                    { 2, 2 },
-                    { 2, 3 },
-                    { 2, 4 }
                 });
 
             migrationBuilder.InsertData(
@@ -826,13 +721,24 @@ namespace Store_API.Migrations
                 values: new object[] { new Guid("3e5d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), new Guid("e1798a79-327e-4851-9028-b1c9b2e82ec6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), new DateTime(9999, 12, 31, 23, 59, 59, 999, DateTimeKind.Unspecified).AddTicks(9999), 15.0, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc) });
 
             migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "RoleId", "UserId" },
+                values: new object[,]
+                {
+                    { 1, 1 },
+                    { 2, 2 },
+                    { 2, 3 },
+                    { 2, 4 }
+                });
+
+            migrationBuilder.InsertData(
                 table: "UserWarehouses",
                 columns: new[] { "Id", "UserId", "WarehouseId" },
                 values: new object[,]
                 {
-                    { new Guid("8964a57c-b5fb-4201-be39-eb3f9be49ac8"), 4, new Guid("33333333-3333-3333-3333-333333333333") },
-                    { new Guid("a34d831a-fab7-44a6-9612-adc9963501ec"), 3, new Guid("22222222-2222-2222-2222-222222222222") },
-                    { new Guid("d86af4a2-9e1f-4127-90e8-ee08e5ffeec7"), 2, new Guid("11111111-1111-1111-1111-111111111111") }
+                    { new Guid("28ff7e93-b205-4bf1-a496-7f41830d92ac"), 2, new Guid("11111111-1111-1111-1111-111111111111") },
+                    { new Guid("91f4a3c5-8134-401a-8650-2361aa13af36"), 4, new Guid("33333333-3333-3333-3333-333333333333") },
+                    { new Guid("c3a036ea-c095-43a0-8513-f4e40a7cc446"), 3, new Guid("22222222-2222-2222-2222-222222222222") }
                 });
 
             migrationBuilder.InsertData(
@@ -845,24 +751,24 @@ namespace Store_API.Migrations
                     { new Guid("2e8c3bc1-23e5-4df9-822c-2f7d9dd4f5f3"), "#FDDA0D", "The Yellow Flash", "https://res.cloudinary.com/duat1htay/image/upload/v1735830149/products/nanoflare 1000z/yj14npg3jorqi1dhbygd.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830150/products/nanoflare 1000z/ptbxakwyi6dtxsedhog4.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830151/products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830152/products/nanoflare 1000z/syrhneosnjsnoyuwwdte.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830153/products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830154/products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt.jpg", 4350000.0, new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "products/nanoflare 1000z/yj14npg3jorqi1dhbygd,products/nanoflare 1000z/ptbxakwyi6dtxsedhog4,products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts,products/nanoflare 1000z/syrhneosnjsnoyuwwdte,products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs,products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt", 1 },
                     { new Guid("2fa0f68b-efc9-4a92-b4c3-8f62c4d8e5a1"), "#880808", "Chen Long Edition (Rio 2016)", "https://res.cloudinary.com/duat1htay/image/upload/v1729153773/cetkfwcafc8xliwnim9n.jpg", 5000000.0, new Guid("dd36bf61-fc77-4cfb-82e1-6b2ff6f9b1d4"), "cetkfwcafc8xliwnim9n", 1 },
                     { new Guid("3b6e123a-f75c-4de5-86a5-d2b5e8b6c9d2"), "#fff", "", "https://res.cloudinary.com/duat1htay/image/upload/v1729153808/cy4dqkjmsqakqxsqonl5.jpg", 2700000.0, new Guid("b3e2f5f0-7e44-4e06-b69e-8f87be0c30f7"), "cy4dqkjmsqakqxsqonl5", 1 },
-                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "#880808", "Red Tiger", "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp", 4200000.0, new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0", 1 },
-                    { new Guid("41d3f8b7-c1e2-456f-a9c8-72b3d2e5f9a4"), "#FF69B4", "Ver.Pink", "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg", 2800000.0, new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), "bpjcwixbyweafni7t5sz", 1 },
+                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "#880808", "Red Tiger", "https://res.cloudinary.com/duat1htay/image/upload/v1753170301/products/astrox 99 pro %28ver.2021%29/gffrh5ynbaolqfu3rhtt.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170302/products/astrox 99 pro %28ver.2021%29/x3s0xxejeiwyusjqewvw.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170303/products/astrox 99 pro %28ver.2021%29/pyqv1thyop2kagydxbl6.webp", 4200000.0, new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), "products/astrox 99 pro (ver.2021)/gffrh5ynbaolqfu3rhtt,products/astrox 99 pro (ver.2021)/x3s0xxejeiwyusjqewvw,products/astrox 99 pro (ver.2021)/pyqv1thyop2kagydxbl6", 1 },
+                    { new Guid("41d3f8b7-c1e2-456f-a9c8-72b3d2e5f9a4"), "#333", "Ver.Black (2025)", "https://res.cloudinary.com/duat1htay/image/upload/v1753168600/products/comfort z3/u8pw80r0ukhlnv8c3nk1.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753168601/products/comfort z3/vzkujcg2djj5zgk6brjh.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168602/products/comfort z3/mqllf4b81aryunlqxcqb.webp", 2950000.0, new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), "products/comfort z3/u8pw80r0ukhlnv8c3nk1,products/comfort z3/vzkujcg2djj5zgk6brjh,products/comfort z3/mqllf4b81aryunlqxcqb", 1 },
                     { new Guid("51fa47d3-9baf-4e71-bdd8-6206533a126c"), "#880808", "Limited Edition (2025)", "https://res.cloudinary.com/duat1htay/image/upload/v1735830149/products/nanoflare 1000z/yj14npg3jorqi1dhbygd.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830150/products/nanoflare 1000z/ptbxakwyi6dtxsedhog4.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830151/products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830152/products/nanoflare 1000z/syrhneosnjsnoyuwwdte.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830153/products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735830154/products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt.jpg", 15000000.0, new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), "products/nanoflare 1000z/yj14npg3jorqi1dhbygd,products/nanoflare 1000z/ptbxakwyi6dtxsedhog4,products/nanoflare 1000z/rm4ymkkeupgo5jfuzrts,products/nanoflare 1000z/syrhneosnjsnoyuwwdte,products/nanoflare 1000z/f8hfmdfuhux7bvs4s1zs,products/nanoflare 1000z/tyv2w5kyqdonv5qib1rt", 1 },
                     { new Guid("5d479eab-b8c6-4df1-99f7-df3a7b2e6f87"), "#333", "", "https://res.cloudinary.com/duat1htay/image/upload/v1729153525/bpjcwixbyweafni7t5sz.jpg", 2200000.0, new Guid("a2cf7e92-29fd-4d61-90b3-d3f2f8a7e9c6"), "bpjcwixbyweafni7t5sz", 1 },
                     { new Guid("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"), "#fff", "Chou Tien Chen Signature!", "https://res.cloudinary.com/duat1htay/image/upload/v1735828714/products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828716/products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828717/products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828718/products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828719/products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828720/products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj.jpg", 4150000.0, new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), "products/duora z strike %28ver.2017%29/he85nkkpfkdc6gh2w9ak,products/duora z strike %28ver.2017%29/ez7dx5lamzyjkwrs4zya,products/duora z strike %28ver.2017%29/zv47em4nf8cfex61lwh1,products/duora z strike %28ver.2017%29/jlj5w0sliaquoxfxziaf,products/duora z strike %28ver.2017%29/u8mj5igvuamhih3mgely,products/duora z strike %28ver.2017%29/qnelzoomlaqll2aikfbj", 1 },
                     { new Guid("63e7c5d2-9b4f-4f38-b7d1-85f9a3e2c4d8"), "#fff", "", "https://res.cloudinary.com/duat1htay/image/upload/v1729153621/dn25ivc2gpbcytdfqfim.webp", 1700000.0, new Guid("2f8c6a10-5633-4b91-90a1-7c924df78e68"), "dn25ivc2gpbcytdfqfim", 1 },
                     { new Guid("6a4e5f76-3c84-4f4e-bb76-61768c5d3e7d"), "#FF5733", "Lee Zii Ja Chosen", "https://res.cloudinary.com/duat1htay/image/upload/v1729152504/bobdvzdutlsnhkgd3csa.webp", 3600000.0, new Guid("123e4567-e89b-12d3-a456-426614174000"), "bobdvzdutlsnhkgd3csa", 1 },
                     { new Guid("7a3f4036-942f-4f8a-a823-0f3c5c791e20"), "#880808", "Ver.2021 - Zheng Si Wei", "https://res.cloudinary.com/duat1htay/image/upload/v1735828775/products/arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828777/products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828778/products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828779/products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp.webp,https://res.cloudinary.com/duat1htay/image/upload/v1735828780/products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu.jpg", 4250000.0, new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"), "arcsaber 11 pro %28ver.2021%29/ljra5olhsvaxrjptk0re,products/arcsaber 11 pro %28ver.2021%29/uskrx81pgum1grefnhcx,products/arcsaber 11 pro %28ver.2021%29/ewj0zhky5g7e5wvsi9sv,products/arcsaber 11 pro %28ver.2021%29/grokd1zbead4twuac0ly,products/arcsaber 11 pro %28ver.2021%29/wmnhk6gabpegyoq3lcpp,products/arcsaber 11 pro %28ver.2021%29/xkl3k09jjrixdaq8qypu", 1 },
-                    { new Guid("7f1b9d38-3b5d-474f-832b-85c7c5d2a9b4"), "#880808", "Ver.Dark Red", "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg", 2850000.0, new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), "bpjcwixbyweafni7t5sz", 1 },
+                    { new Guid("7f1b9d38-3b5d-474f-832b-85c7c5d2a9b4"), "#FF69B4", "Ver.Dark White (2025)", "https://res.cloudinary.com/duat1htay/image/upload/v1753168743/products/comfort z3/fi99vs120kuboq3oliqe.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168744/products/comfort z3/cdgmnjypuh7c0eyrcawm.jpg", 2850000.0, new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), "products/comfort z3/fi99vs120kuboq3oliqe,products/comfort z3/cdgmnjypuh7c0eyrcawm", 1 },
                     { new Guid("8b7f69d4-459c-45c8-bf38-9f5b214a9d7e"), "#4169E1", "Ver.Dragon Max", "https://res.cloudinary.com/duat1htay/image/upload/v1729153857/algdodmsmknzhilm9wds.webp", 3880000.0, new Guid("cb3b0e7d-5ad3-4ec7-9b9a-4f06efb27c03"), "algdodmsmknzhilm9wds", 1 },
                     { new Guid("9d5a72c4-1f87-4b3a-b7e8-d4c5f9a2e3b6"), "#4169E1", "", "https://res.cloudinary.com/duat1htay/image/upload/v1734926089/products/hxlh389m9vsug2zumawz.jpg", 1500000.0, new Guid("4d21b8e5-8a14-4b37-b84b-3d1c2e2e5f76"), "products/hxlh389m9vsug2zumawz", 1 },
-                    { new Guid("a2e987b6-fdbc-4d9a-a86b-6f9cb4e7f236"), "#880808", "Ver.Kirin", "https://res.cloudinary.com/duat1htay/image/upload/v1734927477/products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi.jpg", 4250000.0, new Guid("e029d3c5-b6b3-4e31-bada-1e6b7d5af7c8"), "products/axforce 100 %28kirin%29/czjdbrlre4jnbrhfabyi", 1 },
-                    { new Guid("b9f376e1-6a5d-4b34-9a1c-3f9e8a7b2d5c"), "#4169E1", "Ver.Dark Blue", "https://res.cloudinary.com/duat1htay/image/upload/v1750748254/products/comfort z3/stpn0skt1oehm2onmyf9.jpg", 2830000.0, new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), "bpjcwixbyweafni7t5sz", 1 },
-                    { new Guid("c9b74e77-dc8b-4c4e-96c9-d6b2e8adf2cf"), "#4169E1", "Navy Blue", "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp", 4500000.0, new Guid("550e8400-e29b-41d4-a716-446655440000"), "ldpbvqnabfaq7o2uggia", 1 },
+                    { new Guid("a2e987b6-fdbc-4d9a-a86b-6f9cb4e7f236"), "#880808", "Ver.Kirin", "https://res.cloudinary.com/duat1htay/image/upload/v1753167837/products/axforce 100 %28ver.kirin%29/hnmdobj4zep8ualscfpt.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753167838/products/axforce 100 %28ver.kirin%29/uckkk6feh46pbaocmgoz.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753167839/products/axforce 100 %28ver.kirin%29/gvl4o3adysnzdiazyu7c.jpg", 4250000.0, new Guid("e029d3c5-b6b3-4e31-bada-1e6b7d5af7c8"), "products/axforce 100 (ver.kirin)/hnmdobj4zep8ualscfpt,products/axforce 100 (ver.kirin)/uckkk6feh46pbaocmgoz,products/axforce 100 (ver.kirin)/gvl4o3adysnzdiazyu7c", 1 },
+                    { new Guid("b9f376e1-6a5d-4b34-9a1c-3f9e8a7b2d5c"), "#880808", "Ver.Dark Red", "https://res.cloudinary.com/duat1htay/image/upload/v1753168472/products/comfort z3/sgcotgmw6ig39scbh1cr.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753168475/products/comfort z3/nu9dyqdda3ima8apehjr.png,https://res.cloudinary.com/duat1htay/image/upload/v1753168476/products/comfort z3/hq5n84q4zsssp2i35pxw.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753168483/products/comfort z3/gqybeyyrrfnhcn6nhnaf.png", 2790000.0, new Guid("68d0b964-88b1-4c56-a6ea-7253c8a94b4d"), "products/comfort z3/sgcotgmw6ig39scbh1cr,products/comfort z3/nu9dyqdda3ima8apehjr,products/comfort z3/hq5n84q4zsssp2i35pxw,products/comfort z3/gqybeyyrrfnhcn6nhnaf", 1 },
+                    { new Guid("c9b74e77-dc8b-4c4e-96c9-d6b2e8adf2cf"), "#4169E1", "Navy Blue", "https://res.cloudinary.com/duat1htay/image/upload/v1753165745/products/axtrox 100zz %28ver.kurenai%29/idkcrtg0lk2cn2lfyfkx.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753165746/products/axtrox 100zz %28ver.kurenai%29/yumdrsowwvsvhsilhb63.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753165747/products/axtrox 100zz %28ver.kurenai%29/dn7p1adfppyiif2vkj49.jpg", 4500000.0, new Guid("550e8400-e29b-41d4-a716-446655440000"), "", 1 },
                     { new Guid("d55b3f65-68b2-4c5e-85ae-8f2a3bfb6b8f"), "#7393B3", "", "https://res.cloudinary.com/duat1htay/image/upload/v1729152808/erovfedlbzb0xkzqglbj.jpg", 4200000.0, new Guid("9b9f0b80-4f3d-11ec-81d3-0242ac130003"), "erovfedlbzb0xkzqglbj", 1 },
-                    { new Guid("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"), "#fff", "White Tiger", "https://res.cloudinary.com/duat1htay/image/upload/v1734927449/products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0.webp", 4300000.0, new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), "products/astrox 99 pro 2021/hgkgglo91lbmjhxby5h0", 1 },
+                    { new Guid("e2c8ff1c-2db0-4a02-9a2a-7b8d05eeb6d4"), "#fff", "White Tiger", "https://res.cloudinary.com/duat1htay/image/upload/v1753170392/products/astrox 99 pro %28ver.2021%29/tj5fdhwpcixxywopflkl.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753170393/products/astrox 99 pro %28ver.2021%29/gtol5tfuqpcncb3c1m9a.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753170394/products/astrox 99 pro %28ver.2021%29/vo6rpwquqqkxkhddawun.avif", 4300000.0, new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), "products/astrox 99 pro (ver.2021)/tj5fdhwpcixxywopflkl,products/astrox 99 pro (ver.2021)/gtol5tfuqpcncb3c1m9a,products/astrox 99 pro (ver.2021)/vo6rpwquqqkxkhddawun", 1 },
                     { new Guid("e4d849aa-7683-47e5-9f45-2e4894a3ddf4"), "#4169E1", "", "https://res.cloudinary.com/duat1htay/image/upload/v1729153834/rweggufmgnga3zjklf2f.jpg", 2800000.0, new Guid("00112233-4455-6677-8899-aabbccddeeff"), "rweggufmgnga3zjklf2f", 1 },
-                    { new Guid("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"), "#880808", "Ver.Kurenai", "https://res.cloudinary.com/duat1htay/image/upload/v1729152726/ldpbvqnabfaq7o2uggia.webp", 4450000.0, new Guid("550e8400-e29b-41d4-a716-446655440000"), "ldpbvqnabfaq7o2uggia", 1 }
+                    { new Guid("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"), "#880808", "Ver.Kurenai", "https://res.cloudinary.com/duat1htay/image/upload/v1753166031/products/axtrox 100zz/qkxi31l38yjhnem8ozxu.jpg,https://res.cloudinary.com/duat1htay/image/upload/v1753166031/products/axtrox 100zz/ndewv96gzptaledtvys5.webp,https://res.cloudinary.com/duat1htay/image/upload/v1753166032/products/axtrox 100zz/ubgceb3ls0gpf00fyxde.webp", 4450000.0, new Guid("550e8400-e29b-41d4-a716-446655440000"), "", 1 }
                 });
 
             migrationBuilder.InsertData(
@@ -870,21 +776,21 @@ namespace Store_API.Migrations
                 columns: new[] { "ProductId", "TechnologyId", "Created" },
                 values: new object[,]
                 {
-                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3359) },
-                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3357) },
-                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3355) },
-                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3353) },
-                    { new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3344) },
-                    { new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3342) },
-                    { new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3340) },
-                    { new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3335) },
-                    { new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3351) },
-                    { new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3349) },
-                    { new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3346) },
-                    { new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3333) },
-                    { new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3330) },
-                    { new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3263) },
-                    { new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), new DateTime(2025, 7, 4, 4, 35, 16, 818, DateTimeKind.Utc).AddTicks(3251) }
+                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4309) },
+                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4308) },
+                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4306) },
+                    { new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4299) },
+                    { new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4290) },
+                    { new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4288) },
+                    { new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4286) },
+                    { new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4283) },
+                    { new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4297) },
+                    { new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4295) },
+                    { new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4293) },
+                    { new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4281) },
+                    { new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4279) },
+                    { new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4277) },
+                    { new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"), new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"), new DateTime(2025, 7, 29, 3, 59, 45, 608, DateTimeKind.Utc).AddTicks(4269) }
                 });
 
             migrationBuilder.InsertData(
@@ -915,45 +821,6 @@ namespace Store_API.Migrations
                     { new Guid("99999999-1111-7777-1111-111111111111"), new Guid("5f3c3a57-1f41-4e32-9c7a-12d4686dbf8b"), 18, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("33333333-3333-3333-3333-333333333333") },
                     { new Guid("99999999-6666-1111-1111-111111111111"), new Guid("f01d30c9-b2a1-4d37-95b4-018cbacfd6ef"), 20, new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), new Guid("11111111-1111-1111-1111-111111111111") }
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetRoleClaims_RoleId",
-                table: "AspNetRoleClaims",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "RoleNameIndex",
-                table: "AspNetRoles",
-                column: "NormalizedName",
-                unique: true,
-                filter: "[NormalizedName] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserClaims_UserId",
-                table: "AspNetUserClaims",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserLogins_UserId",
-                table: "AspNetUserLogins",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AspNetUserRoles_RoleId",
-                table: "AspNetUserRoles",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "EmailIndex",
-                table: "AspNetUsers",
-                column: "NormalizedEmail");
-
-            migrationBuilder.CreateIndex(
-                name: "UserNameIndex",
-                table: "AspNetUsers",
-                column: "NormalizedUserName",
-                unique: true,
-                filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BasketItems_BasketId",
@@ -1081,6 +948,11 @@ namespace Store_API.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_UserRoles_RoleId",
+                table: "UserRoles",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserWarehouses_UserId",
                 table: "UserWarehouses",
                 column: "UserId");
@@ -1094,21 +966,6 @@ namespace Store_API.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AspNetRoleClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserClaims");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserLogins");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserRoles");
-
-            migrationBuilder.DropTable(
-                name: "AspNetUserTokens");
-
             migrationBuilder.DropTable(
                 name: "BasketItems");
 
@@ -1152,10 +1009,10 @@ namespace Store_API.Migrations
                 name: "UserAddresses");
 
             migrationBuilder.DropTable(
-                name: "UserWarehouses");
+                name: "UserRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetRoles");
+                name: "UserWarehouses");
 
             migrationBuilder.DropTable(
                 name: "Baskets");
@@ -1173,10 +1030,13 @@ namespace Store_API.Migrations
                 name: "ProductDetails");
 
             migrationBuilder.DropTable(
+                name: "Roles");
+
+            migrationBuilder.DropTable(
                 name: "Warehouses");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Products");

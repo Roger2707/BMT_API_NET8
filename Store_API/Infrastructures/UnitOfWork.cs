@@ -23,6 +23,7 @@ namespace Store_API.Infrastructures
             _redis = redis;
             _connectionString = config.GetConnectionString("DefaultConnection");
 
+            User = new UserRepository(_db, _dapperService);
             Category = new CategoryRepository(_db, _dapperService);
             Brand = new BrandRepository(_db, _dapperService);
             Promotion = new PromotionRepository(_db, _dapperService);
@@ -43,6 +44,7 @@ namespace Store_API.Infrastructures
         }
 
         #region Repositories
+        public IUserRepository User { get; private set; }
         public IProductRepository Product { get; private set; }
         public IProductDetailRepository ProductDetail { get; private set; }
         public ICategoryRepository Category { get; private set; }

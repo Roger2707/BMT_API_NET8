@@ -1,6 +1,4 @@
 ﻿using MassTransit;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Store_API.Models;
 using Store_API.Models.Inventory;
@@ -9,12 +7,15 @@ using Store_API.Models.Users;
 
 namespace Store_API.Data
 {
-    public class StoreContext : IdentityDbContext<User, Role, int>
+    public class StoreContext : DbContext
     {
         public StoreContext(DbContextOptions<StoreContext> options) : base(options)
         {
             
         }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Role> Roles { get; set; }
+        public DbSet<UserRole> UserRoles { get; set; }
 
         public DbSet<Category> Categories { get; set; }
         public DbSet<Product> Products { get; set; }
@@ -49,8 +50,8 @@ namespace Store_API.Data
             var userRoles = DBNewSeed.SeedUserRoleRelations();
 
             builder.Entity<User>().HasData(users);
-            builder.Entity<IdentityUserRole<int>>().HasData(userRoles);
             builder.Entity<Role>().HasData(roles);
+            builder.Entity<UserRole>().HasData(userRoles);
 
             #endregion
 
@@ -97,6 +98,19 @@ namespace Store_API.Data
             #endregion
 
             #region Config Relations 
+
+            builder.Entity<UserRole>()
+                .HasKey(ur => new { ur.UserId, ur.RoleId });
+
+            builder.Entity<UserRole>()
+                .HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId);
+
+            builder.Entity<UserRole>()
+                .HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId);
 
             // Config 1 User => 1 Basket
             builder.Entity<User>()
