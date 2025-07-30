@@ -46,25 +46,5 @@ namespace Store_API.Services
 
             return new JwtSecurityTokenHandler().WriteToken(tokenOptions);
         }
-
-        public string GeneratePasswordResetToken(User user)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWTSettings:ResetPasswordKey"]));
-
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-                     new Claim("userId", user.Id.ToString()),
-                     new Claim("type", "password_reset")
-                }),
-                Expires = DateTime.UtcNow.AddMinutes(10),
-                SigningCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            return tokenHandler.WriteToken(token);
-        }
     }
 }

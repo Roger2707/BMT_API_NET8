@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using Store_API.DTOs.Accounts;
-using Store_API.Helpers;
 using Store_API.DTOs.User;
 using Google.Apis.Auth;
 using Store_API.Models.Users;
@@ -215,7 +214,7 @@ namespace Store_API.Services
             var user = await _unitOfWork.User.FindFirstAsync(u => u.Email == forgetPasswordDTO.Email);
             if (user != null)
             {   
-                var token = CF.Base64ForUrlEncode(_tokenService.GeneratePasswordResetToken(user));
+                var token = Guid.NewGuid().ToString("N");
                 await _redisService.SetAsync($"reset-password:{forgetPasswordDTO.Email}", token, TimeSpan.FromMinutes(1));
 
                 string linkResetPassword = $"http://localhost:3000/get-reset-password?email={forgetPasswordDTO.Email}&token={token}";
