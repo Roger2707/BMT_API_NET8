@@ -17,14 +17,16 @@ namespace Store_API.Services
         private readonly EmailSenderService _emailSenderService;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
+        private readonly IRedisService _redisService;
 
         public UserService(EmailSenderService emailSenderService, IUnitOfWork unitOfWork
-            , ITokenService tokenService, IConfiguration configuration) 
+            , ITokenService tokenService, IConfiguration configuration, IRedisService redisService) 
         {
             _unitOfWork = unitOfWork;
             _emailSenderService = emailSenderService;
             _tokenService = tokenService;
             _configuration = configuration;
+            _redisService = redisService;
         }
 
         #region Retrieve
@@ -214,6 +216,8 @@ namespace Store_API.Services
             if (user != null)
             {   
                 var token = CF.Base64ForUrlEncode(_tokenService.GeneratePasswordResetToken(user));
+                await _redisService.SetAsync($"reset-password:{forgetPasswordDTO.Email}", token, TimeSpan.FromMinutes(1));
+
                 string linkResetPassword = $"http://localhost:3000/get-reset-password?email={forgetPasswordDTO.Email}&token={token}";
                 string htmlContent = $@"
                     <h2>Password Reset Request</h2>
@@ -236,10 +240,18 @@ namespace Store_API.Services
             if (user == null)
                 throw new ArgumentException("Email does not exist.");
 
+            // Check Token valid
+            var token = await _redisService.GetAsync<string>($"reset-password:{resetPasswordDTO.Email}");
+            if (string.IsNullOrEmpty(token) || !token.Equals(resetPasswordDTO.Token))
+                throw new ArgumentException("Invalid or expired token.");
+
             // Compare Password
             if (string.Compare(resetPasswordDTO.NewPassword, resetPasswordDTO.ConfirmNewPassword) != 0)
                 throw new ArgumentException("New Password and ConfirmedPassword must be the same !");
+
             user.PasswordHash = HashPassword(resetPasswordDTO.NewPassword);
+
+            await _redisService.RemoveAsync($"reset-password:{resetPasswordDTO.Email}");
             await _unitOfWork.SaveChangesAsync();
         }
 
