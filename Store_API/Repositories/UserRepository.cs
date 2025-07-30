@@ -26,39 +26,15 @@ namespace Store_API.Repositories
                                 , u.PhoneNumber
                                 , u.Dob
                                 , u.ImageUrl
+                                , u.PublicId
+                                , u.Provider
                                 , r.Name as RoleName
-	                            , basket.Id as BasketId
+                            FROM Users u
+                            INNER JOIN userRoles user_role ON u.Id = user_role.UserId
+                            INNER JOIN Roles r ON r.Id = user_role.RoleId 
+                            ";
 
-                            FROM UserRoles user_role
-
-                            LEFT JOIN Users u ON u.Id = user_role.UserId
-                            LEFT JOIN Roles r ON r.Id = user_role.RoleId
-                            LEFT JOIN Baskets basket ON basket.UserId = user_role.UserId
-
-                            WHERE r.Id != 1 
-";
-
-            List<UserDTO> result = await _dapperService.QueryAsync<UserDTO>(query, null);
-
-            if (result.Count == 0) return null;
-            List<UserDTO> users = new List<UserDTO>();
-
-            foreach (var user in result)
-            {
-                var userDTO = new UserDTO()
-                {
-                    UserName = user.UserName,
-                    FullName = user.FullName,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                    Dob = user.Dob,
-                    ImageUrl = user.ImageUrl,
-                    RoleName = user.RoleName,
-                    BasketId = user.BasketId,
-                };
-
-                users.Add(userDTO);
-            }
+            var users = await _dapperService.QueryAsync<UserDTO>(query, null);
             return users;
         }
 
@@ -92,8 +68,6 @@ namespace Store_API.Repositories
             var user = await _dapperService.QueryAsync<UserDapperRow>(query, new { UserName = username });
             if (user == null) return null;
 
-            var token = "";
-
             var userDTO = user
                 .GroupBy(g => new { g.Id, g.Username, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PublicId, g.PhoneNumber, g.BasketId, g.Provider })
                 .Select(u => new UserDTO
@@ -108,7 +82,7 @@ namespace Store_API.Repositories
                     PhoneNumber = u.Key.PhoneNumber,
                     BasketId = u.Key.BasketId,
                     Provider = u.Key.Provider,
-                    Token = token,
+                    Token = "",
                     UserAddresses = u.Select(a => new UserAddressDTO
                     {
                         Id = a.AddressId,
@@ -155,7 +129,6 @@ namespace Store_API.Repositories
             var user = await _dapperService.QueryAsync<UserDapperRow>(query, new { UserId = userId });
             if (user == null) return null;
 
-            var token = "";
             var userDTO = user
                 .GroupBy(g => new { g.Id, g.Username, g.FullName, g.Email, g.ImageUrl, g.Dob, g.PublicId, g.PhoneNumber, g.BasketId, g.Provider })
                 .Select(u => new UserDTO
@@ -170,7 +143,7 @@ namespace Store_API.Repositories
                     PhoneNumber = u.Key.PhoneNumber,
                     Provider = u.Key.Provider,
                     BasketId = u.Key.BasketId,
-                    Token = token,
+                    Token = "",
                     UserAddresses = u.Select(a => new UserAddressDTO
                     {
                         Id = a.AddressId,
@@ -202,13 +175,6 @@ namespace Store_API.Repositories
         #endregion
 
         #region CRUDs / Check
-
-        public override async Task AddAsync(User entity)
-        {
-            await _db.Users.AddAsync(entity);
-            await _db.Roles.AddAsync(new Role { Name = "Customer" });
-            await _db.UserRoles.AddAsync(new UserRole { UserId = entity.Id, RoleId = 3 });
-        }
 
         public async Task<bool> CheckRoleAsync(int userId, int roleId)
         {

@@ -40,7 +40,6 @@ namespace Store_API.Middlewares
                 _ => (int)HttpStatusCode.BadRequest
             };
 
-
             var problemDetails = new ProblemDetails
             {
                 Title = exception.Message,

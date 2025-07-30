@@ -14,7 +14,6 @@ namespace Store_API.Services
     public class UserService : IUserService
     {
         private readonly IUnitOfWork _unitOfWork;
-
         private readonly EmailSenderService _emailSenderService;
         private readonly ITokenService _tokenService;
         private readonly IConfiguration _configuration;
@@ -58,31 +57,46 @@ namespace Store_API.Services
 
         public async Task<User> CreateUserAsync(SignUpRequest request)
         {
-            if (string.IsNullOrWhiteSpace(request.Username))
-                throw new ArgumentException("Username is required.");
-
-            if (await _unitOfWork.User.FindFirstAsync(u => u.Email == request.Email) != null)
-                throw new ArgumentException("Email already exists.");
-
-            if (await _unitOfWork.User.FindFirstAsync(u => u.Username == request.Username) != null)
-                throw new ArgumentException("Username already exists.");
-
-            string password = request.Username[0].ToString().ToUpper() + request.Username.Substring(1).ToLower() + "@123";
-
-            var user = new User
+            try
             {
-                FullName = request.FullName,
-                Email = request.Email,
-                Username = request.Username,
-                PhoneNumber = request.PhoneNumber,
-                PasswordHash = HashPassword(password),
-                Provider = "System",
-            };
+                await _unitOfWork.BeginTransactionAsync();
 
-            await _unitOfWork.User.AddAsync(user);
-            await _unitOfWork.SaveChangesAsync();
+                if (string.IsNullOrWhiteSpace(request.Username))
+                    throw new ArgumentException("Username is required.");
 
-            return user;
+                if (await _unitOfWork.User.FindFirstAsync(u => u.Email == request.Email) != null)
+                    throw new ArgumentException("Email already exists.");
+
+                if (await _unitOfWork.User.FindFirstAsync(u => u.Username == request.Username) != null)
+                    throw new ArgumentException("Username already exists.");
+
+                string password = request.Username[0].ToString().ToUpper() + request.Username.Substring(1).ToLower() + "@123";
+
+                var user = new User
+                {
+                    FullName = request.FullName,
+                    Email = request.Email,
+                    Username = request.Username,
+                    PhoneNumber = request.PhoneNumber,
+                    PasswordHash = HashPassword(password),
+                    Provider = "System",
+                };
+
+                await _unitOfWork.User.AddAsync(user);
+                await _unitOfWork.SaveChangesAsync();
+
+                var userRole = new UserRole { UserId = user.Id, RoleId = 3 };
+                await _unitOfWork.UserRole.AddAsync(userRole);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitAsync();
+
+                return user;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         public async Task SendEmailLoginAsync(string email, string username)
@@ -120,45 +134,61 @@ namespace Store_API.Services
 
         public async Task<UserDTO> LoginOAuth(GoogleAuthRequest request)
         {
-            if (string.IsNullOrEmpty(request.AuthCode))
-                throw new ArgumentNullException("Authorization code is null or empty.");
-
-            var tokenRequestUri = "https://oauth2.googleapis.com/token";
-            var requestBody = new Dictionary<string, string>
+            try
             {
-                { "code", request.AuthCode },
-                { "client_id", _configuration["OAuth:ClientID"] },
-                { "client_secret", _configuration["OAuth:ClientSecret"] },
-                { "redirect_uri", "postmessage" },
-                { "grant_type", "authorization_code" }
-            };
+                await _unitOfWork.BeginTransactionAsync(TransactionType.EntityFramework);
 
-            using var httpClient = new HttpClient();
-            var response = await httpClient.PostAsync(tokenRequestUri, new FormUrlEncodedContent(requestBody));
-            var responseString = await response.Content.ReadAsStringAsync();
+                if (string.IsNullOrEmpty(request.AuthCode))
+                    throw new ArgumentNullException("Authorization code is null or empty.");
 
-            if (!response.IsSuccessStatusCode)
-                throw new HttpRequestException($"Failed to login {responseString}");
+                var tokenRequestUri = "https://oauth2.googleapis.com/token";
+                var requestBody = new Dictionary<string, string>
+                {
+                    { "code", request.AuthCode },
+                    { "client_id", _configuration["OAuth:ClientID"] },
+                    { "client_secret", _configuration["OAuth:ClientSecret"] },
+                    { "redirect_uri", "postmessage" },
+                    { "grant_type", "authorization_code" }
+                };
 
-            var tokenResponse = JsonConvert.DeserializeObject<GoogleTokenResponse>(responseString);
-            if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.Id_token))
-                throw new InvalidOperationException("Could not get token from Google");
+                using var httpClient = new HttpClient();
+                var response = await httpClient.PostAsync(tokenRequestUri, new FormUrlEncodedContent(requestBody));
+                var responseString = await response.Content.ReadAsStringAsync();
 
-            var settings = new GoogleJsonWebSignature.ValidationSettings()
-            {
-                Audience = new[] { _configuration["OAuth:ClientID"] }
-            };
-            var payload = GoogleJsonWebSignature.ValidateAsync(tokenResponse.Id_token, settings).Result;
-            var user = await _unitOfWork.User.FindFirstAsync(u => u.Email == payload.Email);
+                if (!response.IsSuccessStatusCode)
+                    throw new HttpRequestException($"Failed to login {responseString}");
 
-            if (user == null)
-            {
-                user = new User { Username = payload.Email, Email = payload.Email, FullName = payload.Name, Provider = "Google" };
-                await _unitOfWork.User.AddAsync(user);
-                await _unitOfWork.SaveChangesAsync();
+                var tokenResponse = JsonConvert.DeserializeObject<GoogleTokenResponse>(responseString);
+                if (tokenResponse == null || string.IsNullOrEmpty(tokenResponse.Id_token))
+                    throw new InvalidOperationException("Could not get token from Google");
+
+                var settings = new GoogleJsonWebSignature.ValidationSettings()
+                {
+                    Audience = new[] { _configuration["OAuth:ClientID"] }
+                };
+                var payload = GoogleJsonWebSignature.ValidateAsync(tokenResponse.Id_token, settings).Result;
+                var user = await _unitOfWork.User.FindFirstAsync(u => u.Email == payload.Email);
+
+                if (user == null)
+                {
+                    user = new User { Username = payload.Email, Email = payload.Email, FullName = payload.Name, Provider = "Google" };
+
+                    await _unitOfWork.User.AddAsync(user);
+                    await _unitOfWork.SaveChangesAsync();
+
+                    var userRole = new UserRole { UserId = user.Id, RoleId = 3 };
+                    await _unitOfWork.UserRole.AddAsync(userRole);
+                    await _unitOfWork.SaveChangesAsync();
+                    await _unitOfWork.CommitAsync();
+                }
+                var userResponse = await GetUser(user.Username);
+                return userResponse;
             }
-            var userResponse = await GetUser(user.Username);
-            return userResponse;
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
         }
 
         #endregion
