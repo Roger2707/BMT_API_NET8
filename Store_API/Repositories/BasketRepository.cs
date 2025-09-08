@@ -138,7 +138,7 @@ namespace Store_API.Repositories
                     ON promotion.CategoryId = category.Id 
                     AND promotion.BrandId = brand.Id 
                     AND GETDATE() <= promotion.EndDate
-                INNER JOIN AspNetUsers u ON u.Id = basket.UserId
+                INNER JOIN Users u ON u.Id = basket.UserId
 
                 WHERE u.UserName = @UserName";
 

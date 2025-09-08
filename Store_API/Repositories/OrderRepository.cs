@@ -74,7 +74,7 @@ namespace Store_API.Repositories
                             FROM Orders o
 
                             INNER JOIN OrderItems oi ON oi.OrderId = o.Id
-                            INNER JOIN AspNetUsers au ON au.Id = o.UserId
+                            INNER JOIN Users au ON au.Id = o.UserId
                            "
             ;
 
@@ -173,7 +173,7 @@ namespace Store_API.Repositories
                             FROM Orders o
 
                             INNER JOIN OrderItems oi ON oi.OrderId = o.Id
-                            INNER JOIN AspNetUsers au ON au.Id = o.UserId
+                            INNER JOIN Users au ON au.Id = o.UserId
 
                             WHERE au.Id = @Id
                            "
