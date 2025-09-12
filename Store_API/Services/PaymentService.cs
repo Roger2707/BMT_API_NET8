@@ -79,8 +79,12 @@ namespace Store_API.Services
                 OrderId = Guid.Empty
             };
             await _unitOfWork.Payment.AddAsync(payment);
+
+            // Publish event to create PaymentIntent
             await _publishEndpoint.Publish(new PaymentIntentCreated(requestId, userId, basket.Items, shippingAddress));
+
             await _unitOfWork.SaveChangesAsync();
+
         }
 
         public async Task<PaymentIntent> CreatePaymentIntentAsync(int userId, Guid requestId, List<BasketItemDTO> items, ShippingAddressDTO shippingAddress)
@@ -155,6 +159,7 @@ namespace Store_API.Services
                 await _unitOfWork.SaveChangesAsync();
                 await _unitOfWork.CommitAsync();
 
+
                 return paymentIntent;          
             }
             catch (Exception ex)
@@ -209,7 +214,7 @@ namespace Store_API.Services
 
             // 3. Find User / Basket
             var user = await _userService.GetUser(payment.UserId);
-            var basket = await _unitOfWork.Basket.GetBasketDTORedis(payment.UserId, user.UserName);
+            var basket = await _unitOfWork.Basket.GetBasket(user.UserName);
 
             // 4. Get stock hold items -> Update status to Confirmed
             var stockHold = await _unitOfWork.StockHold.FindFirstAsync(x => x.PaymentIntentId == paymentIntent.Id);

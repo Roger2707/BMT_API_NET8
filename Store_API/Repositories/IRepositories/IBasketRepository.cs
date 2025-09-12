@@ -16,8 +16,8 @@ namespace Store_API.Repositories.IRepositories
 
         #region Retrieve
 
-        Task<BasketDTO> GetBasketDTORedis(int userId, string username);
-        Task<BasketDTO> GetBasketDTODB(string username);
+        Task<BasketDTO> GetBasket(string username);
+        Task<BasketDTO> GetBasketFromDB(string username);
 
         #endregion
     }

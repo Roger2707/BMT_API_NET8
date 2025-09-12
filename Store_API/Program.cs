@@ -1,17 +1,18 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Quartz;
 using StackExchange.Redis;
-using Store_API.Data;
-using System.Text;
-using Store_API.Extensions;
-using Store_API.Services;
-using Store_API.SignalR;
-using MassTransit;
 using Store_API.Consumers;
 using Store_API.Contracts;
+using Store_API.Data;
+using Store_API.Extensions;
 using Store_API.Middlewares;
+using Store_API.Services;
+using Store_API.SignalR;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -121,48 +122,80 @@ builder.Services.AddAuthorizationServices();
 
 #endregion 
 
+#region Quartz
+
+// Add Quartz
+builder.Services.AddQuartz(q =>
+{
+    q.UseMicrosoftDependencyInjectionJobFactory();
+
+    // Use in-memory store
+    q.UseSimpleTypeLoader();
+    q.UseInMemoryStore();
+});
+
+// Add Quartz hosted service
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
+#endregion
+
 #region MassTransit
 
 builder.Services.AddMassTransit(x =>
 {
-    // register DI
-    x.AddConsumersFromNamespaceContaining<StockHoldCreatedConsumer>();
-
     // ensure to add the outbox after savechange success
     x.AddEntityFrameworkOutbox<StoreContext>(o =>
     {
-        // if process rabbitMQ server is downed, retry every 10 seconds
-        o.QueryDelay = TimeSpan.FromSeconds(10);
         o.UseSqlServer();
-
-        // when savechange success, no add to message queue immediately, add outbox first
         o.UseBusOutbox();
+
+        // Configure delivery
+        o.QueryDelay = TimeSpan.FromSeconds(1);
+        o.QueryMessageLimit = 100;
+        o.QueryTimeout = TimeSpan.FromSeconds(30);
     });
 
+    x.AddPublishMessageScheduler();
+
+    x.AddQuartzConsumers();
+
+    // add consumers
+    x.AddConsumersFromNamespaceContaining<PaymentIntentCreatedConsumer>();
+
+
+    // config RabbitMQ
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.Publish<StockHoldExpiredCreated>(x =>
+        cfg.UseMessageRetry(r =>
         {
-            x.ExchangeType = "x-delayed-message";
-            x.SetExchangeArgument("x-delayed-type", "direct");
+            r.Handle<RabbitMqConnectionException>();
+            r.Interval(5, TimeSpan.FromSeconds(10));
         });
 
         cfg.ReceiveEndpoint("payment-intent-created", e =>
         {
+            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
+
             e.ConfigureConsumer<PaymentIntentCreatedConsumer>(context);
+
             e.ConcurrentMessageLimit = 1; // Limit to 1 concurrent message to ensure payment processing
         });
 
         cfg.ReceiveEndpoint("stock-hold-created", e =>
         {
+            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
+
             e.ConfigureConsumer<StockHoldCreatedConsumer>(context);
         });
 
         cfg.ReceiveEndpoint("stock-hold-expired", e =>
         {
+            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
+
             e.ConfigureConsumer<StockHoldExpiredConsumer>(context);
         });
 
+        cfg.UsePublishMessageScheduler();
         cfg.ConfigureEndpoints(context);
     });
 });
@@ -173,6 +206,8 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddApplicationServices();
 builder.Services.AddHostedService<BasketBackgroundService>();
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
+
 
 #endregion 
 

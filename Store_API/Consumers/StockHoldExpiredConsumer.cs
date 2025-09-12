@@ -33,11 +33,9 @@ namespace Store_API.Consumers
 
                 var stockHold = await _unitOfWork.StockHold.FindFirstAsync(x => x.PaymentIntentId == context.Message.PaymentIntentId, x => x.Items);
 
-                if (stockHold == null || stockHold.Status != StockHoldStatus.Holding)
-                    throw new Exception($"[StockHoldExpired] StockHold not found or already confirmed for {context.Message.PaymentIntentId}");
+                if (stockHold == null || stockHold.Status != StockHoldStatus.Holding) return;
 
-                if (stockHold.Items == null || !stockHold.Items.Any())
-                    throw new Exception($"[StockHoldExpired] No items to release for {context.Message.PaymentIntentId}");
+                if (stockHold.Items == null || !stockHold.Items.Any()) return;
 
                 // Change status -> realize that this hold is expired
                 stockHold.Status = StockHoldStatus.Released;
@@ -47,7 +45,10 @@ namespace Store_API.Consumers
                 {
                     var stock = await _unitOfWork.Stock.FindFirstAsync(x => x.ProductDetailId == item.ProductDetailId);
                     if (stock == null)
-                        throw new Exception($"Stock for product {item.ProductDetailId} not found");
+                    {
+                        _logger.LogInformation($"Stock for product {item.ProductDetailId} not found");
+                        return;
+                    }
                     
                     var stockUpsertDTO = new StockUpsertDTO
                     {

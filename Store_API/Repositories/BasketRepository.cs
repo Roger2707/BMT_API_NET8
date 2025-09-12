@@ -71,7 +71,7 @@ namespace Store_API.Repositories
 
         #region Retrieved
 
-        public async Task<BasketDTO> GetBasketDTORedis(int userId, string username)
+        public async Task<BasketDTO> GetBasket(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException("Username cannot be empty", nameof(username));
@@ -82,7 +82,7 @@ namespace Store_API.Repositories
                 var redisBasket = await _redis.StringGetAsync(basketKey);
                 if (string.IsNullOrEmpty(redisBasket))
                 {
-                    var basketDB = await GetBasketDTODB(username);
+                    var basketDB = await GetBasketFromDB(username);
 
                     if (basketDB == null)
                         return null;
@@ -103,7 +103,7 @@ namespace Store_API.Repositories
             }
         }
 
-        public async Task<BasketDTO> GetBasketDTODB(string username)
+        public async Task<BasketDTO> GetBasketFromDB(string username)
         {
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException("Username cannot be empty", nameof(username));

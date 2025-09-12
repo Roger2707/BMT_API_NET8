@@ -12,8 +12,8 @@ using Store_API.Data;
 namespace Store_API.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20250908041246_createBMTDB")]
-    partial class createBMTDB
+    [Migration("20250912035201_createDB")]
+    partial class createDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1257,91 +1257,91 @@ namespace Store_API.Migrations
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9741)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4688)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9808)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4692)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9811)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4693)
                         },
                         new
                         {
                             ProductId = new Guid("f47ac10b-58cc-4372-a567-0e02b2c3d479"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d6"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9812)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4695)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9814)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4696)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d4"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9815)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4698)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d3"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9817)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4699)
                         },
                         new
                         {
                             ProductId = new Guid("6f9619ff-8b86-d011-b42d-00cf4fc964ff"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d2"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9818)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4700)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9819)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4702)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d1"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9821)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4703)
                         },
                         new
                         {
                             ProductId = new Guid("7d9e6679-7425-40de-944b-e07fc1f90ae7"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d0"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9822)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4704)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d9"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9824)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4706)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d8"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9829)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4714)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d7"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9830)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4715)
                         },
                         new
                         {
                             ProductId = new Guid("3fa85f64-5717-4562-b3fc-2c963f66afa6"),
                             TechnologyId = new Guid("3f8d2c42-bf26-4f93-b2d4-7e3c75e7a6d5"),
-                            Created = new DateTime(2025, 9, 8, 4, 12, 44, 559, DateTimeKind.Utc).AddTicks(9831)
+                            Created = new DateTime(2025, 9, 12, 3, 51, 58, 390, DateTimeKind.Utc).AddTicks(4717)
                         });
                 });
 
@@ -1616,11 +1616,11 @@ namespace Store_API.Migrations
                         new
                         {
                             Id = 1,
-                            Dob = new DateTime(2025, 9, 8, 11, 12, 44, 127, DateTimeKind.Local).AddTicks(5420),
+                            Dob = new DateTime(2025, 9, 12, 10, 51, 57, 947, DateTimeKind.Local).AddTicks(6821),
                             Email = "spadmin@example.com",
                             FullName = "SuperAdmin",
                             ImageUrl = "",
-                            PasswordHash = "$2a$11$3R.zKUJbkzQ9xeil47DMcOhQUU1qvxwbkpeG4M5Zu2U4sDHWatdZm",
+                            PasswordHash = "$2a$11$SiNBe0QF84GJYWZJ2ARoFeqT/e8qxT0aAAZWiyrvCm7OgIR4w1b4u",
                             Provider = "System",
                             PublicId = "",
                             Username = "spadmin"
@@ -1628,11 +1628,11 @@ namespace Store_API.Migrations
                         new
                         {
                             Id = 2,
-                            Dob = new DateTime(2025, 9, 8, 11, 12, 44, 127, DateTimeKind.Local).AddTicks(5434),
+                            Dob = new DateTime(2025, 9, 12, 10, 51, 57, 947, DateTimeKind.Local).AddTicks(6835),
                             Email = "admin1@example.com",
                             FullName = "Admin1",
                             ImageUrl = "",
-                            PasswordHash = "$2a$11$stTlgYxEPl5zJ58Bs7c1tOjemlQem9shJLFFVi3LdPzmIKgaeO40e",
+                            PasswordHash = "$2a$11$5/Cq9ugtMvLafzFS87YiPOIa/s3Dz6T3HvYwqUYqgIldneG6BkfVy",
                             Provider = "System",
                             PublicId = "",
                             Username = "admin1"
@@ -1640,11 +1640,11 @@ namespace Store_API.Migrations
                         new
                         {
                             Id = 3,
-                            Dob = new DateTime(2025, 9, 8, 11, 12, 44, 127, DateTimeKind.Local).AddTicks(5436),
+                            Dob = new DateTime(2025, 9, 12, 10, 51, 57, 947, DateTimeKind.Local).AddTicks(6837),
                             Email = "admin2@example.com",
                             FullName = "Admin2",
                             ImageUrl = "",
-                            PasswordHash = "$2a$11$iaiVZdnRfO3Sn9RdqvHPdOzDWAvXvLMyn51a7gx9bfadxfEpKbbSq",
+                            PasswordHash = "$2a$11$DvATEavICBdAIWC9DhmdtehRx75TJh1gtr7Vx08x.uT0fm1Fqh82K",
                             Provider = "System",
                             PublicId = "",
                             Username = "admin2"
@@ -1652,11 +1652,11 @@ namespace Store_API.Migrations
                         new
                         {
                             Id = 4,
-                            Dob = new DateTime(2025, 9, 8, 11, 12, 44, 127, DateTimeKind.Local).AddTicks(5438),
+                            Dob = new DateTime(2025, 9, 12, 10, 51, 57, 947, DateTimeKind.Local).AddTicks(6838),
                             Email = "admi3n@example.com",
                             FullName = "Admin3",
                             ImageUrl = "",
-                            PasswordHash = "$2a$11$zIaS8jcOSfcVMlGR45bNp..go9u555dV.hXSrhRx.UQNAZMHVUTNC",
+                            PasswordHash = "$2a$11$22FKR53YboAMU2YKyPQN9OXCgrEuol2cfwm6btKcIQCtSxLbRx.OC",
                             Provider = "System",
                             PublicId = "",
                             Username = "admin3"
@@ -1741,19 +1741,19 @@ namespace Store_API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("f6114546-537b-4af9-b381-d4f30aaa130f"),
+                            Id = new Guid("9589704b-619c-4ffc-a10f-05523cb0c6fc"),
                             UserId = 2,
                             WarehouseId = new Guid("11111111-1111-1111-1111-111111111111")
                         },
                         new
                         {
-                            Id = new Guid("df66186c-7df9-4e07-b3a1-96b713876453"),
+                            Id = new Guid("04b5052b-b893-4a2c-83eb-f7f452235407"),
                             UserId = 3,
                             WarehouseId = new Guid("22222222-2222-2222-2222-222222222222")
                         },
                         new
                         {
-                            Id = new Guid("58853cce-407d-498c-b9ce-4898bb4f87f5"),
+                            Id = new Guid("9f86e77e-8038-437b-9ecc-84dc3c291aba"),
                             UserId = 4,
                             WarehouseId = new Guid("33333333-3333-3333-3333-333333333333")
                         });

@@ -17,23 +17,30 @@ namespace Store_API.Services
 
         public async Task CreateStockHoldAsync(string paymentIntentId, int userId, List<BasketItemDTO> basketItems)
         {
-            var stockHold = new StockHold
+            try
             {
-                PaymentIntentId = paymentIntentId,
-                UserId = userId,
-                CreatedAt = DateTime.UtcNow,
-                ExpiresAt = DateTime.UtcNow.AddMinutes(15),
-                Status = StockHoldStatus.Holding,
-                Items = basketItems
-                                .Where(item => item.Status == true)
-                                .Select(item => new StockHoldItem
-                                {
-                                    ProductDetailId = item.ProductDetailId,
-                                    Quantity = item.Quantity
-                                })
-                                .ToList()
-            };
-            await _unitOfWork.StockHold.AddAsync(stockHold);
+                var stockHold = new StockHold
+                {
+                    PaymentIntentId = paymentIntentId,
+                    UserId = userId,
+                    CreatedAt = DateTime.UtcNow,
+                    ExpiresAt = DateTime.UtcNow.AddMinutes(1),
+                    Status = StockHoldStatus.Holding,
+                    Items = basketItems
+                                    .Where(item => item.Status == true)
+                                    .Select(item => new StockHoldItem
+                                    {
+                                        ProductDetailId = item.ProductDetailId,
+                                        Quantity = item.Quantity
+                                    })
+                                    .ToList()
+                };
+                await _unitOfWork.StockHold.AddAsync(stockHold);
+            }
+            catch(Exception)
+            {
+
+            }
         }
     }
 }

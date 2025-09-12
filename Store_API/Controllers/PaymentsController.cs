@@ -15,13 +15,11 @@ namespace Store_API.Controllers
     public class PaymentsController : ControllerBase
     {
         private readonly IPaymentService _paymentService;
-        private readonly IBasketService _basketService;
         private readonly IConfiguration _configuration;
 
-        public PaymentsController(IPaymentService paymentService, IBasketService basketService, IConfiguration configuration)
+        public PaymentsController(IPaymentService paymentService, IConfiguration configuration)
         {
             _paymentService = paymentService;
-            _basketService = basketService;
             _configuration = configuration;
         }
 
@@ -38,7 +36,7 @@ namespace Store_API.Controllers
             });
         }
 
-        // stripe listen --forward-to localhost:5110/api/payments/webhook
+        // webhook (run cmd) : stripe listen --forward-to localhost:5110/api/payments/webhook
         [AllowAnonymous]
         [HttpPost("webhook")]
         public async Task<IActionResult> StripeWebhook()

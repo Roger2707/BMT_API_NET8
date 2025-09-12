@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Store_API.DTOs.Baskets;
+﻿using Store_API.DTOs.Baskets;
 using Store_API.Enums;
 using Store_API.Infrastructures;
-using Store_API.Models;
 using Store_API.Services.IService;
 
 namespace Store_API.Services
@@ -30,7 +28,7 @@ namespace Store_API.Services
             if (string.IsNullOrWhiteSpace(username))
                 throw new ArgumentException("Username cannot be empty", nameof(username));
 
-            var basketCache = await _unitOfWork.Basket.GetBasketDTORedis(userId, username);
+            var basketCache = await _unitOfWork.Basket.GetBasket(username);
             return basketCache;
         }
 
@@ -104,33 +102,23 @@ namespace Store_API.Services
             #endregion
 
             string basketKey = $"basket:{basketUpsertDTO.Username}";
-            var redisBasket = await _redisService.GetAsync<BasketDTO>(basketKey);
-
             try
             {
-                redisBasket = await GetOrCreateBasket(redisBasket, basketUpsertDTO);
-                await UpdateBasketItems(redisBasket, basketUpsertDTO, productDetail.ProductId);
-                await _redisService.SetAsync<BasketDTO>(basketKey, redisBasket, TimeSpan.FromMinutes(1));
+                var basket = await _unitOfWork.Basket.GetBasket(basketUpsertDTO.Username);
+                if(basket == null) basket = new BasketDTO
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = basketUpsertDTO.UserId,
+                    Items = new List<BasketItemDTO>()
+                };
+
+                await UpdateBasketItems(basket, basketUpsertDTO, productDetail.ProductId);
+                await _redisService.SetAsync<BasketDTO>(basketKey, basket, TimeSpan.FromMinutes(1));
             }
             catch (Exception ex)
             {
                 throw new Exception($"Failed to upsert basket for user {basketUpsertDTO.Username}", ex);
             }
-        }
-
-        private async Task<BasketDTO> GetOrCreateBasket(BasketDTO redisBasket, BasketUpsertDTO basketUpsertDTO)
-        {
-            if (redisBasket != null) return redisBasket;
-
-            var basketFromDB = await _unitOfWork.Basket.GetBasketDTODB(basketUpsertDTO.Username);
-            if (basketFromDB != null) return basketFromDB;
-
-            return new BasketDTO
-            {
-                Id = Guid.NewGuid(),
-                UserId = basketUpsertDTO.UserId,
-                Items = new List<BasketItemDTO>()
-            };
         }
 
         private async Task UpdateBasketItems(BasketDTO basket, BasketUpsertDTO basketUpsertDTO, Guid productId)
@@ -139,20 +127,24 @@ namespace Store_API.Services
             var productDTO = await _productService.GetProductDTO(productId);
             var productDetailDTO = productDTO.Details.FirstOrDefault(detail => detail.Id == basketUpsertDTO.ProductDetailId);           
 
+            // If the existedItem is null - will care if mode Add . Remove Mode do nothing.
             if (existingItem == null)
             {
-                basket.Items.Add(new BasketItemDTO
+                if(basketUpsertDTO.Mode == BasketMode.Add)
                 {
-                    BasketItemId = Guid.NewGuid(),
-                    ProductDetailId = productDetailDTO.Id,
-                    Quantity = basketUpsertDTO.Quantity,
-                    Status = true,
-                    ProductName = productDTO.Name,
-                    ProductFirstImage = productDetailDTO.ImageUrl.Split(',')[0],
-                    OriginPrice = productDetailDTO.OriginPrice,
-                    DiscountPercent = productDetailDTO.PercentageDiscount,
-                    DiscountPrice = productDetailDTO.DiscountPrice
-                });
+                    basket.Items.Add(new BasketItemDTO
+                    {
+                        BasketItemId = Guid.NewGuid(),
+                        ProductDetailId = productDetailDTO.Id,
+                        Quantity = basketUpsertDTO.Quantity,
+                        Status = true,
+                        ProductName = productDTO.Name,
+                        ProductFirstImage = productDetailDTO.ImageUrl.Split(',')[0],
+                        OriginPrice = productDetailDTO.OriginPrice,
+                        DiscountPercent = productDetailDTO.PercentageDiscount,
+                        DiscountPrice = productDetailDTO.DiscountPrice
+                    });
+                }
                 return;
             }
 
