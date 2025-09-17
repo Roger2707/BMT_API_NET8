@@ -3,16 +3,15 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Quartz;
 using StackExchange.Redis;
 using Store_API.Consumers;
-using Store_API.Contracts;
 using Store_API.Data;
 using Store_API.Extensions;
 using Store_API.Middlewares;
 using Store_API.Services;
 using Store_API.SignalR;
 using System.Text;
+using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -122,23 +121,6 @@ builder.Services.AddAuthorizationServices();
 
 #endregion 
 
-#region Quartz
-
-// Add Quartz
-builder.Services.AddQuartz(q =>
-{
-    q.UseMicrosoftDependencyInjectionJobFactory();
-
-    // Use in-memory store
-    q.UseSimpleTypeLoader();
-    q.UseInMemoryStore();
-});
-
-// Add Quartz hosted service
-builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-
-#endregion
-
 #region MassTransit
 
 builder.Services.AddMassTransit(x =>
@@ -155,50 +137,50 @@ builder.Services.AddMassTransit(x =>
         o.QueryTimeout = TimeSpan.FromSeconds(30);
     });
 
-    x.AddPublishMessageScheduler();
-
-    x.AddQuartzConsumers();
 
     // add consumers
     x.AddConsumersFromNamespaceContaining<PaymentIntentCreatedConsumer>();
 
+    // add quartz
+    //x.AddQuartzConsumers();
 
     // config RabbitMQ
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.UseMessageRetry(r =>
-        {
-            r.Handle<RabbitMqConnectionException>();
-            r.Interval(5, TimeSpan.FromSeconds(10));
-        });
+        cfg.UseInMemoryScheduler();
+        //cfg.UseMessageScheduler(new Uri("queue:quartz"));
 
         cfg.ReceiveEndpoint("payment-intent-created", e =>
         {
             e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
-
             e.ConfigureConsumer<PaymentIntentCreatedConsumer>(context);
-
             e.ConcurrentMessageLimit = 1; // Limit to 1 concurrent message to ensure payment processing
         });
 
         cfg.ReceiveEndpoint("stock-hold-created", e =>
         {
             e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
-
             e.ConfigureConsumer<StockHoldCreatedConsumer>(context);
         });
 
         cfg.ReceiveEndpoint("stock-hold-expired", e =>
         {
-            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
-
             e.ConfigureConsumer<StockHoldExpiredConsumer>(context);
         });
 
-        cfg.UsePublishMessageScheduler();
         cfg.ConfigureEndpoints(context);
     });
 });
+
+#endregion
+
+#region Quartz
+
+//builder.Services.AddQuartz(q =>
+//{
+//    q.UseMicrosoftDependencyInjectionJobFactory();
+//});
+//builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
 #endregion
 
@@ -206,8 +188,6 @@ builder.Services.AddMassTransit(x =>
 
 builder.Services.AddApplicationServices();
 builder.Services.AddHostedService<BasketBackgroundService>();
-builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
-
 
 #endregion 
 
