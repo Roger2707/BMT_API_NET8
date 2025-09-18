@@ -7,11 +7,10 @@ using StackExchange.Redis;
 using Store_API.Consumers;
 using Store_API.Data;
 using Store_API.Extensions;
+using Store_API.HostServices;
 using Store_API.Middlewares;
-using Store_API.Services;
 using Store_API.SignalR;
 using System.Text;
-using Quartz;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -137,19 +136,12 @@ builder.Services.AddMassTransit(x =>
         o.QueryTimeout = TimeSpan.FromSeconds(30);
     });
 
-
     // add consumers
     x.AddConsumersFromNamespaceContaining<PaymentIntentCreatedConsumer>();
-
-    // add quartz
-    //x.AddQuartzConsumers();
 
     // config RabbitMQ
     x.UsingRabbitMq((context, cfg) =>
     {
-        cfg.UseInMemoryScheduler();
-        //cfg.UseMessageScheduler(new Uri("queue:quartz"));
-
         cfg.ReceiveEndpoint("payment-intent-created", e =>
         {
             e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
@@ -165,6 +157,7 @@ builder.Services.AddMassTransit(x =>
 
         cfg.ReceiveEndpoint("stock-hold-expired", e =>
         {
+            e.UseMessageRetry(r => r.Interval(5, TimeSpan.FromSeconds(5)));
             e.ConfigureConsumer<StockHoldExpiredConsumer>(context);
         });
 
@@ -174,20 +167,11 @@ builder.Services.AddMassTransit(x =>
 
 #endregion
 
-#region Quartz
-
-//builder.Services.AddQuartz(q =>
-//{
-//    q.UseMicrosoftDependencyInjectionJobFactory();
-//});
-//builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
-
-#endregion
-
 #region Services
 
 builder.Services.AddApplicationServices();
-builder.Services.AddHostedService<BasketBackgroundService>();
+builder.Services.AddHostedService<BasketSyncService>();
+builder.Services.AddHostedService<StockHoldExpiredService>();
 
 #endregion 
 

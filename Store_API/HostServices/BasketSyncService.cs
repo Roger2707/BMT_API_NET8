@@ -1,13 +1,13 @@
 ﻿using Store_API.Services.IService;
 
-namespace Store_API.Services
+namespace Store_API.HostServices
 {
-    public class BasketBackgroundService : BackgroundService
+    public class BasketSyncService : BackgroundService
     {
         private readonly IServiceProvider _serviceProvider;
-        private readonly ILogger<BasketBackgroundService> _logger;
+        private readonly ILogger<BasketSyncService> _logger;
         private readonly TimeSpan _checkInterval = TimeSpan.FromSeconds(15);
-        public BasketBackgroundService(IServiceProvider serviceProvider, ILogger<BasketBackgroundService> logger)
+        public BasketSyncService(IServiceProvider serviceProvider, ILogger<BasketSyncService> logger)
         {
             _serviceProvider = serviceProvider;
             _logger = logger;
